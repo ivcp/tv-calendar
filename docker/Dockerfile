@@ -35,9 +35,11 @@ COPY xdebug.ini "${PHP_INI_DIR}/conf.d"
 
 
 RUN groupadd --force -g $GID $GROUP
-RUN useradd -ms /bin/bash --no-user-group -g $GID -u 1337 $USER
+RUN useradd -ms /bin/bash --no-user-group -g $GID -u $UID $USER
 RUN usermod -u $UID $USER
 
-RUN chown -R ${USER}:${GROUP} /var/www
+RUN chmod -R 770 ./
 
 USER $USER
+
+
