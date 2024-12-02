@@ -17,6 +17,9 @@ WORKDIR /var/www
 RUN apt-get update && apt-get install -y \
     git \
     curl \
+    zip \
+    unzip \
+    vim \
     libicu-dev \
     libpq-dev
 

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use App\Config;
 use App\Enum\AppEnvironment;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\ORMSetup;
 use Psr\Container\ContainerInterface;
 use Slim\Views\Twig;
 
@@ -19,4 +22,15 @@ return [
 
         return $twig;
     },
+    EntityManager::class          => function (Config $config) {
+        $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
+            $config->get('doctrine.entity_dir'),
+            $config->get('doctrine.dev_mode')
+        );
+
+        return new EntityManager(
+            DriverManager::getConnection($config->get('doctrine.connection'), $ormConfig),
+            $ormConfig
+        );
+    }
 ];
