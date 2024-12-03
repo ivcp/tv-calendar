@@ -46,5 +46,11 @@ services:
     ports:
       - 8001:8080
 
+  node:
+    image: node:lts-alpine
+    volumes:
+      - .:/var/www
+    working_dir: /var/www/
+
 volumes:
   tv-calendar-db-data:

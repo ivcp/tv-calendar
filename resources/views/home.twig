@@ -1,1 +1,18 @@
-<h1>HELLO TWIG</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./build/index.css" rel="stylesheet" type="text/css" />
+    <title>TV Calendar</title>
+  </head>
+  <body>
+    <h1 class="text-blue-500 text-lg">HELLO TWIG</h1>
+
+    {% for show in shows %}
+    <p>{{ show._embedded.show.name }}</p>
+    <p>{{ show.airdate }}</p>
+
+    {% endfor %}
+  </body>
+</html>
