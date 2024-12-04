@@ -15,22 +15,22 @@ class HomeController
 
     public function index(Request $request, Response $response): Response
     {
-        $contents = file_get_contents(STORAGE_PATH . '/schedule.json');
-        $data = json_decode($contents);
+        // $contents = file_get_contents(STORAGE_PATH . '/schedule.json');
+        // $data = json_decode($contents);
 
 
-        $currentMonth = (new DateTime('now'))->format('n');
+        // $currentMonth = (new DateTime('now'))->format('n');
 
-        $popular = array_values(array_filter(
-            $data,
-            fn($show) =>
-            $show->_embedded->show->weight === 100 && (new DateTime($show->airdate))->format('n') === $currentMonth
-        ));
+        // $popular = array_values(array_filter(
+        //     $data,
+        //     fn($show) =>
+        //     $show->_embedded->show->weight === 100 && (new DateTime($show->airdate))->format('n') === $currentMonth
+        // ));
 
 
         // var_dump($popular);
         // exit;
 
-        return $this->twig->render($response, 'home.twig', ['shows' => $popular]);
+        return $this->twig->render($response, 'dashboard.twig');
     }
 }
