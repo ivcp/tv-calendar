@@ -31,6 +31,6 @@ class HomeController
         // var_dump($popular);
         // exit;
 
-        return $this->twig->render($response, 'dashboard.twig');
+        return $this->twig->render($response, 'calendar.twig');
     }
 }
