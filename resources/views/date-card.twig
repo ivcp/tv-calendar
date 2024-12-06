@@ -1,10 +1,15 @@
-<article
-  class="card gap-6 bg-base-200 {{ "now"|date("d") == i ? 'bg-info-content' }} rounded-lg p-2 lg:p-0 {% if i == 1 %} lg:col-start-2 {% endif %}"
+<div
+  class="
+  card gap-6 bg-base-200 
+  rounded-lg p-2 lg:p-0 
+  {% if i == 1 %} lg:col-start-{{ month == "now" ? month|date('Y-m-1')|date('N') : month|date('N') }} {% endif %}
+  {{ month == "now" ? "now"|date("d") == i ? 'bg-info-content' }} 
+  "
 >
   <p class="self-end px-3 py-1 text-sm lg:text-base font-semibold">
-    <span class="font-normal lg:hidden">Friday, </span>
-    {# TODO: provide date to twig to format suffix #}
-    {{ i }}<span class="text-xs lg:hidden">{{ i == 1 ? 'st' : i == 2 ? 'nd' : i == 3 ? 'rd' : 'th'  }}</span>
+    {% set today = month|date('Y-m-' ~ i) %}
+    <span class="font-normal lg:hidden">{{ today|date("l") }},</span>   
+    {{ i }}<span class="text-xs lg:hidden">{{today|date("S")}}</span>
   </p>
   <div class="card-body gap-2 lg:gap-1 p-1"> 
     <div
@@ -18,5 +23,6 @@
       Severance<span>1x12</span>
     </div>
   </div>  
-</article>
-{# TODO: mark today's date #} 
+
+ {# fix date col-start november weird #}
+</div>
