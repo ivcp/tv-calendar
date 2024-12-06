@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+if [ "$1" == "app" ]; then
+    if [ "$2" == "doctrine" ]; then
+    docker exec -t tv-calendar-app bash -c "./bin/doctrine $3"
+    fi 
+    if [ "$2" == "composer" ]; then
+    shift
+    shift
+    docker exec -t tv-calendar-app bash -c "composer $@"
+    fi 
+fi
+
+if [ "$1" == "npm" ]; then 
+ docker compose run --rm node $@
+fi
