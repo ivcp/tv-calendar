@@ -54,8 +54,8 @@
         class="mt-2 grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:gap-1 lg:auto-rows-auto"
         data-schedule="{{ schedule }}"
       >
-        {% for i in 1..daysInMonth %} {% include 'date-card.twig' with {'i': i,
-        'month': month} %} {% endfor %}
+        {% set daysInMonth = month|date('t') %} {% for i in 1..daysInMonth %} {%
+        include 'date-card.twig' with {'i': i, 'month': month} %} {% endfor %}
       </div>
     </div>
   </div>

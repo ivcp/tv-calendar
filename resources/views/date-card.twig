@@ -1,4 +1,5 @@
 <div
+  id="date-{{i}}"
   class="card gap-6 bg-base-200 rounded-lg p-2 lg:p-0
   {% if i == 1 %} lg:col-start-{{ month == "now" ? month|date('Y-m-1')|date('N') : month|date('N') }}{% endif %}
   {{ month == "now" or month|date() == "now"|date('Y-m-1')|date() ? "now"|date("d") == i ? ' bg-info-content' }}"
@@ -7,19 +8,7 @@
     {% set today = month|date('Y-m-' ~ i) %}
     <span class="font-normal lg:hidden">{{ today|date("l") }},</span>   
     {{ i }}<span class="text-xs lg:hidden">{{today|date("S")}}</span>
-  </p>
-  <div class="card-body gap-2 lg:gap-1 p-1"> 
-    <div
-      class="bg-base-100 rounded-sm p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden"
-    >
-      From<span class="">2x8</span>
-    </div>
-    <div
-      class="bg-base-100 rounded-sm p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden"
-    >
-      Severance<span>1x12</span>
-    </div>
+  </p>  
+  <div class="card-body justify-end gap-2 lg:gap-1 p-1"> 
   </div>  
-
-
 </div>
