@@ -21,7 +21,8 @@ class CalendarController
     {
         $JsonPath = STORAGE_PATH . '/schedule.json';
 
-        $schedule = $this->scheduleService->getSchedule('now', $JsonPath);
+        $month = (new DateTime('now'))->format('Y-m');
+        $schedule = $this->scheduleService->getSchedule($month, $JsonPath);
 
         return $this->twig->render(
             $response,
@@ -33,9 +34,8 @@ class CalendarController
     public function getMonth(Request $request, Response $response): Response
     {
 
-        $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
-
         $JsonPath = STORAGE_PATH . '/schedule.json';
+        $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
 
         $schedule = $this->scheduleService->getSchedule($month, $JsonPath);
 
