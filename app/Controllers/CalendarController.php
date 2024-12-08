@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Services\ScheduleService;
 use DateTime;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -11,62 +12,37 @@ use Slim\Views\Twig;
 
 class CalendarController
 {
-    public function __construct(private readonly Twig $twig) {}
+    public function __construct(
+        private readonly Twig $twig,
+        private readonly ScheduleService $scheduleService
+    ) {}
 
     public function index(Request $request, Response $response): Response
     {
-        $contents = file_get_contents(STORAGE_PATH . '/schedule.json');
-        $data = json_decode($contents);
+        $JsonPath = STORAGE_PATH . '/schedule.json';
 
-        $currentMonth = new DateTime('now');
-        $monthNumber = $currentMonth->format('n');
-        $daysInMonth = $currentMonth->format('t');
-
-
-
-        $popular = array_values(array_filter(
-            $data,
-            fn($show) =>
-            $show->_embedded->show->weight === 100 && (new DateTime($show->airdate))->format('n') === $monthNumber
-        ));
-
-        $popularJSON = json_encode($popular);
-
-
+        $schedule = $this->scheduleService->getSchedule('now', $JsonPath);
 
         return $this->twig->render(
             $response,
             'calendar.twig',
-            ['daysInMonth' => $daysInMonth, 'schedule' => $popularJSON, 'month' => 'now']
+            ['schedule' => json_encode($schedule), 'month' => 'now']
         );
     }
 
     public function getMonth(Request $request, Response $response): Response
     {
 
-        $contents = file_get_contents(STORAGE_PATH . '/schedule.json');
-        $data = json_decode($contents);
-
         $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
 
-        $currentMonth = new DateTime($month);
-        $monthNumber = $currentMonth->format('n');
-        $daysInMonth = $currentMonth->format('t');
+        $JsonPath = STORAGE_PATH . '/schedule.json';
 
-
-        $popular = array_values(array_filter(
-            $data,
-            fn($show) =>
-            $show->_embedded->show->weight === 100 && (new DateTime($show->airdate))->format('Y-m') === $month
-        ));
-
-        $popularJSON = json_encode($popular);
-
+        $schedule = $this->scheduleService->getSchedule($month, $JsonPath);
 
         return $this->twig->render(
             $response,
             'calendar.twig',
-            ['daysInMonth' => $daysInMonth, 'schedule' => $popularJSON, 'month' => $month]
+            ['schedule' => json_encode($schedule), 'month' => $month]
         );
     }
 }
