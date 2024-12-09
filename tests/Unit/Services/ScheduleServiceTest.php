@@ -17,6 +17,7 @@ class ScheduleServiceTest extends TestCase
         return [
             'december 2024' => ['2024-12', 1, 1, 'Lioness'],
             'february 2025' => ['2025-02', 1, 28, 'Severance'],
+            'december 2nd 2024' => ['2024-12', 0, 2, null],
             'december 1999' => ['1999-12', 0, 1, null],
             'january 2050' => ['2050-01', 0, 1, null]
         ];
