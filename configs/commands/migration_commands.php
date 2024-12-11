@@ -31,4 +31,5 @@ return fn(DependencyFactory $dependencyFactory) => [
     new SyncMetadataCommand($dependencyFactory),
     new ListCommand($dependencyFactory),
     new DiffCommand($dependencyFactory),
+
 ];

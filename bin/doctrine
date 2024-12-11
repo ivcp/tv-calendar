@@ -22,10 +22,13 @@ $dependencyFactory = DependencyFactory::fromEntityManager(
 );
 
 $migrationCommands = require CONFIG_PATH . '/commands/migration_commands.php';
+$customCommands    = require CONFIG_PATH . '/commands/commands.php';
 
 $cliApp = new Application($config->get('app_name'), $config->get('app_version'));
 
 ConsoleRunner::addCommands($cliApp, new SingleManagerProvider($entityManager));
 
 $cliApp->addCommands($migrationCommands($dependencyFactory));
+$cliApp->addCommands(array_map(fn($command) => $container->get($command), $customCommands));
+
 $cliApp->run();

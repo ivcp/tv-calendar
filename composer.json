@@ -31,6 +31,7 @@
     "symfony/webpack-encore-bundle": "^2.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^11"
+    "phpunit/phpunit": "^11",
+    "doctrine/data-fixtures": "^2.0"
   }
 }
