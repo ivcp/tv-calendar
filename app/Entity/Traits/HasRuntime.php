@@ -11,4 +11,24 @@ trait HasRuntime
 
     #[Column(type: 'smallint', options: ['unsigned' => true], nullable: true)]
     private int $runtime;
+
+    /**
+     * Get the value of runtime
+     */
+    public function getRuntime(): int
+    {
+        return $this->runtime;
+    }
+
+    /**
+     * Set the value of runtime
+     *
+     * @return  self
+     */
+    public function setRuntime($runtime): self
+    {
+        $this->runtime = $runtime;
+
+        return $this;
+    }
 }

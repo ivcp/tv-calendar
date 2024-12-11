@@ -12,4 +12,44 @@ trait HasImages
     private string $imageMedium;
     #[Column(type: 'text', name: 'image_original', nullable: true)]
     private string $imageOriginal;
+
+    /**
+     * Get the value of imageMedium
+     */
+    public function getImageMedium(): string
+    {
+        return $this->imageMedium;
+    }
+
+    /**
+     * Set the value of imageMedium
+     *
+     * @return  self
+     */
+    public function setImageMedium($imageMedium): self
+    {
+        $this->imageMedium = $imageMedium;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of imageOriginal
+     */
+    public function getImageOriginal(): string
+    {
+        return $this->imageOriginal;
+    }
+
+    /**
+     * Set the value of imageOriginal
+     *
+     * @return  self
+     */
+    public function setImageOriginal($imageOriginal): self
+    {
+        $this->imageOriginal = $imageOriginal;
+
+        return $this;
+    }
 }
