@@ -31,7 +31,7 @@ class Show
 
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
-    #[Column(name: 'tv_maze_id', options: ['unsigned' => true])]
+    #[Column(name: 'tv_maze_id', unique: true, options: ['unsigned' => true])]
     private int $tvMazeId;
     #[Column(name: 'imdb_id', type: 'string')]
     private string $imdbId;
@@ -45,7 +45,7 @@ class Show
     private string $ended;
     #[Column(type: 'text', name: 'official_site', nullable: true)]
     private string $officialSite;
-    #[Column(type: 'smallint', options: ['unsigned' => true, 'default' => 0])]
+    #[Column(type: 'smallint', options: ['unsigned' => true])]
     private int $weight;
     #[Column(name: 'network_name', type: 'string', nullable: true)]
     private string $networkName;
@@ -55,7 +55,7 @@ class Show
     private string $webChannelName;
 
 
-    #[OneToMany(mappedBy: 'show', targetEntity: Episode::class)]
+    #[OneToMany(mappedBy: 'show', targetEntity: Episode::class, cascade: ['remove'])]
     private Collection $episodes;
 
     public function __construct()
@@ -84,7 +84,7 @@ class Show
      *
      * @return  self
      */
-    public function setTvMazeId($tvMazeId): Show
+    public function setTvMazeId(int $tvMazeId): Show
     {
         $this->tvMazeId = $tvMazeId;
 
@@ -105,7 +105,7 @@ class Show
      * @return  self
      */
 
-    public function setImdbId($imdbId): Show
+    public function setImdbId(string $imdbId): Show
     {
         $this->imdbId = $imdbId;
 
@@ -125,7 +125,7 @@ class Show
      *
      * @return  self
      */
-    public function setGenres($genres): Show
+    public function setGenres(array $genres): Show
     {
         $this->genres = $genres;
 
@@ -145,7 +145,7 @@ class Show
      *
      * @return  self
      */
-    public function setStatus($status): Show
+    public function setStatus(string $status): Show
     {
         $this->status = $status;
 
@@ -165,7 +165,7 @@ class Show
      *
      * @return  self
      */
-    public function setPremiered($premiered): Show
+    public function setPremiered(string $premiered): Show
     {
         $this->premiered = $premiered;
 
@@ -185,7 +185,7 @@ class Show
      *
      * @return  self
      */
-    public function setEnded($ended): Show
+    public function setEnded(string $ended): Show
     {
         $this->ended = $ended;
 
@@ -205,7 +205,7 @@ class Show
      *
      * @return  self
      */
-    public function setOfficialSite($officialSite): Show
+    public function setOfficialSite(string $officialSite): Show
     {
         $this->officialSite = $officialSite;
 
@@ -225,7 +225,7 @@ class Show
      *
      * @return  self
      */
-    public function setWeight($weight): Show
+    public function setWeight(int $weight): Show
     {
         $this->weight = $weight;
 
@@ -245,7 +245,7 @@ class Show
      *
      * @return  self
      */
-    public function setNetworkName($networkName): Show
+    public function setNetworkName(string $networkName): Show
     {
         $this->networkName = $networkName;
 
@@ -265,7 +265,7 @@ class Show
      *
      * @return  self
      */
-    public function setNetworkCountry($networkCountry): Show
+    public function setNetworkCountry(string $networkCountry): Show
     {
         $this->networkCountry = $networkCountry;
 
@@ -285,7 +285,7 @@ class Show
      *
      * @return  self
      */
-    public function setWebChannelName($webChannelName): Show
+    public function setWebChannelName(string $webChannelName): Show
     {
         $this->webChannelName = $webChannelName;
 
@@ -305,9 +305,9 @@ class Show
      *
      * @return  self
      */
-    public function setEpisodes($episodes): Show
+    public function addEpisode(Episode $episode): Show
     {
-        $this->episodes = $episodes;
+        $this->episodes->add($episode);
 
         return $this;
     }

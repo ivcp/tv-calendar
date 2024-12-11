@@ -30,7 +30,7 @@ class Episode
 
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
-    #[Column(name: 'tv_maze_episode_id', options: ['unsigned' => true])]
+    #[Column(name: 'tv_maze_episode_id', unique: true, options: ['unsigned' => true])]
     private int $tvMazeEpisodeId;
     #[Column(type: 'smallint', options: ['unsigned' => true], nullable: true)]
     private int $season;
@@ -68,7 +68,7 @@ class Episode
      *
      * @return  self
      */
-    public function setTvMazeEpisodeId($tvMazeEpisodeId): Episode
+    public function setTvMazeEpisodeId(int $tvMazeEpisodeId): Episode
     {
         $this->tvMazeEpisodeId = $tvMazeEpisodeId;
 
@@ -88,7 +88,7 @@ class Episode
      *
      * @return  self
      */
-    public function setSeason($season): Episode
+    public function setSeason(int $season): Episode
     {
         $this->season = $season;
 
@@ -108,7 +108,7 @@ class Episode
      *
      * @return  self
      */
-    public function setNumber($number): Episode
+    public function setNumber(int $number): Episode
     {
         $this->number = $number;
 
@@ -128,7 +128,7 @@ class Episode
      *
      * @return  self
      */
-    public function setAirstamp($airstamp): Episode
+    public function setAirstamp(DateTime $airstamp): Episode
     {
         $this->airstamp = $airstamp;
 
@@ -148,7 +148,7 @@ class Episode
      *
      * @return  self
      */
-    public function setType($type): Episode
+    public function setType(string $type): Episode
     {
         $this->type = $type;
 
@@ -168,8 +168,10 @@ class Episode
      *
      * @return  self
      */
-    public function setShow($show): Episode
+    public function setShow(Show $show): Episode
     {
+        $show->addEpisode($this);
+
         $this->show = $show;
 
         return $this;

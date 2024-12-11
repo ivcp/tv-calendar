@@ -41,7 +41,7 @@ trait HasTimestamps
      *
      * @return  self
      */
-    public function setCreatedAt($createdAt): self
+    public function setCreatedAt(DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -61,7 +61,7 @@ trait HasTimestamps
      *
      * @return  self
      */
-    public function setUpdatedAt($updatedAt): self
+    public function setUpdatedAt(DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
 

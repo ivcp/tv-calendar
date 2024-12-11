@@ -24,7 +24,7 @@ trait HasSummary
      *
      * @return  self
      */
-    public function setSummary($summary): self
+    public function setSummary(string $summary): self
     {
         $this->summary = $summary;
 

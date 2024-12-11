@@ -26,7 +26,7 @@ trait HasImages
      *
      * @return  self
      */
-    public function setImageMedium($imageMedium): self
+    public function setImageMedium(string $imageMedium): self
     {
         $this->imageMedium = $imageMedium;
 
@@ -46,7 +46,7 @@ trait HasImages
      *
      * @return  self
      */
-    public function setImageOriginal($imageOriginal): self
+    public function setImageOriginal(string $imageOriginal): self
     {
         $this->imageOriginal = $imageOriginal;
 
