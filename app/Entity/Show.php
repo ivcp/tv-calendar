@@ -55,7 +55,7 @@ class Show
     private string $webChannelName;
 
 
-    #[OneToMany(mappedBy: 'show', targetEntity: Episode::class, cascade: ['remove'])]
+    #[OneToMany(mappedBy: 'show', targetEntity: Episode::class, cascade: ['persist', 'remove'])]
     private Collection $episodes;
 
     public function __construct()
