@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataFixtures\Fixtures;
 
-use App\Entity\Episode;
 use App\Entity\Show;
-use DateTime;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
@@ -16,7 +14,7 @@ class ShowDataLoader implements FixtureInterface
     public function load(ObjectManager $manager): void
     {
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $show = new Show();
             $show->setName('test show');
             $show->setSummary("summary $i");
@@ -27,13 +25,6 @@ class ShowDataLoader implements FixtureInterface
             $show->setPremiered('2000-01');
             $show->setEnded('2000-02');
             $show->setWeight(100);
-
-            $episode = new Episode();
-            $episode->setShow($show);
-            $episode->setName("ep $i");
-            $episode->setTvMazeEpisodeId($i);
-            $episode->setAirstamp(new DateTime('now'));
-            $show->addEpisode($episode);
 
             $manager->persist($show);
         }

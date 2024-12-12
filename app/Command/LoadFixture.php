@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\DataFixtures\Fixtures\EpisodeDataLoader;
 use App\DataFixtures\Fixtures\ShowDataLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
@@ -28,6 +29,7 @@ class LoadFixture extends Command
     {
         $loader = new Loader();
         $loader->addFixture(new ShowDataLoader);
+        $loader->addFixture(new EpisodeDataLoader);
 
         $executor = new ORMExecutor($this->entityManager, new ORMPurger());
         $executor->execute($loader->getFixtures());
