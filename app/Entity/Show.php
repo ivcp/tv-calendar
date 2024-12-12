@@ -23,19 +23,19 @@ use Doctrine\ORM\Mapping\Table;
 #[HasLifecycleCallbacks]
 class Show
 {
-    use HasTimestamps;
     use HasSummary;
     use HasName;
-    use HasImages;
     use HasRuntime;
+    use HasImages;
+    use HasTimestamps;
 
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
     #[Column(name: 'tv_maze_id', unique: true, options: ['unsigned' => true])]
     private int $tvMazeId;
-    #[Column(name: 'imdb_id', type: 'string')]
+    #[Column(name: 'imdb_id', type: 'string', nullable: true)]
     private string $imdbId;
-    #[Column(type: 'simple_array')]
+    #[Column(type: 'simple_array', nullable: true)]
     private array $genres;
     #[Column(type: 'string')]
     private string $status;
@@ -53,6 +53,8 @@ class Show
     private string $networkCountry;
     #[Column(name: 'web_channel_name', type: 'string', nullable: true)]
     private string $webChannelName;
+    #[Column(name: 'web_channel_country', type: 'string', nullable: true)]
+    private string $webChannelCountry;
 
 
     #[OneToMany(mappedBy: 'show', targetEntity: Episode::class, cascade: ['persist', 'remove'])]
@@ -308,6 +310,26 @@ class Show
     public function addEpisode(Episode $episode): Show
     {
         $this->episodes->add($episode);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of webChannelCountry
+     */
+    public function getWebChannelCountry(): string
+    {
+        return $this->webChannelCountry;
+    }
+
+    /**
+     * Set the value of webChannelCountry
+     *
+     * @return  self
+     */
+    public function setWebChannelCountry(string $webChannelCountry): Show
+    {
+        $this->webChannelCountry = $webChannelCountry;
 
         return $this;
     }

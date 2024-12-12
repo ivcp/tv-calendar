@@ -22,11 +22,11 @@ use Doctrine\ORM\Mapping\Table;
 #[HasLifecycleCallbacks]
 class Episode
 {
-    use HasTimestamps;
     use HasSummary;
     use HasName;
-    use HasImages;
     use HasRuntime;
+    use HasImages;
+    use HasTimestamps;
 
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
