@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use App\Command\LoadFixture;
+use App\Command\LoadFixtures;
 
 return [
-    LoadFixture::class
+    LoadFixtures::class
 ];
