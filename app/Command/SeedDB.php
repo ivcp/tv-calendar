@@ -30,23 +30,16 @@ class SeedDB extends Command
 
         $timeStart = microtime(true);
         $output->write('Loading data...', true);
-        $output->write('Memory usage start: ' . memory_get_usage(), true);
-        $output->write('Unit of work before: ' . $this->entityManager->getUnitOfWork()->size(), true);
-
 
         $loader = new Loader();
         $loader->addFixture(new ShowSeedDataLoader);
-
         $executor = new ORMExecutor($this->entityManager, new ORMPurger());
         $executor->execute($loader->getFixtures());
 
-
         $timeEnd = microtime(true);
-        $executionTime = ($timeEnd - $timeStart) / 60;
+        $executionTime = $timeEnd - $timeStart;
         $output->write('DB seeded.', true);
-        $output->write('Memory usage end: ' . memory_get_usage(), true);
-        $output->write('Unit of work after: ' . $this->entityManager->getUnitOfWork()->size(), true);
-        $output->write('Total Execution Time: ' . round($executionTime, 1) . ' min.', true);
+        $output->write('Total Execution Time: ' . round($executionTime, 1) . ' sec.', true);
         return Command::SUCCESS;
     }
 }
