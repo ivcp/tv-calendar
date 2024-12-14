@@ -32,6 +32,7 @@ services:
     container_name: tv-calendar-db
     image: postgres
     volumes:
+      - ./storage:/storage
       - tv-calendar-db-data:/var/lib/postgresql/data
     restart: always
     environment:
