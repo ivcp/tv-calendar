@@ -34,12 +34,14 @@ class Episode
     private int $tvMazeEpisodeId;
     #[Column(type: 'smallint', options: ['unsigned' => true], nullable: true)]
     private int $season;
-    #[Column(type: 'smallint', options: ['unsigned' => true], nullable: true)]
+    #[Column(options: ['unsigned' => true], nullable: true)]
     private int $number;
-    #[Column(type: 'datetimetz')]
+    #[Column(type: 'datetimetz', nullable: true)]
     private DateTime $airstamp;
     #[Column(type: 'string', nullable: true)]
     private string $type;
+    #[Column(name: 'tv_maze_show_id')]
+    private int $tvMazeShowId;
 
 
 
