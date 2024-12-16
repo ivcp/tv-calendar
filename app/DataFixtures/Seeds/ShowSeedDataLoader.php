@@ -14,22 +14,6 @@ class ShowSeedDataLoader implements FixtureInterface
 
     public function load(ObjectManager $manager): void
     {
-        exec("jq -c '.[]' storage/shows.json > storage/nd_shows.json", $_, $result);
-        if ($result > 0) {
-            echo 'Converting file to NDJSON failed.' . PHP_EOL;
-            exit;
-        }
-
-        $sedRegex = <<<CMD
-        's/\\\\"/\\\\\\\"/g;s/\\\\t//g;s/\\\\n/ /g'
-        CMD;
-
-        exec("sed -i -e $sedRegex storage/nd_shows.json", $_, $result);
-        if ($result > 0) {
-            echo 'Adding backslashes failed.' . PHP_EOL;
-            exit;
-        }
-
 
         try {
             /** @disregard P1009 Undefined type */
@@ -76,6 +60,6 @@ class ShowSeedDataLoader implements FixtureInterface
         }
 
 
-        echo "Shows inserted: $rows" . PHP_EOL;
+        echo "Shows inserted: $rows." . PHP_EOL;
     }
 }
