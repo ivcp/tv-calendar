@@ -15,7 +15,6 @@ class EpisodeSeedDataLoader implements FixtureInterface
     {
 
 
-
         try {
             /** @disregard P1009 Undefined type */
             $conn = $manager->getConnection();
@@ -32,8 +31,11 @@ class EpisodeSeedDataLoader implements FixtureInterface
             data->'image'->>'original', current_timestamp, current_timestamp, (data->'tv_maze_show_id')::integer
             FROM temp;");
             $rows =  $stmt->executeStatement($stmt);
-
-            //TODO: map eps to shows
+            $stmt = $conn->prepare("UPDATE episodes 
+            SET show_id = shows.id
+            FROM shows
+            WHERE episodes.tv_maze_show_id = shows.tv_maze_id;");
+            $linked =  $stmt->executeStatement($stmt);
         } catch (Exception $e) {
             echo "Erorr: " . $e->getMessage() . PHP_EOL;
             exit;
@@ -51,6 +53,12 @@ class EpisodeSeedDataLoader implements FixtureInterface
 
 
 
-        echo "Episodes inserted: $rows" . PHP_EOL;
+        echo "Episodes inserted: $rows." . PHP_EOL;
+        echo "Linked $linked episodes to shows." . PHP_EOL;
+    }
+
+    public function getDependencies(): array
+    {
+        return [ShowSeedDataLoader::class];
     }
 }
