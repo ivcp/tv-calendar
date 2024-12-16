@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Command;
 
+use App\DataFixtures\Seeds\EpisodeSeedDataLoader;
 use App\DataFixtures\Seeds\ShowSeedDataLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
-use JsonMachine\Items;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,6 +33,7 @@ class SeedDB extends Command
 
         $loader = new Loader();
         $loader->addFixture(new ShowSeedDataLoader);
+        $loader->addFixture(new EpisodeSeedDataLoader);
         $executor = new ORMExecutor($this->entityManager, new ORMPurger());
         $executor->execute($loader->getFixtures());
 
