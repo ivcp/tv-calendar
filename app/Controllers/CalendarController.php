@@ -30,18 +30,16 @@ class CalendarController
         );
     }
 
-    // public function getMonth(Request $request, Response $response): Response
-    // {
+    public function getMonth(Request $request, Response $response): Response
+    {
 
-    //     $JsonPath = STORAGE_PATH . '/schedule.json';
-    //     $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
+        $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
+        $schedule = $this->calendarService->getSchedule($month);
 
-    //     $schedule = $this->scheduleService->getSchedule($month, $JsonPath);
-
-    //     return $this->twig->render(
-    //         $response,
-    //         'calendar.twig',
-    //         ['schedule' => json_encode($schedule), 'month' => $month]
-    //     );
-    // }
+        return $this->twig->render(
+            $response,
+            'calendar.twig',
+            ['schedule' => json_encode($schedule), 'month' => $month]
+        );
+    }
 }

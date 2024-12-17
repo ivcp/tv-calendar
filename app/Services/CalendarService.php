@@ -20,10 +20,11 @@ class CalendarService
         $selectedMonth = new DateTime($month);
         $daysInMonth = $selectedMonth->format('t');
 
-
+        //TODO: episode service
         $episodes = $this->entityManager->getRepository(Episode::class)
             ->createQueryBuilder('e')
-            ->select('e.name as episode_name, e.id, e.airstamp, s.name as show_name')
+            ->select('e.id, s.name as showName, e.name as episodeName, 
+            e.season, e.number, e.summary, e.type, e.airstamp')
             ->where('e.airstamp BETWEEN :first AND :last')
             ->andWhere('s.weight = 100')
             ->innerJoin('e.show', 's')
@@ -33,11 +34,40 @@ class CalendarService
             ->getQuery()
             ->getResult();
 
-        var_dump($episodes);
-        exit;
+
+        $scheduleData = array_map(function ($episode) {
+            return new ScheduleData(
+                id: $episode['id'],
+                showName: $episode['showName'],
+                episodeName: $episode['episodeName'],
+                seasonNumber: $episode['season'],
+                episodeNumber: $episode['number'],
+                episodeSummary: $episode['summary'],
+                type: $episode['type'],
+                airstamp: $episode['airstamp']->format(DATE_ATOM)
+            );
+        }, $episodes);
 
 
 
-        return ['popular' => [], 'my_shows' => []];
+        $popularSchedule = $this->sortByDates((int) $daysInMonth, $scheduleData);
+
+        return ['popular' => $popularSchedule, 'my_shows' => []];
+    }
+
+
+
+
+    private function sortByDates(int $daysInMonth, array $episodes): array
+    {
+        $sorted = [];
+
+        for ($i = 1; $i <= $daysInMonth; $i++) {
+            $sorted[$i] = array_values(array_filter(
+                $episodes,
+                fn($show) => (new DateTime($show->airstamp))->format('j') == $i
+            ));
+        }
+        return $sorted;
     }
 }
