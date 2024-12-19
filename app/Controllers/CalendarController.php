@@ -14,7 +14,7 @@ class CalendarController
 {
     public function __construct(
         private readonly Twig $twig,
-        private readonly CalendarService $calendarService
+        private readonly CalendarService $calendarService,
     ) {}
 
     public function index(Request $request, Response $response): Response

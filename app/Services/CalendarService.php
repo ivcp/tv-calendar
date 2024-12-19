@@ -5,35 +5,18 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\DataObjects\ScheduleData;
-use App\Entity\Episode;
-use App\Entity\Show;
 use DateTime;
-use Doctrine\ORM\EntityManager;
 
 class CalendarService
 {
 
-    public function __construct(private readonly EntityManager $entityManager) {}
+    public function __construct(private readonly EpisodeService $episodeService) {}
 
     public function getSchedule(string $month): array
     {
         $selectedMonth = new DateTime($month);
-        $daysInMonth = $selectedMonth->format('t');
 
-        //TODO: episode service
-        $episodes = $this->entityManager->getRepository(Episode::class)
-            ->createQueryBuilder('e')
-            ->select('e.id, s.name as showName, e.name as episodeName, 
-            e.season, e.number, e.summary, e.type, e.airstamp')
-            ->where('e.airstamp BETWEEN :first AND :last')
-            ->andWhere('s.weight = 100')
-            ->innerJoin('e.show', 's')
-            ->orderBy('e.airstamp')
-            ->setParameter('first', $selectedMonth->format('Y-m-1'))
-            ->setParameter('last', $selectedMonth->format("Y-m-$daysInMonth"))
-            ->getQuery()
-            ->getResult();
-
+        $episodes = $this->episodeService->getEpisodesForMonth($selectedMonth);
 
         $scheduleData = array_map(function ($episode) {
             return new ScheduleData(
@@ -48,13 +31,11 @@ class CalendarService
             );
         }, $episodes);
 
+        $popularSchedule = $this->sortByDates((int) $selectedMonth->format('t'), $scheduleData);
 
-
-        $popularSchedule = $this->sortByDates((int) $daysInMonth, $scheduleData);
-
+        //TODO: my_shows
         return ['popular' => $popularSchedule, 'my_shows' => []];
     }
-
 
 
 
