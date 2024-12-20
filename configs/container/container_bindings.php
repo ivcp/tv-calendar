@@ -7,7 +7,14 @@ use App\Enum\AppEnvironment;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Slim\Views\Twig;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Component\Asset\Package;
@@ -43,6 +50,37 @@ return [
             $ormConfig
         );
     },
+    Client::class => function (Config $config) {
+
+        $stack = new HandlerStack();
+        $stack->setHandler(new CurlHandler());
+        $retryDecider = function (
+            int $retries,
+            RequestInterface $request,
+            ?ResponseInterface $response,
+            ?\RuntimeException $e
+        ) {
+            if ($retries >= 3) {
+                return false;
+            }
+            if ($e instanceof ConnectException) {
+                echo "Unable to connect to " . $request->getUri() . ". Retrying (" . ($retries + 1) . "/" . 3 . ")...\n";
+                return true;
+            }
+            return false;
+        };
+
+        $retryMiddleware = Middleware::retry($retryDecider, function (int $retries) {
+            return 1000 * $retries;
+        });
+        $stack->push($retryMiddleware);
+
+        return new Client([
+            'timeout'  => 3.0,
+            'handler' => $stack
+        ]);
+    },
+
 
     'webpack_encore.packages'     => fn() => new Packages(
         new Package(new JsonManifestVersionStrategy(BUILD_PATH . '/manifest.json'))
