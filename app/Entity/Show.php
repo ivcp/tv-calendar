@@ -303,7 +303,7 @@ class Show
     }
 
     /**
-     * Set episodes
+     * Add episode
      *
      * @return  self
      */
