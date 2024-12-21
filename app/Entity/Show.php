@@ -107,9 +107,11 @@ class Show
      * @return  self
      */
 
-    public function setImdbId(string $imdbId): Show
+    public function setImdbId(?string $imdbId): Show
     {
-        $this->imdbId = $imdbId;
+        if ($imdbId) {
+            $this->imdbId = $imdbId;
+        }
 
         return $this;
     }
@@ -127,9 +129,11 @@ class Show
      *
      * @return  self
      */
-    public function setGenres(array $genres): Show
+    public function setGenres(?array $genres): Show
     {
-        $this->genres = $genres;
+        if ($genres) {
+            $this->genres = $genres;
+        }
 
         return $this;
     }
@@ -167,9 +171,11 @@ class Show
      *
      * @return  self
      */
-    public function setPremiered(string $premiered): Show
+    public function setPremiered(?string $premiered): Show
     {
-        $this->premiered = $premiered;
+        if ($premiered) {
+            $this->premiered = $premiered;
+        }
 
         return $this;
     }
@@ -187,9 +193,11 @@ class Show
      *
      * @return  self
      */
-    public function setEnded(string $ended): Show
+    public function setEnded(?string $ended): Show
     {
-        $this->ended = $ended;
+        if ($ended) {
+            $this->ended = $ended;
+        }
 
         return $this;
     }
@@ -207,9 +215,12 @@ class Show
      *
      * @return  self
      */
-    public function setOfficialSite(string $officialSite): Show
+    public function setOfficialSite(?string $officialSite): Show
     {
-        $this->officialSite = $officialSite;
+        if ($officialSite) {
+            $this->officialSite = $officialSite;
+        }
+
 
         return $this;
     }
@@ -247,9 +258,11 @@ class Show
      *
      * @return  self
      */
-    public function setNetworkName(string $networkName): Show
+    public function setNetworkName(?string $networkName): Show
     {
-        $this->networkName = $networkName;
+        if ($networkName) {
+            $this->networkName = $networkName;
+        }
 
         return $this;
     }
@@ -267,9 +280,11 @@ class Show
      *
      * @return  self
      */
-    public function setNetworkCountry(string $networkCountry): Show
+    public function setNetworkCountry(?string $networkCountry): Show
     {
-        $this->networkCountry = $networkCountry;
+        if ($networkCountry) {
+            $this->networkCountry = $networkCountry;
+        }
 
         return $this;
     }
@@ -287,9 +302,11 @@ class Show
      *
      * @return  self
      */
-    public function setWebChannelName(string $webChannelName): Show
+    public function setWebChannelName(?string $webChannelName): Show
     {
-        $this->webChannelName = $webChannelName;
+        if ($webChannelName) {
+            $this->webChannelName = $webChannelName;
+        }
 
         return $this;
     }
@@ -327,9 +344,11 @@ class Show
      *
      * @return  self
      */
-    public function setWebChannelCountry(string $webChannelCountry): Show
+    public function setWebChannelCountry(?string $webChannelCountry): Show
     {
-        $this->webChannelCountry = $webChannelCountry;
+        if ($webChannelCountry) {
+            $this->webChannelCountry = $webChannelCountry;
+        }
 
         return $this;
     }

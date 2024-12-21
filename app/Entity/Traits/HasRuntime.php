@@ -25,9 +25,11 @@ trait HasRuntime
      *
      * @return  self
      */
-    public function setRuntime(int $runtime): self
+    public function setRuntime(?int $runtime): self
     {
-        $this->runtime = $runtime;
+        if ($runtime) {
+            $this->runtime = $runtime;
+        }
 
         return $this;
     }

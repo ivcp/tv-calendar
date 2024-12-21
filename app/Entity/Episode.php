@@ -90,9 +90,11 @@ class Episode
      *
      * @return  self
      */
-    public function setSeason(int $season): Episode
+    public function setSeason(?int $season): Episode
     {
-        $this->season = $season;
+        if ($season) {
+            $this->season = $season;
+        }
 
         return $this;
     }
@@ -110,9 +112,11 @@ class Episode
      *
      * @return  self
      */
-    public function setNumber(int $number): Episode
+    public function setNumber(?int $number): Episode
     {
-        $this->number = $number;
+        if ($number) {
+            $this->number = $number;
+        }
 
         return $this;
     }
@@ -130,9 +134,11 @@ class Episode
      *
      * @return  self
      */
-    public function setAirstamp(DateTime $airstamp): Episode
+    public function setAirstamp(?DateTime $airstamp): Episode
     {
-        $this->airstamp = $airstamp;
+        if ($airstamp) {
+            $this->airstamp = $airstamp;
+        }
 
         return $this;
     }
@@ -150,9 +156,11 @@ class Episode
      *
      * @return  self
      */
-    public function setType(string $type): Episode
+    public function setType(?string $type): Episode
     {
-        $this->type = $type;
+        if ($type) {
+            $this->type = $type;
+        }
 
         return $this;
     }
@@ -176,6 +184,25 @@ class Episode
 
         $this->show = $show;
 
+        return $this;
+    }
+
+    /**
+     * Get the value of tvMazeShowId
+     */
+    public function getTvMazeShowId(): int
+    {
+        return $this->tvMazeShowId;
+    }
+
+    /**
+     * Set the value of tvMazeShowId
+     *
+     * @return  self
+     */
+    public function setTvMazeShowId($tvMazeShowId): Episode
+    {
+        $this->tvMazeShowId = $tvMazeShowId;
         return $this;
     }
 }
