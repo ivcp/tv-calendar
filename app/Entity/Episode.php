@@ -180,8 +180,6 @@ class Episode
      */
     public function setShow(Show $show): Episode
     {
-        $show->addEpisode($this);
-
         $this->show = $show;
 
         return $this;
