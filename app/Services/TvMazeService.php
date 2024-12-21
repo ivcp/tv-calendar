@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\DataObjects\EpisodeData;
 use App\DataObjects\ShowData;
-use Error;
+use DateTime;
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 
@@ -13,10 +14,42 @@ class TvMazeService
 {
     private string $baseUri = 'https://api.tvmaze.com';
 
-    private int $retry429 = 1;
+    private int $pause = 1;
 
     public function __construct(private readonly Client $client) {}
 
+
+    //TODO: logging
+
+    /**
+     * Get list of updated shows with timestamps
+     *
+     **/
+    public function getUpdatedShows(): array
+    {
+        $url = $this->baseUri . '/updates/shows?since=day';
+        $response = $this->get($url);
+
+        if ($response->getStatusCode() === 429) {
+            $this->pauseAndIncrease();
+            return $this->getUpdatedShows();
+        }
+
+        if (!$this->statusOK($response, __METHOD__)) {
+            $this->resetPause();
+            return [];
+        }
+
+        $updatedShows = json_decode((string)$response->getBody(), true);
+        $this->resetPause();
+        return $updatedShows;
+    }
+
+    /**
+     * Get show with id
+     *
+     * @return ?ShowData
+     **/
     public function getShow(int $id): ?ShowData
     {
         $url = $this->baseUri . '/shows/' . "$id";
@@ -24,17 +57,18 @@ class TvMazeService
 
 
         if ($response->getStatusCode() === 429) {
-            $this->pauseAndIncreaseRetry();
+            $this->pauseAndIncrease();
             return $this->getShow($id);
         }
 
         if (!$this->statusOK($response, __METHOD__)) {
+            $this->resetPause();
             return null;
         }
 
 
-        $body = $response->getBody();
-        $data = json_decode((string)$body);
+        $data = json_decode((string)$response->getBody());
+        $this->resetPause();
 
         return new ShowData(
             tvMazeId: $data->id,
@@ -57,24 +91,49 @@ class TvMazeService
         );
     }
 
-
-    public function getUpdatedShows(): array
+    /**
+     * Get all episodes of a show
+     *
+     * @return EpisodeData[]
+     **/
+    public function getEpisodes(int $showId): array
     {
-        $url = $this->baseUri . '/updates/shows?since=day';
+        $url = $this->baseUri . '/shows/' . "$showId" . '/episodes?specials=1';
         $response = $this->get($url);
 
+
         if ($response->getStatusCode() === 429) {
-            $this->pauseAndIncreaseRetry();
-            return $this->getUpdatedShows();
+            $this->pauseAndIncrease();
+            return $this->getEpisodes($showId);
         }
 
         if (!$this->statusOK($response, __METHOD__)) {
+            $this->resetPause();
             return [];
         }
 
-        $body = $response->getBody();
-        $updatedShows = json_decode((string)$body, true);
-        return $updatedShows;
+        $episodes = json_decode((string)$response->getBody());
+        $this->resetPause();
+
+        return array_map(function ($episode) use ($showId) {
+            $airstamp = null;
+            if ($episode?->airstamp) {
+                $airstamp = new DateTime($episode->airstamp);
+            }
+            return new EpisodeData(
+                tvMazeShowId: $showId,
+                tvMazeEpisodeId: $episode->id,
+                episodeName: $episode->name,
+                seasonNumber: $episode?->season,
+                episodeNumber: $episode?->number,
+                episodeSummary: $episode?->summary,
+                type: $episode?->type,
+                airstamp: $airstamp,
+                runtime: $episode?->runtime,
+                imageMedium: $episode?->image?->medium,
+                imageOriginal: $episode?->image?->original
+            );
+        }, $episodes);
     }
 
 
@@ -89,10 +148,20 @@ class TvMazeService
         error_log("$methodName error with status code $code: " . $message);
     }
 
-    private function pauseAndIncreaseRetry(): void
+    private function pauseAndIncrease(): void
     {
-        sleep($this->retry429);
-        $this->retry429 = $this->retry429 * 2;
+        sleep($this->getPause());
+        $this->pause = $this->pause * 2;
+    }
+
+    public function getPause(): int
+    {
+        return $this->pause;
+    }
+
+    private function resetPause(): void
+    {
+        $this->pause = 1;
     }
 
 
@@ -105,8 +174,4 @@ class TvMazeService
 
         return true;
     }
-
-
-
-    //getEpisodes
 }
