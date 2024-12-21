@@ -23,7 +23,7 @@ class ShowService
         return $this->entityManager->getRepository(Show::class)->findOneBy(['tvMazeId' => $id]);
     }
 
-    public function create(ShowData $showData): void
+    public function create(ShowData $showData): Show
     {
         $show = new Show();
         $show->setTvMazeId($showData->tvMazeId)
@@ -46,5 +46,7 @@ class ShowService
 
         $this->entityManager->persist($show);
         $this->entityManager->flush();
+
+        return $show;
     }
 }
