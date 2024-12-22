@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Tests\Unit\Services;
 
 use App\Services\CalendarService;
 use App\Services\EpisodeService;
 use DateTime;
 use DateTimeZone;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
