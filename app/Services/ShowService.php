@@ -44,9 +44,6 @@ class ShowService
             ->setImageMedium($showData->imageMedium)
             ->setImageOriginal($showData->imageOriginal);
 
-        $this->entityManager->persist($show);
-        $this->entityManager->flush();
-
         return $show;
     }
 }
