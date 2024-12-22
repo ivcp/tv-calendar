@@ -43,6 +43,20 @@ services:
       - 5432:5432
     command: ["postgres", "-c", "log_statement=all"]
 
+  db-test:
+    container_name: tv-calendar-db-test
+    image: postgres
+    volumes:
+      - ./storage:/storage
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: tv-calendar-test-db
+    ports:
+      - 5444:5432
+    command: ["postgres", "-c", "log_statement=all"]
+
   adminer:
     image: adminer
     restart: always
