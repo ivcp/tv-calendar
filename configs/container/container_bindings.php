@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 use App\Config;
 use App\Enum\AppEnvironment;
+use App\Services\EpisodeService;
+use App\Services\ShowService;
+use App\Services\TvMazeService;
+use App\Services\UpdateService;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
@@ -80,7 +84,12 @@ return [
             'handler' => $stack
         ]);
     },
-
+    UpdateService::class => function (EntityManager $entityManager, Client $client) {
+        $showService = new ShowService($entityManager);
+        $episodeService = new EpisodeService($entityManager);
+        $tvMazeService = new TvMazeService($client);
+        return new UpdateService($showService, $episodeService, $tvMazeService);
+    },
 
     'webpack_encore.packages'     => fn() => new Packages(
         new Package(new JsonManifestVersionStrategy(BUILD_PATH . '/manifest.json'))
