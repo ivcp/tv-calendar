@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit colors="true" bootstrap="vendor/autoload.php" displayDetailsOnTestsThatTriggerWarnings="true">
     <testsuites>
-        <testsuite name="Unit Tests">
+        <testsuite name="unit">
             <directory>tests/Unit</directory>
         </testsuite>
+        <testsuite name="integration">
+            <directory>tests/Integration</directory>
+        </testsuite>
     </testsuites>
+    <php>
+        <env name="DB_USER" value="test" force="true"/>
+        <env name="DB_PASS" value="test" force="true"/>
+        <env name="DB_NAME" value="tv-calendar-test-db" force="true"/>
+        <env name="DB_HOST" value="db-test" force="true"/>
+    </php>
 </phpunit>
