@@ -25,14 +25,14 @@ class TvMazeService
      * Get list of updated shows with timestamps
      *
      **/
-    public function getUpdatedShows(): array
+    public function getUpdatedShowIDs(): array
     {
         $url = $this->baseUri . '/updates/shows?since=day';
         $response = $this->get($url);
 
         if ($response->getStatusCode() === 429) {
             $this->pauseAndIncrease();
-            return $this->getUpdatedShows();
+            return $this->getUpdatedShowIDs();
         }
 
         if (!$this->statusOK($response, __METHOD__)) {
@@ -40,10 +40,30 @@ class TvMazeService
             return [];
         }
 
-        $updatedShows = json_decode((string)$response->getBody(), true);
+        $updatedShows = array_keys(json_decode((string)$response->getBody(), true));
         $this->resetPause();
         return $updatedShows;
     }
+
+
+    /**
+     * Get shows for provided IDs
+     *
+     * @return ShowData[]
+     **/
+    public function getShows(array $ids): array
+    {
+        $shows = [];
+        foreach ($ids as $id) {
+            $show = $this->getShow($id);
+            if ($show) {
+                $shows[] = $show;
+            }
+        }
+        return $shows;
+    }
+
+
 
     /**
      * Get show with id
@@ -57,6 +77,7 @@ class TvMazeService
 
 
         if ($response->getStatusCode() === 429) {
+            echo "pause and retry show $id after $this->pause s" . PHP_EOL;
             $this->pauseAndIncrease();
             return $this->getShow($id);
         }
@@ -82,7 +103,7 @@ class TvMazeService
             networkName: $data?->network?->name,
             networkCountry: $data?->network?->country?->name,
             webChannelName: $data?->webChannel?->name,
-            webChannelCountry: $data?->webChannel?->country,
+            webChannelCountry: $data?->webChannel?->country?->name,
             summary: $data?->summary,
             name: $data->name,
             runtime: $data?->runtime,
@@ -103,6 +124,7 @@ class TvMazeService
 
 
         if ($response->getStatusCode() === 429) {
+            echo "pause and retry episodes for $showId after $this->pause s" . PHP_EOL;
             $this->pauseAndIncrease();
             return $this->getEpisodes($showId);
         }
