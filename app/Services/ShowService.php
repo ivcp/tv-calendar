@@ -18,9 +18,9 @@ class ShowService
         return $this->entityManager->find(Show::class, $id);
     }
 
-    public function getByTvMazeId(int $id): ?Show
+    public function getShowsByTvMazeId(array $ids): array
     {
-        return $this->entityManager->getRepository(Show::class)->findOneBy(['tvMazeId' => $id]);
+        return $this->entityManager->getRepository(Show::class)->findBy(['tvMazeId' => $ids]);
     }
 
     public function create(ShowData $showData): Show
