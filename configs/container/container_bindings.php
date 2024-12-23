@@ -88,7 +88,7 @@ return [
         $showService = new ShowService($entityManager);
         $episodeService = new EpisodeService($entityManager);
         $tvMazeService = new TvMazeService($client);
-        return new UpdateService($showService, $episodeService, $tvMazeService);
+        return new UpdateService($showService, $episodeService, $tvMazeService, $entityManager);
     },
 
     'webpack_encore.packages'     => fn() => new Packages(
