@@ -6,12 +6,13 @@ namespace App\Services;
 
 use App\DataObjects\ShowData;
 use App\Entity\Show;
-use Doctrine\DBAL\ArrayParameterType;
+use App\Services\Traits\SetParameterAndType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
 
 class ShowService
 {
+    use SetParameterAndType;
 
     public function __construct(private readonly EntityManager $entityManager) {}
 
@@ -49,13 +50,19 @@ class ShowService
         return $show;
     }
 
+
     /**
      * Bulk insert shows
      *
      * @param ShowData[] $shows 
+     * @return int number of shows inserted
      **/
-    public function insertShows(array $shows): void
+    public function insertShows(array $shows): int
     {
+        if (!$shows) {
+            return 0;
+        }
+
         $conn = $this->entityManager->getConnection();
 
         $values = [];
@@ -65,7 +72,6 @@ class ShowService
             :webChannelCountry$i, :summary$i, :name$i, :runtime$i, :imageMedium$i, 
             :imageOriginal$i, current_timestamp, current_timestamp)";
         }
-
 
         $params = [];
         $types = [];
@@ -104,19 +110,6 @@ class ShowService
           VALUES ' . implode(',', $values), $params, $types);
 
 
-        echo 'ROWS INSERTED: ' . $rows . PHP_EOL;
-    }
-
-    private function setParameterAndType(
-        array &$params,
-        array &$types,
-        string $name,
-        int $i,
-        mixed $value,
-        ParameterType|ArrayParameterType $type
-    ): void {
-        $i++;
-        $params["$name$i"] = $value;
-        $types["$name$i"] = $value ? $type : ParameterType::NULL;
+        return (int) $rows;
     }
 }
