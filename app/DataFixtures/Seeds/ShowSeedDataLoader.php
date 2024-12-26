@@ -45,7 +45,7 @@ class ShowSeedDataLoader implements FixtureInterface
           FROM temp;");
             $rows =  $stmt->executeStatement($stmt);
         } catch (Exception $e) {
-            echo "Erorr: " . $e->getMessage() . PHP_EOL;
+            echo "Error: " . $e->getMessage() . PHP_EOL;
             exit;
         }
 
@@ -55,7 +55,7 @@ class ShowSeedDataLoader implements FixtureInterface
             $stmt = $conn->prepare($sql);
             $stmt->executeStatement($stmt);
         } catch (Exception $e) {
-            echo "Erorr: " . $e->getMessage() . PHP_EOL;
+            echo "Error: " . $e->getMessage() . PHP_EOL;
             exit;
         }
 
