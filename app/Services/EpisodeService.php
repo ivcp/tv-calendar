@@ -11,6 +11,8 @@ use App\Services\Traits\SetParameterAndType;
 use DateTime;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
+use Iterator;
+use SplFixedArray;
 
 class EpisodeService
 {
@@ -71,42 +73,44 @@ class EpisodeService
 
         $conn = $this->entityManager->getConnection();
 
-        $values = [];
 
-        for ($i = 1; $i <= count($episodes); $i++) {
-            $values[] = "(:tvMazeEpisodeId$i, :seasonNumber$i, :episodeNumber$i, :airstamp$i::timestamptz,
-            :type$i, :episodeSummary$i, :episodeName$i, :runtime$i, :imageMedium$i, :imageOriginal$i, 
-            current_timestamp, current_timestamp, :tvMazeShowId$i)";
-        }
+        $episodeCount = count($episodes);
+        $values = array_fill(
+            0,
+            $episodeCount,
+            "(?, ?, ?, ?::timestamptz, ?, ?, ?, ?, ?, ?, current_timestamp, current_timestamp, ?)"
+        );
 
-        $params = [];
-        $types = [];
-        foreach ($episodes as $i => $episode) {
-            $this->setParameterAndType($params, $types, 'tvMazeEpisodeId', $i, $episode->tvMazeEpisodeId, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types, 'seasonNumber', $i, $episode->seasonNumber, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types, 'episodeNumber', $i, $episode->episodeNumber, ParameterType::INTEGER);
+
+        $params = new SplFixedArray($episodeCount * 11);
+        $types = new SplFixedArray($episodeCount * 11);
+        $paramsIterator = $params->getIterator();
+        foreach ($episodes as $episode) {
+            $this->setParameterAndType($params, $types, $paramsIterator, $episode->tvMazeEpisodeId, ParameterType::INTEGER);
+            $this->setParameterAndType($params, $types,  $paramsIterator, $episode->seasonNumber, ParameterType::INTEGER);
+            $this->setParameterAndType($params, $types, $paramsIterator,  $episode->episodeNumber, ParameterType::INTEGER);
+
             $this->setParameterAndType(
                 $params,
                 $types,
-                'airstamp',
-                $i,
+                $paramsIterator,
                 $episode->airstamp ? $episode->airstamp->format(DATE_ATOM) : null,
                 ParameterType::STRING
             );
-            $this->setParameterAndType($params, $types, 'type', $i, $episode->type, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, 'episodeSummary', $i, $episode->episodeSummary, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, 'episodeName', $i, $episode->episodeName, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, 'runtime', $i, $episode->runtime, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types, 'imageMedium', $i, $episode->imageMedium, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, 'imageOriginal', $i, $episode->imageOriginal, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, 'tvMazeShowId', $i, $episode->tvMazeShowId, ParameterType::INTEGER);
+            $this->setParameterAndType($params,  $types, $paramsIterator,  $episode->type, ParameterType::STRING);
+            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->episodeSummary, ParameterType::STRING);
+            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->episodeName, ParameterType::STRING);
+            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->runtime, ParameterType::INTEGER);
+            $this->setParameterAndType($params,  $types, $paramsIterator,  $episode->imageMedium, ParameterType::STRING);
+            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->imageOriginal, ParameterType::STRING);
+            $this->setParameterAndType($params,  $types, $paramsIterator,  $episode->tvMazeShowId, ParameterType::INTEGER);
         }
 
 
         $rows = $conn->executeStatement('INSERT INTO episodes 
         (tv_maze_episode_id, season, number, airstamp, type, summary, name, 
         runtime, image_medium, image_original, created_at, updated_at, tv_maze_show_id)
-        VALUES ' . implode(',', $values), $params, $types);
+        VALUES ' . implode(',', $values), $params->toArray(), $types->toArray());
 
 
         return (int) $rows;

@@ -5,20 +5,21 @@ declare(strict_types=1);
 namespace App\Services\Traits;
 
 use Doctrine\DBAL\ParameterType;
+use Iterator;
+use SplFixedArray;
 
 trait SetParameterAndType
 {
 
     private function setParameterAndType(
-        array &$params,
-        array &$types,
-        string $name,
-        int $i,
+        SplFixedArray $params,
+        SplFixedArray $types,
+        Iterator $it,
         mixed $value,
         ParameterType $type
     ): void {
-        $i++;
-        $params["$name$i"] = $value;
-        $types["$name$i"] = $value ? $type : ParameterType::NULL;
+        $params[$it->key()] = $value;
+        $types[$it->key()] = $value ? $type : ParameterType::NULL;
+        $it->next();
     }
 }
