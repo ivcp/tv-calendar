@@ -19,7 +19,11 @@ trait SetParameterAndType
         ParameterType $type
     ): void {
         $params[$it->key()] = $value;
-        $types[$it->key()] = $value ? $type : ParameterType::NULL;
+        if ($value === 0) {
+            $types[$it->key()] = $type;
+        } else {
+            $types[$it->key()] = $value ? $type : ParameterType::NULL;
+        }
         $it->next();
     }
 }
