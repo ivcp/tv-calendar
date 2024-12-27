@@ -6,7 +6,6 @@ namespace Tests\Integration;
 
 use App\DataObjects\EpisodeData;
 use App\DataObjects\ShowData;
-use App\Entity\Episode;
 use App\Entity\Show;
 use App\Services\EpisodeService;
 use App\Services\ShowService;
@@ -56,20 +55,25 @@ class UpdateTest extends TestCase
 
         $updateService->run();
 
-        $shows = $entityManager->getRepository(Show::class)->findAll();
-        $episodes = $entityManager->getRepository(Episode::class)->findAll();
-        $this->assertSame('test show 1', $shows[0]->getName());
+
+        $showsInserted = $entityManager->createQuery('SELECT COUNT(s) FROM App\Entity\Show s')->getSingleScalarResult();
+        $episodesInserted = $entityManager->createQuery('SELECT COUNT(e) FROM App\Entity\Episode e')->getSingleScalarResult();
+
+        $firstShow = $entityManager->find(Show::class, 1);
+
+        $this->assertSame('test show 1', $firstShow->getName());
         if (!$fromFile) {
-            $this->assertSame(2, count($shows));
-            $this->assertSame(4, count($episodes));
+            $this->assertSame(2, $showsInserted);
+            $this->assertSame(4, $episodesInserted);
         } else {
-            $this->assertSame(200, count($shows));
-            $this->assertSame(8000, count($episodes));
+            $this->assertSame(1000, $showsInserted);
+            $this->assertSame(40000, $episodesInserted);
         }
     }
 
     public static function dataProvider(): array
     {
+
         $episodesFromFile = file_get_contents(__DIR__ . '/episodes.json');
         $eps = json_decode($episodesFromFile);
 
@@ -85,21 +89,22 @@ class UpdateTest extends TestCase
             );
         }
 
-        $testUdatedIds10 = range(1, 200);
-        $testShows10 = [];
-        for ($i = 1; $i <= 200; $i++) {
-            $testShows10[] = new ShowData(
-                tvMazeId: $i,
+        $testUdatedIds1000 = range(1, 1000);
+        $testShows1000 = [];
+        for ($i = 0; $i < 1000; $i++) {
+            $testShows1000[] = new ShowData(
+                tvMazeId: $i + 1,
                 status: 'running',
                 weight: 100,
-                name: "test show $i",
+                name: "test show " . $i + 1,
                 summary: "test $i summary",
             );
         }
 
-        $testEpArraysFromFile = [];
-        for ($i = 0; $i < 200; $i++) {
-            $testEpArraysFromFile[] = array_map(function ($index, $episode) use ($i, $eps) {
+
+        $testEpArrays1000 = [];
+        for ($i = 0; $i < 1000; $i++) {
+            $testEpArrays1000[] = array_map(function ($index, $episode) use ($i, $eps) {
                 $epId = count($eps) * $i + $index + 1;
                 return new EpisodeData(
                     tvMazeShowId: $i + 1,
@@ -114,9 +119,8 @@ class UpdateTest extends TestCase
                     imageMedium: $episode?->image?->medium,
                     imageOriginal: $episode?->image?->original
                 );
-            }, range(0, count($eps) - 1), $eps);
+            }, array_keys($eps), $eps);
         }
-
 
 
         return [
@@ -158,10 +162,10 @@ class UpdateTest extends TestCase
                 ],
                 false
             ],
-            'test 10 shows, 5055 eps each' => [
-                $testUdatedIds10,
-                $testShows10,
-                $testEpArraysFromFile,
+            'test 1000 shows, 40 eps each' => [
+                $testUdatedIds1000,
+                $testShows1000,
+                $testEpArrays1000,
                 true
             ],
         ];
