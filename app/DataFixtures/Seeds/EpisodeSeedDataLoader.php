@@ -37,7 +37,7 @@ class EpisodeSeedDataLoader implements FixtureInterface
             WHERE episodes.tv_maze_show_id = shows.tv_maze_id;");
             $linked =  $stmt->executeStatement($stmt);
         } catch (Exception $e) {
-            echo "Erorr: " . $e->getMessage() . PHP_EOL;
+            echo "Error: " . $e->getMessage() . PHP_EOL;
             exit;
         }
 
@@ -47,7 +47,7 @@ class EpisodeSeedDataLoader implements FixtureInterface
             $stmt = $conn->prepare($sql);
             $stmt->executeStatement($stmt);
         } catch (Exception $e) {
-            echo "Erorr: " . $e->getMessage() . PHP_EOL;
+            echo "Error: " . $e->getMessage() . PHP_EOL;
             exit;
         }
 
