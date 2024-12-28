@@ -11,7 +11,6 @@ use App\Services\Traits\SetParameterAndType;
 use DateTime;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
-use Iterator;
 use SplFixedArray;
 
 class EpisodeService
@@ -112,6 +111,24 @@ class EpisodeService
         runtime, image_medium, image_original, created_at, updated_at, tv_maze_show_id)
         VALUES ' . implode(',', $values), $params->toArray(), $types->toArray());
 
+
+        return (int) $rows;
+    }
+
+
+    /**
+     * Connect inserted episodes to shows
+     *
+     * @return int number of episodes updated
+     **/
+    public function connectEpisodesWithShows(): int
+    {
+        $conn = $this->entityManager->getConnection();
+        $rows = $conn->executeStatement("UPDATE episodes 
+        SET show_id = shows.id
+        FROM shows
+        WHERE episodes.show_id IS NULL
+        AND episodes.tv_maze_show_id = shows.tv_maze_id;");
 
         return (int) $rows;
     }
