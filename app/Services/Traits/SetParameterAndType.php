@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Traits;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Iterator;
 use SplFixedArray;
@@ -16,7 +17,7 @@ trait SetParameterAndType
         SplFixedArray $types,
         Iterator $it,
         mixed $value,
-        ParameterType $type
+        ParameterType|ArrayParameterType $type
     ): void {
         $params[$it->key()] = $value;
         if ($value === 0) {
