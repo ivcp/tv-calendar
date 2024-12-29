@@ -7,9 +7,13 @@ namespace App\Services;
 use App\DataObjects\ShowData;
 use App\Entity\Show;
 use App\Services\Traits\SetParameterAndType;
+use ArrayObject;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
+use Iterator;
 use SplFixedArray;
+use Symfony\Component\VarDumper\VarDumper;
 
 class ShowService
 {
@@ -68,14 +72,16 @@ class ShowService
 
 
         $showCount = count($shows);
+        $paramNumber = (new ArrayObject($shows[0]))->count();
+
         $values = array_fill(
             0,
             $showCount,
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp, current_timestamp)"
+            "(" . str_repeat('?,', $paramNumber) . "current_timestamp, current_timestamp)"
         );
 
-        $params = new SplFixedArray($showCount * 17);
-        $types = new SplFixedArray($showCount * 17);
+        $params = new SplFixedArray($showCount * $paramNumber);
+        $types = new SplFixedArray($showCount * $paramNumber);
         $paramsIterator = $params->getIterator();
         foreach ($shows as $show) {
             $this->setParameterAndType($params, $types, $paramsIterator, $show->tvMazeId, ParameterType::INTEGER);
@@ -112,5 +118,94 @@ class ShowService
 
 
         return (int) $rows;
+    }
+
+
+    /**
+     * Update shows
+     *
+     * @param array[int]ShowData $shows 
+     * @return int number of shows updated
+     **/
+    public function updateShows(array $shows): void
+    {
+
+        if (!$shows) {
+            return;
+        }
+
+        $conn = $this->entityManager->getConnection();
+
+        $ids = array_keys($shows);
+        $paramNumber = (new ArrayObject($shows[array_key_first($shows)]))->count() + 1;
+
+        $cases = [];
+        $params = new SplFixedArray(count($ids) * $paramNumber);
+        $types = new SplFixedArray(count($ids) * $paramNumber);
+        $it = $params->getIterator();
+        foreach ($ids as $id) {
+            $this->setCase($cases, 'name', $id);
+            $this->setCase($cases, 'imdbId', $id);
+            $this->setCase($cases, 'genres', $id);
+            $this->setCase($cases, 'status', $id);
+            $this->setCase($cases, 'premiered', $id);
+
+            // $this->getUpdateCase($premiered, 'premiered', $id, $show->premiered, ParameterType::STRING);
+        }
+
+        $this->setParamsFor('name', ParameterType::STRING, $params, $types, $it, $shows);
+        $this->setParamsFor('imdbId', ParameterType::STRING, $params, $types, $it, $shows);
+        $this->setParamsFor('genres', ParameterType::STRING, $params, $types, $it, $shows);
+        $this->setParamsFor('status', ParameterType::STRING, $params, $types, $it, $shows);
+        $this->setParamsFor('premiered', ParameterType::STRING, $params, $types, $it, $shows);
+
+
+        $nameCase = implode(' ', $cases['name']);
+        $imdbIdCase = implode(' ', $cases['imdbId']);
+        $genresCase = implode(' ', $cases['genres']);
+        $statusCase = implode(' ', $cases['status']);
+        $premieredCase = implode(' ', $cases['premiered']);
+
+
+        $this->setParameterAndType($params, $types, $it, $ids, ArrayParameterType::INTEGER);
+
+        $rows = $conn->executeStatement(
+            "UPDATE shows 
+                SET 
+                    name = CASE $nameCase END,          
+                    imdb_id = CASE $imdbIdCase END,          
+                    genres = CASE $genresCase END,          
+                    status = CASE $statusCase END,          
+                    premiered = CASE $premieredCase END          
+                           
+                WHERE id IN (?);",
+            $params->toArray(),
+            $types->toArray()
+        );
+    }
+
+    private function setCase(
+        array &$cases,
+        string $name,
+        int $id
+    ): void {
+        $cases[$name][] = "WHEN id = $id THEN ?";
+    }
+
+    private function setParamsFor(
+        string $name,
+        ParameterType $type,
+        SplFixedArray $params,
+        SplFixedArray $types,
+        Iterator $it,
+        array $shows
+    ): void {
+        foreach ($shows as $show) {
+            $value = $show->$name;
+            if ($name === 'genres') {
+                $value = $show->genres ? implode(',', $show->genres) : null;
+            }
+            $this->setParameterAndType($params, $types, $it, $value, $type);
+        }
     }
 }
