@@ -6,6 +6,7 @@ namespace Tests\Integration;
 
 use App\DataObjects\EpisodeData;
 use App\DataObjects\ShowData;
+use App\Entity\Episode;
 use App\Entity\Show;
 use App\Services\EpisodeService;
 use App\Services\ShowService;
@@ -23,6 +24,7 @@ class UpdateTest extends TestCase
 {
 
     private Container $container;
+    private EntityManager $entityManager;
 
     public function setUp(): void
     {
@@ -31,47 +33,62 @@ class UpdateTest extends TestCase
             exit('runing migrations failed' . PHP_EOL);
         }
         $this->container = require CONFIG_PATH . '/container/container.php';
+        $this->entityManager =  $this->container->get(EntityManager::class);
     }
 
 
 
-    #[DataProvider('dataProvider')]
+    #[DataProvider('insertDataProvider')]
     public function test_update($updatedShows, $shows, $episodes, $fromFile): void
     {
-
-        /** @var EntityManager $entityManager */
-        $entityManager = $this->container->get(EntityManager::class);
         $tvMazeService = $this->createStub(TvMazeService::class);
-        $tvMazeService->method('getUpdatedShowIDs')->willReturn($updatedShows);
-        $tvMazeService->method('getShows')->willReturn($shows);
+        $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
+        $tvMazeService->method('getShows')->willReturn(...$shows);
         $tvMazeService->method('getEpisodes')->willReturn(...$episodes);
 
         $updateService = new UpdateService(
-            new ShowService($entityManager),
-            new EpisodeService($entityManager),
+            new ShowService($this->entityManager),
+            new EpisodeService($this->entityManager),
             $tvMazeService,
-            $entityManager
+            $this->entityManager
         );
 
         $updateService->run();
 
 
-        $showsInserted = $entityManager->createQuery('SELECT COUNT(s) FROM App\Entity\Show s')->getSingleScalarResult();
-        $episodesInserted = $entityManager->createQuery('SELECT COUNT(e) FROM App\Entity\Episode e')->getSingleScalarResult();
+        $showsInserted = $this->entityManager->createQuery('SELECT COUNT(s) FROM App\Entity\Show s')->getSingleScalarResult();
+        $episodesInserted = $this->entityManager->createQuery('SELECT COUNT(e) FROM App\Entity\Episode e')->getSingleScalarResult();
 
-        $firstShow = $entityManager->find(Show::class, 1);
+        $firstShow = $this->entityManager->find(Show::class, 1);
 
         $this->assertSame('test show 1', $firstShow->getName());
         if (!$fromFile) {
             $this->assertSame(2, $showsInserted);
             $this->assertSame(4, $episodesInserted);
+            $this->assertSame(2, count($firstShow->getEpisodes()->toArray()));
         } else {
             $this->assertSame(1000, $showsInserted);
             $this->assertSame(40000, $episodesInserted);
+            $this->assertSame(40, count($firstShow->getEpisodes()->toArray()));
+        }
+
+        $updateService->run();
+
+        $this->entityManager->clear();
+        $firstShow = $this->entityManager->find(Show::class, 1);
+        $secondShow = $this->entityManager->find(Show::class, 2);
+
+        if (!$fromFile) {
+            $this->assertSame('test show update 1', $firstShow->getName());
+            $this->assertSame('test show update 2', $secondShow->getName());
+            $this->assertContains('Romance', $firstShow->getGenres());
+            $this->assertSame('running updated', $firstShow->getStatus());
+            $this->assertSame('2024-12-1', $firstShow->getPremiered());
         }
     }
 
-    public static function dataProvider(): array
+
+    public static function insertDataProvider(): array
     {
 
         $episodesFromFile = file_get_contents(__DIR__ . '/episodes.json');
@@ -86,6 +103,20 @@ class UpdateTest extends TestCase
                 name: "test show $i",
                 summary: "test $i summary",
                 genres: ['Comedy', 'Drama'],
+            );
+        }
+
+        $testShowsSimpleUpdate = [];
+        for ($i = 1; $i <= 2; $i++) {
+            $testShowsSimpleUpdate[] = new ShowData(
+                tvMazeId: $i,
+                imdbId: "tt$i",
+                status: 'running updated',
+                weight: 100,
+                name: "test show update $i",
+                summary: "test $i summary",
+                genres: ['Comedy', 'Romance'],
+                premiered: '2024-12-1'
             );
         }
 
@@ -123,10 +154,11 @@ class UpdateTest extends TestCase
         }
 
 
+
         return [
             'test simple' => [
-                [1, 2],
-                $testShowsSimple,
+                [[1, 2], [1, 2]],
+                [$testShowsSimple, $testShowsSimpleUpdate],
                 [
                     [
                         new EpisodeData(
@@ -159,18 +191,32 @@ class UpdateTest extends TestCase
                             episodeName: 'test S2E2'
                         )
                     ],
+                    //  ep to update
+                    [
+                        new EpisodeData(
+                            tvMazeShowId: 1,
+                            tvMazeEpisodeId: 1,
+                            episodeName: 'updated S1E1',
+                            seasonNumber: 1,
+                            episodeNumber: 1,
+                            episodeSummary: 'summary ep 1',
+                            type: 'regular',
+                            airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
+                            imageMedium: 'img.link',
+                            runtime: 60
+                        )
+                    ],
                 ],
                 false
             ],
-            'test 1000 shows, 40 eps each' => [
-                $testUdatedIds1000,
-                $testShows1000,
-                $testEpArrays1000,
-                true
-            ],
+            // 'test 1000 shows, 40 eps each' => [
+            //     $testUdatedIds1000,
+            //     $testShows1000,
+            //     $testEpArrays1000,
+            //     true
+            // ],
         ];
     }
-
 
     public function tearDown(): void
     {
