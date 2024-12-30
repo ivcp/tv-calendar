@@ -107,6 +107,10 @@ class UpdateTest extends TestCase
                 $firstShow->getEpisodes()->first()->getAirstamp()->getTimestamp()
             );
             $this->assertSame('special', $secondShow->getEpisodes()->last()->getType());
+            $this->assertSame('summary ep 1 updated', $firstShow->getEpisodes()->first()->getSummary());
+            $this->assertSame(120, $firstShow->getEpisodes()->first()->getRuntime());
+            $this->assertSame('img.medium.update', $firstShow->getEpisodes()->first()->getImageMedium());
+            $this->assertSame('img.original.update', $secondShow->getEpisodes()->last()->getImageOriginal());
         }
     }
 
@@ -187,6 +191,8 @@ class UpdateTest extends TestCase
 
 
 
+
+
         return [
             'test simple' => [
                 [[1, 2], [1, 2, 3]],
@@ -232,11 +238,11 @@ class UpdateTest extends TestCase
                             episodeName: 'updated E1',
                             seasonNumber: 6,
                             episodeNumber: 12,
-                            episodeSummary: 'summary ep 1',
+                            episodeSummary: 'summary ep 1 updated',
                             type: 'regular',
                             airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
-                            imageMedium: 'img.link',
-                            runtime: 60
+                            imageMedium: 'img.medium.update',
+                            runtime: 120
                         ),
                         new EpisodeData(
                             tvMazeShowId: 1,
@@ -259,7 +265,7 @@ class UpdateTest extends TestCase
                             episodeSummary: 'summary ep 4',
                             type: 'special',
                             airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
-                            imageMedium: 'img.link',
+                            imageOriginal: 'img.original.update',
                             runtime: 60
                         )
                     ],
@@ -269,7 +275,7 @@ class UpdateTest extends TestCase
             // 'test 1000 shows, 40 eps each' => [
             //     [$testUdatedIds1000, $testUdatedIds1000],
             //     [$testShows1000, $testShows1000],
-            //     $testEpArrays1000,
+            //     array_merge($testEpArrays1000, array_fill(0, 1000, [])),
             //     true
             // ],
         ];
