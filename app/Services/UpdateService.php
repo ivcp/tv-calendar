@@ -72,14 +72,40 @@ class UpdateService
 
             $epUpdatedCount = 0;
 
-            foreach ($showsToUpdate as $show) {
+            foreach ($showsToUpdate as $showId => $show) {
                 $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+                $episodesInDb = $this->showService->getById($showId)->getEpisodes();
 
-                //insert eps //find by show_id
+                $episodesToUpdate = [];
+                $episodesInDbTvMazeIds = [];
+                foreach ($episodes as $episode) {
+                    //check which are updated 
+                    if ($episode->tvMazeEpisodeId === $episodesInDb->current()->getTvMazeEpisodeId()) {
+                        $episodesToUpdate[$episodesInDb->current()->getId()] = $episode;
+                    }
+                    $episodesInDbTvMazeIds[] = $episodesInDb->current()->getTvMazeEpisodeId();
+                    $episodesInDb->next();
+                    //check if episodes added
+                    //check if eps removed
+                }
+
+                $updatedEpisodesNumber = $this->episodeService->updateEpisodes($episodesToUpdate, $showId);
+                $epUpdatedCount += $updatedEpisodesNumber;
+
+
+                $episodesToInsert = array_filter(
+                    $episodes,
+                    fn($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
+                );
+                //var_dump($episodesToInsert);
+
+                //var_dump($episodesToUpdate);
+                //insert eps 
             }
 
-
+            echo 'UNIT OF WORK ' . $this->entityManager->getUnitOfWork()->size() . PHP_EOL;
             echo 'UPDATED SHOWS: ' . $updatedShows . PHP_EOL;
+            echo 'UPDATED EPISODES: ' . $epUpdatedCount . PHP_EOL;
         }
 
 
