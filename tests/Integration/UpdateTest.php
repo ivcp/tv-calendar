@@ -77,13 +77,26 @@ class UpdateTest extends TestCase
         $this->entityManager->clear();
         $firstShow = $this->entityManager->find(Show::class, 1);
         $secondShow = $this->entityManager->find(Show::class, 2);
+        $thirdShow = $this->entityManager->find(Show::class, 3);
 
         if (!$fromFile) {
+            $this->assertNotNull($thirdShow);
             $this->assertSame('test show update 1', $firstShow->getName());
             $this->assertSame('test show update 2', $secondShow->getName());
             $this->assertContains('Romance', $firstShow->getGenres());
             $this->assertSame('running updated', $firstShow->getStatus());
             $this->assertSame('2024-12-1', $firstShow->getPremiered());
+            $this->assertSame('2024-12-31', $firstShow->getEnded());
+            $this->assertSame('www.updated.com', $firstShow->getOfficialSite());
+            $this->assertSame(99, $firstShow->getWeight());
+            $this->assertSame('update network name', $firstShow->getNetworkName());
+            $this->assertSame('update network country', $firstShow->getNetworkCountry());
+            $this->assertSame('update web ch name', $firstShow->getWebChannelName());
+            $this->assertSame('update web ch country', $firstShow->getWebChannelCountry());
+            $this->assertSame('update 1 summary', $firstShow->getSummary());
+            $this->assertSame(60, $firstShow->getRuntime());
+            $this->assertSame('image.medium', $firstShow->getImageMedium());
+            $this->assertSame('image.original', $firstShow->getImageOriginal());
         }
     }
 
@@ -107,16 +120,25 @@ class UpdateTest extends TestCase
         }
 
         $testShowsSimpleUpdate = [];
-        for ($i = 1; $i <= 2; $i++) {
+        for ($i = 1; $i <= 3; $i++) {
             $testShowsSimpleUpdate[] = new ShowData(
                 tvMazeId: $i,
                 imdbId: "tt$i",
                 status: 'running updated',
-                weight: 100,
+                weight: 99,
                 name: "test show update $i",
-                summary: "test $i summary",
+                summary: "update $i summary",
                 genres: ['Comedy', 'Romance'],
-                premiered: '2024-12-1'
+                premiered: '2024-12-1',
+                ended: '2024-12-31',
+                officialSite: 'www.updated.com',
+                networkName: 'update network name',
+                networkCountry: 'update network country',
+                webChannelName: 'update web ch name',
+                webChannelCountry: 'update web ch country',
+                runtime: 60,
+                imageMedium: 'image.medium',
+                imageOriginal: 'image.original',
             );
         }
 
@@ -157,7 +179,7 @@ class UpdateTest extends TestCase
 
         return [
             'test simple' => [
-                [[1, 2], [1, 2]],
+                [[1, 2], [1, 2, 3]],
                 [$testShowsSimple, $testShowsSimpleUpdate],
                 [
                     [
@@ -191,6 +213,7 @@ class UpdateTest extends TestCase
                             episodeName: 'test S2E2'
                         )
                     ],
+                    [],
                     //  ep to update
                     [
                         new EpisodeData(
@@ -210,8 +233,8 @@ class UpdateTest extends TestCase
                 false
             ],
             // 'test 1000 shows, 40 eps each' => [
-            //     $testUdatedIds1000,
-            //     $testShows1000,
+            //     [$testUdatedIds1000, $testUdatedIds1000],
+            //     [$testShows1000, $testShows1000],
             //     $testEpArrays1000,
             //     true
             // ],
