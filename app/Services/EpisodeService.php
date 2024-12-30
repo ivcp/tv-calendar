@@ -11,6 +11,7 @@ use App\Services\Traits\SetParameterAndType;
 use DateTime;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
+use Exception;
 use SplFixedArray;
 
 class EpisodeService
@@ -106,10 +107,14 @@ class EpisodeService
         }
 
 
-        $rows = $conn->executeStatement('INSERT INTO episodes 
-        (tv_maze_episode_id, season, number, airstamp, type, summary, name, 
-        runtime, image_medium, image_original, created_at, updated_at, tv_maze_show_id)
-        VALUES ' . implode(',', $values), $params->toArray(), $types->toArray());
+        try {
+            $rows = $conn->executeStatement('INSERT INTO episodes 
+            (tv_maze_episode_id, season, number, airstamp, type, summary, name, 
+            runtime, image_medium, image_original, created_at, updated_at, tv_maze_show_id)
+            VALUES ' . implode(',', $values), $params->toArray(), $types->toArray());
+        } catch (Exception $e) {
+            throw $e;
+        }
 
 
         return (int) $rows;
@@ -124,6 +129,7 @@ class EpisodeService
     public function connectEpisodesWithShows(): int
     {
         $conn = $this->entityManager->getConnection();
+
         $rows = $conn->executeStatement("UPDATE episodes 
         SET show_id = shows.id
         FROM shows
