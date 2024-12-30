@@ -12,7 +12,6 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
 use Exception;
-use Iterator;
 use SplFixedArray;
 
 class ShowService
