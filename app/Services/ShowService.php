@@ -11,6 +11,7 @@ use ArrayObject;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
+use Exception;
 use Iterator;
 use SplFixedArray;
 use Symfony\Component\VarDumper\VarDumper;
@@ -109,13 +110,15 @@ class ShowService
             $this->setParameterAndType($params, $types, $paramsIterator, $show->imageOriginal, ParameterType::STRING);
         }
 
-
-        $rows = $conn->executeStatement('INSERT INTO shows 
-        (tv_maze_id, imdb_id, genres, status, premiered, ended, official_site, 
-          weight, network_name, network_country, web_channel_name, web_channel_country,
-          summary, name, runtime, image_medium, image_original, created_at, updated_at) 
+        try {
+            $rows = $conn->executeStatement('INSERT INTO shows 
+            (tv_maze_id, imdb_id, genres, status, premiered, ended, official_site, 
+            weight, network_name, network_country, web_channel_name, web_channel_country,
+            summary, name, runtime, image_medium, image_original, created_at, updated_at) 
           VALUES ' . implode(',', $values), $params->toArray(), $types->toArray());
-
+        } catch (Exception $e) {
+            throw $e;
+        }
 
         return (int) $rows;
     }
@@ -127,11 +130,11 @@ class ShowService
      * @param array[int]ShowData $shows 
      * @return int number of shows updated
      **/
-    public function updateShows(array $shows): void
+    public function updateShows(array $shows): int
     {
 
         if (!$shows) {
-            return;
+            return 0;
         }
 
         $conn = $this->entityManager->getConnection();
@@ -143,69 +146,105 @@ class ShowService
         $params = new SplFixedArray(count($ids) * $paramNumber);
         $types = new SplFixedArray(count($ids) * $paramNumber);
         $it = $params->getIterator();
-        foreach ($ids as $id) {
-            $this->setCase($cases, 'name', $id);
-            $this->setCase($cases, 'imdbId', $id);
-            $this->setCase($cases, 'genres', $id);
-            $this->setCase($cases, 'status', $id);
-            $this->setCase($cases, 'premiered', $id);
 
-            // $this->getUpdateCase($premiered, 'premiered', $id, $show->premiered, ParameterType::STRING);
-        }
-
-        $this->setParamsFor('name', ParameterType::STRING, $params, $types, $it, $shows);
-        $this->setParamsFor('imdbId', ParameterType::STRING, $params, $types, $it, $shows);
-        $this->setParamsFor('genres', ParameterType::STRING, $params, $types, $it, $shows);
-        $this->setParamsFor('status', ParameterType::STRING, $params, $types, $it, $shows);
-        $this->setParamsFor('premiered', ParameterType::STRING, $params, $types, $it, $shows);
-
+        $this->setCaseAndParams('name', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('imdbId', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('genres', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('status', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('premiered', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('ended', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('officialSite', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('weight', ParameterType::INTEGER, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('networkName', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('networkCountry', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('webChannelName', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('webChannelCountry', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('summary', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('runtime', ParameterType::INTEGER, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('imageMedium', ParameterType::STRING, $params, $types, $it, $shows, $cases);
+        $this->setCaseAndParams('imageOriginal', ParameterType::STRING, $params, $types, $it, $shows, $cases);
 
         $nameCase = implode(' ', $cases['name']);
         $imdbIdCase = implode(' ', $cases['imdbId']);
         $genresCase = implode(' ', $cases['genres']);
         $statusCase = implode(' ', $cases['status']);
         $premieredCase = implode(' ', $cases['premiered']);
+        $endedCase = implode(' ', $cases['ended']);
+        $officialSiteCase = implode(' ', $cases['officialSite']);
+        $weightCase = implode(' ', $cases['weight']);
+        $networkNameCase = implode(' ', $cases['networkName']);
+        $networkCountryCase = implode(' ', $cases['networkCountry']);
+        $webChannelNameCase = implode(' ', $cases['webChannelName']);
+        $webChannelCountryCase = implode(' ', $cases['webChannelCountry']);
+        $summaryCase = implode(' ', $cases['summary']);
+        $runtimeCase = implode(' ', $cases['runtime']);
+        $imageMediumCase = implode(' ', $cases['imageMedium']);
+        $imageOriginalCase = implode(' ', $cases['imageOriginal']);
 
 
         $this->setParameterAndType($params, $types, $it, $ids, ArrayParameterType::INTEGER);
 
-        $rows = $conn->executeStatement(
-            "UPDATE shows 
-                SET 
-                    name = CASE $nameCase END,          
-                    imdb_id = CASE $imdbIdCase END,          
-                    genres = CASE $genresCase END,          
-                    status = CASE $statusCase END,          
-                    premiered = CASE $premieredCase END          
-                           
-                WHERE id IN (?);",
-            $params->toArray(),
-            $types->toArray()
-        );
+        try {
+            $rows = $conn->executeStatement(
+                "UPDATE shows 
+                    SET 
+                        name = CASE $nameCase END,          
+                        imdb_id = CASE $imdbIdCase END,          
+                        genres = CASE $genresCase END,          
+                        status = CASE $statusCase END,          
+                        premiered = CASE $premieredCase END,          
+                        ended = CASE $endedCase END,          
+                        official_site = CASE $officialSiteCase END,
+                        weight = CASE $weightCase END,
+                        network_name = CASE $networkNameCase END,
+                        network_country = CASE $networkCountryCase END,
+                        web_channel_name = CASE $webChannelNameCase END,
+                        web_channel_country = CASE $webChannelCountryCase END,
+                        summary = CASE $summaryCase END,
+                        runtime = CASE $runtimeCase END,
+                        image_medium = CASE $imageMediumCase END,
+                        image_original = CASE $imageOriginalCase END
+                    WHERE id IN (?);",
+                $params->toArray(),
+                $types->toArray()
+            );
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        return (int) $rows;
     }
 
     private function setCase(
         array &$cases,
         string $name,
-        int $id
+        int $id,
+        ParameterType $type
     ): void {
-        $cases[$name][] = "WHEN id = $id THEN ?";
+        if ($type === ParameterType::INTEGER) {
+            $cases[$name][] = "WHEN id = $id THEN cast(? as int)";
+        } else {
+            $cases[$name][] = "WHEN id = $id THEN ?";
+        }
     }
 
-    private function setParamsFor(
+    private function setCaseAndParams(
         string $name,
         ParameterType $type,
         SplFixedArray $params,
         SplFixedArray $types,
         Iterator $it,
-        array $shows
+        array $shows,
+        array &$cases
     ): void {
-        foreach ($shows as $show) {
+        foreach ($shows as $id => $show) {
             $value = $show->$name;
             if ($name === 'genres') {
                 $value = $show->genres ? implode(',', $show->genres) : null;
             }
             $this->setParameterAndType($params, $types, $it, $value, $type);
+
+            $this->setCase($cases, $name, $id, $type);
         }
     }
 }
