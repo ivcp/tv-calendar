@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Entity\Episode;
-use App\Entity\Show;
 use Doctrine\ORM\EntityManager;
 
 class UpdateService
@@ -28,7 +26,6 @@ class UpdateService
             return;
         }
 
-        //getallshows
         $updatedShowsData = $this->tvMazeService->getShows($updatedShowIDs);
 
         $showsInDB = $this->showService->getShowsByTvMazeId($updatedShowIDs);
@@ -43,7 +40,6 @@ class UpdateService
         if ($showsToInsert) {
             $this->insertShowsAndEpisodes($showsToInsert);
         }
-
 
 
         $showsToUpdate = [];
@@ -62,60 +58,8 @@ class UpdateService
 
 
         if ($showsToUpdate) {
-            try {
-                $updatedShows = $this->showService->updateShows($showsToUpdate);
-            } catch (\Throwable $e) {
-                //log
-                echo 'ERROR update shows: ' . $e->getMessage() . PHP_EOL;
-                return;
-            }
-
-            $epUpdatedCount = 0;
-
-            foreach ($showsToUpdate as $showId => $show) {
-                $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
-                $episodesInDb = $this->showService->getById($showId)->getEpisodes();
-
-                $episodesToUpdate = [];
-                $episodesInDbTvMazeIds = [];
-                foreach ($episodes as $episode) {
-                    //check which are updated 
-                    if ($episode->tvMazeEpisodeId === $episodesInDb->current()->getTvMazeEpisodeId()) {
-                        $episodesToUpdate[$episodesInDb->current()->getId()] = $episode;
-                    }
-                    $episodesInDbTvMazeIds[] = $episodesInDb->current()->getTvMazeEpisodeId();
-                    $episodesInDb->next();
-                    //check if episodes added
-                    //check if eps removed
-                }
-
-                $updatedEpisodesNumber = $this->episodeService->updateEpisodes($episodesToUpdate, $showId);
-                $epUpdatedCount += $updatedEpisodesNumber;
-
-
-                $episodesToInsert = array_filter(
-                    $episodes,
-                    fn($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
-                );
-                //var_dump($episodesToInsert);
-
-                //var_dump($episodesToUpdate);
-                //insert eps 
-            }
-
-            echo 'UNIT OF WORK ' . $this->entityManager->getUnitOfWork()->size() . PHP_EOL;
-            echo 'UPDATED SHOWS: ' . $updatedShows . PHP_EOL;
-            echo 'UPDATED EPISODES: ' . $epUpdatedCount . PHP_EOL;
+            $this->updateShowsAndEpisodes($showsToUpdate);
         }
-
-
-
-
-
-
-        //TODO:
-        //update existing shows
-        //update eps
 
 
         echo 'UPDATE run() MEMORY USAGE END ' . memory_get_usage() . PHP_EOL;
@@ -156,5 +100,56 @@ class UpdateService
         echo 'SHOWS INSERTED: ' . $insertedShows . PHP_EOL;
         echo 'EPISODES INSERTED: ' . $epInsertCount . PHP_EOL;
         echo 'EPISODES CONNECTED: ' . $connected . PHP_EOL;
+    }
+
+    private function updateShowsAndEpisodes(array $showsToUpdate): void
+    {
+        try {
+            $updatedShows = $this->showService->updateShows($showsToUpdate);
+        } catch (\Throwable $e) {
+            //log
+            echo 'ERROR update shows: ' . $e->getMessage() . PHP_EOL;
+            return;
+        }
+
+        $epUpdatedCount = 0;
+
+        foreach ($showsToUpdate as $showId => $show) {
+            $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+
+            $episodesInDb = $this->showService->getById($showId)->getEpisodes();
+
+            $episodesToUpdate = [];
+            $episodesInDbTvMazeIds = [];
+            foreach ($episodes as $episode) {
+                if ($episode->tvMazeEpisodeId === $episodesInDb->current()->getTvMazeEpisodeId()) {
+                    $episodesToUpdate[$episodesInDb->current()->getId()] = $episode;
+                }
+                $episodesInDbTvMazeIds[] = $episodesInDb->current()->getTvMazeEpisodeId();
+                $episodesInDb->next();
+                //check if eps removed
+            }
+
+            try {
+                $updatedEpisodesNumber = $this->episodeService->updateEpisodes($episodesToUpdate, $showId);
+            } catch (\Throwable $e) {
+                //log
+                echo 'ERROR update shows: ' . $e->getMessage() . PHP_EOL;
+                return;
+            }
+            $epUpdatedCount += $updatedEpisodesNumber;
+
+
+            $episodesToInsert = array_filter(
+                $episodes,
+                fn($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
+            );
+
+            //TODO: insert eps 
+        }
+
+        echo 'UNIT OF WORK ' . $this->entityManager->getUnitOfWork()->size() . PHP_EOL;
+        echo 'UPDATED SHOWS: ' . $updatedShows . PHP_EOL;
+        echo 'UPDATED EPISODES: ' . $epUpdatedCount . PHP_EOL;
     }
 }
