@@ -7,8 +7,9 @@ namespace App\Services;
 use App\DataObjects\EpisodeData;
 use App\Entity\Episode;
 use App\Entity\Show;
-use App\Services\Traits\SetParameterAndType;
+use App\Services\Traits\ParamsTypesCases;
 use DateTime;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
 use Exception;
@@ -17,7 +18,7 @@ use SplFixedArray;
 class EpisodeService
 {
 
-    use SetParameterAndType;
+    use ParamsTypesCases;
 
     public function __construct(
         private readonly EntityManager $entityManager,
@@ -135,6 +136,74 @@ class EpisodeService
         FROM shows
         WHERE episodes.show_id IS NULL
         AND episodes.tv_maze_show_id = shows.tv_maze_id;");
+
+        return (int) $rows;
+    }
+
+    /**
+     * Update episodes
+     *
+     * @param EpisodeData[] $episodes 
+     * @return int number of episodes updated
+     **/
+    public function updateEpisodes(array $episodes, int $showId): int
+    {
+        if (!$episodes) {
+            return 0;
+        }
+
+        $conn = $this->entityManager->getConnection();
+
+        $ids = array_keys($episodes);
+        $updatebles = [
+            'episodeName' => ParameterType::STRING,
+            'seasonNumber' => ParameterType::INTEGER,
+            'episodeNumber' => ParameterType::INTEGER,
+            'airstamp' => ParameterType::STRING,
+            'type' => ParameterType::STRING,
+        ];
+
+        $cases = [];
+        $params = new SplFixedArray(count($ids) * count($updatebles) + 2);
+        $types = new SplFixedArray(count($ids) * count($updatebles) + 2);
+        $it = $params->getIterator();
+
+        foreach ($updatebles as $updatable => $type) {
+            $this->setCaseAndParams($updatable, $type, $params, $types, $it, $episodes, $cases);
+        }
+
+        [
+            $nameCase,
+            $seasonNumberCase,
+            $episodeNumberCase,
+            $airstampCase,
+            $typeCase,
+
+        ] = array_map(function ($updatable) use ($cases) {
+            return implode(' ', $cases[$updatable]);
+        }, array_keys($updatebles));
+
+
+        $this->setParameterAndType($params, $types, $it, $showId, ParameterType::INTEGER);
+        $this->setParameterAndType($params, $types, $it, $ids, ArrayParameterType::INTEGER);
+
+        try {
+            $rows = $conn->executeStatement(
+                "UPDATE episodes 
+                    SET 
+                        name = CASE $nameCase END,
+                        season = CASE $seasonNumberCase END,
+                        number = CASE $episodeNumberCase END,
+                        airstamp = CASE $airstampCase END,
+                        type = CASE $typeCase END
+                        
+                 WHERE show_id = ? AND id IN (?);",
+                $params->toArray(),
+                $types->toArray()
+            );
+        } catch (Exception $e) {
+            throw $e;
+        }
 
         return (int) $rows;
     }
