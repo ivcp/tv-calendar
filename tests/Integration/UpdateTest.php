@@ -97,6 +97,16 @@ class UpdateTest extends TestCase
             $this->assertSame(60, $firstShow->getRuntime());
             $this->assertSame('image.medium', $firstShow->getImageMedium());
             $this->assertSame('image.original', $firstShow->getImageOriginal());
+            $this->assertSame(2, $firstShow->getEpisodes()->count());
+            $this->assertSame('updated E1', $firstShow->getEpisodes()->first()->getName());
+            $this->assertSame('updated E4', $secondShow->getEpisodes()->last()->getName());
+            $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
+            $this->assertSame(12, $firstShow->getEpisodes()->first()->getNumber());
+            $this->assertSame(
+                (new DateTime('2013-06-25T02:00:00+00:00'))->getTimestamp(),
+                $firstShow->getEpisodes()->first()->getAirstamp()->getTimestamp()
+            );
+            $this->assertSame('special', $secondShow->getEpisodes()->last()->getType());
         }
     }
 
@@ -186,7 +196,7 @@ class UpdateTest extends TestCase
                         new EpisodeData(
                             tvMazeShowId: 1,
                             tvMazeEpisodeId: 1,
-                            episodeName: 'test S1E1',
+                            episodeName: 'test E1',
                             seasonNumber: 1,
                             episodeNumber: 1,
                             episodeSummary: 'summary ep 1',
@@ -198,32 +208,56 @@ class UpdateTest extends TestCase
                         new EpisodeData(
                             tvMazeShowId: 1,
                             tvMazeEpisodeId: 2,
-                            episodeName: 'test S1E2'
+                            episodeName: 'test E2'
                         )
                     ],
                     [
                         new EpisodeData(
                             tvMazeShowId: 2,
                             tvMazeEpisodeId: 3,
-                            episodeName: 'test S2E1'
+                            episodeName: 'test E3'
                         ),
                         new EpisodeData(
                             tvMazeShowId: 2,
                             tvMazeEpisodeId: 4,
-                            episodeName: 'test S2E2'
+                            episodeName: 'test E4'
                         )
                     ],
                     [],
-                    //  ep to update
+                    //  EPS TO UPDATE
                     [
                         new EpisodeData(
                             tvMazeShowId: 1,
                             tvMazeEpisodeId: 1,
-                            episodeName: 'updated S1E1',
-                            seasonNumber: 1,
-                            episodeNumber: 1,
+                            episodeName: 'updated E1',
+                            seasonNumber: 6,
+                            episodeNumber: 12,
                             episodeSummary: 'summary ep 1',
                             type: 'regular',
+                            airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
+                            imageMedium: 'img.link',
+                            runtime: 60
+                        ),
+                        new EpisodeData(
+                            tvMazeShowId: 1,
+                            tvMazeEpisodeId: 2,
+                            episodeName: 'test E2'
+                        )
+                    ],
+                    [
+                        new EpisodeData(
+                            tvMazeShowId: 2,
+                            tvMazeEpisodeId: 3,
+                            episodeName: 'test E3'
+                        ),
+                        new EpisodeData(
+                            tvMazeShowId: 2,
+                            tvMazeEpisodeId: 4,
+                            episodeName: 'updated E4',
+                            seasonNumber: 1,
+                            episodeNumber: 1,
+                            episodeSummary: 'summary ep 4',
+                            type: 'special',
                             airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
                             imageMedium: 'img.link',
                             runtime: 60
