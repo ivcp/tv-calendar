@@ -161,6 +161,10 @@ class EpisodeService
             'episodeNumber' => ParameterType::INTEGER,
             'airstamp' => ParameterType::STRING,
             'type' => ParameterType::STRING,
+            'episodeSummary' => ParameterType::STRING,
+            'runtime' => ParameterType::INTEGER,
+            'imageMedium' => ParameterType::STRING,
+            'imageOriginal' => ParameterType::STRING,
         ];
 
         $cases = [];
@@ -178,6 +182,10 @@ class EpisodeService
             $episodeNumberCase,
             $airstampCase,
             $typeCase,
+            $episodeSummaryCase,
+            $runtimeCase,
+            $imageMediumCase,
+            $imageOriginalCase,
 
         ] = array_map(function ($updatable) use ($cases) {
             return implode(' ', $cases[$updatable]);
@@ -195,7 +203,11 @@ class EpisodeService
                         season = CASE $seasonNumberCase END,
                         number = CASE $episodeNumberCase END,
                         airstamp = CASE $airstampCase END,
-                        type = CASE $typeCase END
+                        type = CASE $typeCase END,
+                        summary = CASE $episodeSummaryCase END,
+                        runtime = CASE $runtimeCase END,
+                        image_medium = CASE $imageMediumCase END,
+                        image_original = CASE $imageOriginalCase END
                         
                  WHERE show_id = ? AND id IN (?);",
                 $params->toArray(),
