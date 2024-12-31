@@ -120,6 +120,8 @@ class UpdateService
         int &$epUpdatedCount,
         int &$epRemovedCount
     ): void {
+
+
         try {
             $updatedShows = $this->showService->updateShows($showsToUpdate);
             $showUpdatedCount += $updatedShows;
@@ -136,19 +138,19 @@ class UpdateService
             $episodesInDb = $this->showService->getById($showId)->getEpisodes();
 
             $episodesToUpdate = [];
-            $episodesInDbTvMazeIds = [];
-            $episodesInDbIds = [];
+            $episodesInDbTvMazeIds = array_map(fn($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
+            $episodesInDbIds =  array_map(fn($e) => $e->getId(), $episodesInDb->toArray());
             foreach ($episodes as $episode) {
+                $episodesInDb->first();
                 while ($episodesInDb->current()) {
                     if ($episode->tvMazeEpisodeId === $episodesInDb->current()->getTvMazeEpisodeId()) {
                         $episodesToUpdate[$episodesInDb->current()->getId()] = $episode;
                     }
-                    $episodesInDbTvMazeIds[] = $episodesInDb->current()->getTvMazeEpisodeId();
-                    $episodesInDbIds[] = $episodesInDb->current()->getId();
                     $episodesInDb->next();
                 }
             }
 
+            $this->entityManager->clear();
             if ($episodesToUpdate) {
                 try {
                     $updatedEpisodesNumber = $this->episodeService->updateEpisodes($episodesToUpdate, $showId);
