@@ -6,7 +6,6 @@ namespace Tests\Integration;
 
 use App\DataObjects\EpisodeData;
 use App\DataObjects\ShowData;
-use App\Entity\Episode;
 use App\Entity\Show;
 use App\Services\EpisodeService;
 use App\Services\ShowService;
@@ -38,7 +37,7 @@ class UpdateTest extends TestCase
 
 
 
-    #[DataProvider('insertDataProvider')]
+    #[DataProvider('dataProvider')]
     public function test_update($updatedShows, $shows, $episodes, $fromFile): void
     {
         $tvMazeService = $this->createStub(TvMazeService::class);
@@ -97,7 +96,7 @@ class UpdateTest extends TestCase
             $this->assertSame(60, $firstShow->getRuntime());
             $this->assertSame('image.medium', $firstShow->getImageMedium());
             $this->assertSame('image.original', $firstShow->getImageOriginal());
-            $this->assertSame(3, $firstShow->getEpisodes()->count());
+            $this->assertSame(2, $firstShow->getEpisodes()->count());
             $this->assertSame('updated E1', $firstShow->getEpisodes()->first()->getName());
             $this->assertSame('updated E4', $secondShow->getEpisodes()->last()->getName());
             $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
@@ -111,11 +110,13 @@ class UpdateTest extends TestCase
             $this->assertSame(120, $firstShow->getEpisodes()->first()->getRuntime());
             $this->assertSame('img.medium.update', $firstShow->getEpisodes()->first()->getImageMedium());
             $this->assertSame('img.original.update', $secondShow->getEpisodes()->last()->getImageOriginal());
+            $this->assertSame('test E5', $firstShow->getEpisodes()->last()->getName());
+            $this->assertSame(1, $secondShow->getEpisodes()->count());
         }
     }
 
 
-    public static function insertDataProvider(): array
+    public static function dataProvider(): array
     {
 
         $episodesFromFile = file_get_contents(__DIR__ . '/episodes.json');
@@ -191,8 +192,6 @@ class UpdateTest extends TestCase
 
 
 
-
-
         return [
             'test simple' => [
                 [[1, 2], [1, 2, 3]],
@@ -229,6 +228,7 @@ class UpdateTest extends TestCase
                             episodeName: 'test E4'
                         )
                     ],
+                    //no eps for 3rd show
                     [],
                     //  EPS TO UPDATE
                     [
@@ -244,12 +244,7 @@ class UpdateTest extends TestCase
                             imageMedium: 'img.medium.update',
                             runtime: 120
                         ),
-                        new EpisodeData(
-                            tvMazeShowId: 1,
-                            tvMazeEpisodeId: 2,
-                            episodeName: 'test E2'
-                        ),
-                        //new episode
+                        //new episode, EP2 removed
                         new EpisodeData(
                             tvMazeShowId: 1,
                             tvMazeEpisodeId: 5,
@@ -257,13 +252,7 @@ class UpdateTest extends TestCase
                         )
                     ],
                     [
-                        new EpisodeData(
-                            tvMazeShowId: 2,
-                            tvMazeEpisodeId: 3,
-                            episodeName: 'test E3'
-                        ),
-
-
+                        //remove E3, update E4
                         new EpisodeData(
                             tvMazeShowId: 2,
                             tvMazeEpisodeId: 4,
@@ -280,12 +269,12 @@ class UpdateTest extends TestCase
                 ],
                 false
             ],
-            // 'test 1000 shows, 40 eps each' => [
-            //     [$testUdatedIds1000, $testUdatedIds1000],
-            //     [$testShows1000, $testShows1000],
-            //     array_merge($testEpArrays1000, array_fill(0, 1000, [])),
-            //     true
-            // ],
+            'test 1000 shows, 40 eps each' => [
+                [$testUdatedIds1000, $testUdatedIds1000],
+                [$testShows1000, $testShows1000],
+                array_merge($testEpArrays1000, array_fill(0, 1000, [])),
+                true
+            ],
         ];
     }
 
