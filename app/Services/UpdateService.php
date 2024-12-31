@@ -40,6 +40,7 @@ class UpdateService
         $showUpdatedCount = 0;
         $epInsertCount = 0;
         $epUpdatedCount = 0;
+        $epRemovedCount = 0;
 
 
         if ($showsToInsert) {
@@ -61,13 +62,20 @@ class UpdateService
         }
 
         if ($showsToUpdate) {
-            $this->updateShowsAndEpisodes($showsToUpdate, $epInsertCount, $showUpdatedCount, $epUpdatedCount);
+            $this->updateShowsAndEpisodes(
+                $showsToUpdate,
+                $epInsertCount,
+                $showUpdatedCount,
+                $epUpdatedCount,
+                $epRemovedCount
+            );
         }
 
         echo 'SHOWS INSERTED: ' . $showInsertCount . PHP_EOL;
         echo 'EPISODES INSERTED: ' . $epInsertCount . PHP_EOL;
         echo 'SHOWS UPDATED: ' . $showUpdatedCount . PHP_EOL;
         echo 'EPISODES UPDATED: ' . $epUpdatedCount . PHP_EOL;
+        echo 'EPISODES REMOVED: ' . $epRemovedCount . PHP_EOL;
 
         echo 'UPDATE run() MEMORY USAGE END ' . memory_get_usage() . PHP_EOL;
 
@@ -109,7 +117,8 @@ class UpdateService
         array $showsToUpdate,
         int &$epInsertCount,
         int &$showUpdatedCount,
-        int &$epUpdatedCount
+        int &$epUpdatedCount,
+        int &$epRemovedCount
     ): void {
         try {
             $updatedShows = $this->showService->updateShows($showsToUpdate);
@@ -128,38 +137,54 @@ class UpdateService
 
             $episodesToUpdate = [];
             $episodesInDbTvMazeIds = [];
+            $episodesInDbIds = [];
             foreach ($episodes as $episode) {
-                if ($episodesInDb->current()) {
+                while ($episodesInDb->current()) {
                     if ($episode->tvMazeEpisodeId === $episodesInDb->current()->getTvMazeEpisodeId()) {
                         $episodesToUpdate[$episodesInDb->current()->getId()] = $episode;
                     }
                     $episodesInDbTvMazeIds[] = $episodesInDb->current()->getTvMazeEpisodeId();
+                    $episodesInDbIds[] = $episodesInDb->current()->getId();
                     $episodesInDb->next();
-                    //check if eps removed
                 }
             }
 
-            try {
-                $updatedEpisodesNumber = $this->episodeService->updateEpisodes($episodesToUpdate, $showId);
-                $epUpdatedCount += $updatedEpisodesNumber;
-            } catch (\Throwable $e) {
-                //log
-                echo 'ERROR update shows: ' . $e->getMessage() . PHP_EOL;
-                return;
+            if ($episodesToUpdate) {
+                try {
+                    $updatedEpisodesNumber = $this->episodeService->updateEpisodes($episodesToUpdate, $showId);
+                    $epUpdatedCount += $updatedEpisodesNumber;
+                } catch (\Throwable $e) {
+                    //log
+                    echo 'ERROR updateEpisodes: ' . $e->getMessage() . PHP_EOL;
+                    return;
+                }
             }
-
             $episodesToInsert = array_filter(
                 $episodes,
                 fn($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
             );
 
-            try {
-                $insertedEpisodes = $this->episodeService->insertEpisodes($episodesToInsert);
-                $epInsertCount += $insertedEpisodes;
-                $this->episodeService->connectEpisodesWithShows();
-            } catch (\Throwable $e) {
-                echo 'ERROR update shows: ' . $e->getMessage() . PHP_EOL;
-                return;
+            if ($episodesToInsert) {
+                try {
+                    $insertedEpisodes = $this->episodeService->insertEpisodes($episodesToInsert);
+                    $epInsertCount += $insertedEpisodes;
+                    $this->episodeService->connectEpisodesWithShows();
+                } catch (\Throwable $e) {
+                    echo 'ERROR update insertEpisodes: ' . $e->getMessage() . PHP_EOL;
+                    return;
+                }
+            }
+
+            $episodesToRemove = array_filter($episodesInDbIds, fn($e) => !in_array($e,  array_keys($episodesToUpdate)));
+
+            if ($episodesToRemove) {
+                try {
+                    $removedEpisodes = $this->episodeService->removeEpisodes($episodesToRemove);
+                    $epRemovedCount += $removedEpisodes;
+                } catch (\Throwable $e) {
+                    echo 'ERROR update removeEpisodes: ' . $e->getMessage() . PHP_EOL;
+                    return;
+                }
             }
         }
 
