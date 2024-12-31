@@ -64,21 +64,20 @@ class UpdateTest extends TestCase
         if (!$fromFile) {
             $this->assertSame(2, $showsInserted);
             $this->assertSame(4, $episodesInserted);
-            $this->assertSame(2, count($firstShow->getEpisodes()->toArray()));
+            $this->assertSame(2, $firstShow->getEpisodes()->count());
         } else {
             $this->assertSame(1000, $showsInserted);
             $this->assertSame(40000, $episodesInserted);
-            $this->assertSame(40, count($firstShow->getEpisodes()->toArray()));
+            $this->assertSame(40, $firstShow->getEpisodes()->count());
         }
 
         $updateService->run();
 
         $this->entityManager->clear();
-        $firstShow = $this->entityManager->find(Show::class, 1);
-        $secondShow = $this->entityManager->find(Show::class, 2);
-        $thirdShow = $this->entityManager->find(Show::class, 3);
-
         if (!$fromFile) {
+            $firstShow = $this->entityManager->find(Show::class, 1);
+            $secondShow = $this->entityManager->find(Show::class, 2);
+            $thirdShow = $this->entityManager->find(Show::class, 3);
             $this->assertNotNull($thirdShow);
             $this->assertSame('test show update 1', $firstShow->getName());
             $this->assertSame('test show update 2', $secondShow->getName());
@@ -98,7 +97,8 @@ class UpdateTest extends TestCase
             $this->assertSame('image.original', $firstShow->getImageOriginal());
             $this->assertSame(2, $firstShow->getEpisodes()->count());
             $this->assertSame('updated E1', $firstShow->getEpisodes()->first()->getName());
-            $this->assertSame('updated E4', $secondShow->getEpisodes()->last()->getName());
+            $this->assertSame('updated E4', $secondShow->getEpisodes()
+                ->findFirst(fn($k, $v) => $v->getId() === 4)->getName());
             $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
             $this->assertSame(12, $firstShow->getEpisodes()->first()->getNumber());
             $this->assertSame(
@@ -111,7 +111,7 @@ class UpdateTest extends TestCase
             $this->assertSame('img.medium.update', $firstShow->getEpisodes()->first()->getImageMedium());
             $this->assertSame('img.original.update', $secondShow->getEpisodes()->last()->getImageOriginal());
             $this->assertSame('test E5', $firstShow->getEpisodes()->last()->getName());
-            $this->assertSame(1, $secondShow->getEpisodes()->count());
+            $this->assertSame(2, $secondShow->getEpisodes()->count());
         }
     }
 
@@ -192,6 +192,7 @@ class UpdateTest extends TestCase
 
 
 
+
         return [
             'test simple' => [
                 [[1, 2], [1, 2, 3]],
@@ -252,7 +253,7 @@ class UpdateTest extends TestCase
                         )
                     ],
                     [
-                        //remove E3, update E4
+                        //remove E3, update E4, add E6
                         new EpisodeData(
                             tvMazeShowId: 2,
                             tvMazeEpisodeId: 4,
@@ -260,6 +261,18 @@ class UpdateTest extends TestCase
                             seasonNumber: 1,
                             episodeNumber: 1,
                             episodeSummary: 'summary ep 4',
+                            type: 'special',
+                            airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
+                            imageOriginal: 'img.original.update',
+                            runtime: 60
+                        ),
+                        new EpisodeData(
+                            tvMazeShowId: 2,
+                            tvMazeEpisodeId: 6,
+                            episodeName: 'updated E6',
+                            seasonNumber: 1,
+                            episodeNumber: 6,
+                            episodeSummary: 'summary',
                             type: 'special',
                             airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
                             imageOriginal: 'img.original.update',
@@ -272,7 +285,7 @@ class UpdateTest extends TestCase
             'test 1000 shows, 40 eps each' => [
                 [$testUdatedIds1000, $testUdatedIds1000],
                 [$testShows1000, $testShows1000],
-                array_merge($testEpArrays1000, array_fill(0, 1000, [])),
+                [...$testEpArrays1000, ...$testEpArrays1000],
                 true
             ],
         ];
