@@ -219,4 +219,14 @@ class EpisodeService
 
         return (int) $rows;
     }
+    /**
+     * Remove episodes    
+     * @return int number of episodes removed
+     **/
+    public function removeEpisodes(array $ids): int
+    {
+        $q = $this->entityManager->createQuery('DELETE from App\Entity\Episode e WHERE e.id IN (:ids)');
+        $q->setParameter('ids', $ids, ArrayParameterType::INTEGER);
+        return (int) $q->execute();
+    }
 }
