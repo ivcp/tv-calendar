@@ -14,6 +14,6 @@
         <env name="DB_NAME" value="tv-calendar-test-db" force="true"/>
         <env name="DB_HOST" value="db-test" force="true"/>
         <env name="APP_NAME" value="test"/>      
-        <ini name="memory_limit" value="200M" />
+        <ini name="memory_limit" value="250M" />
     </php>
 </phpunit>
