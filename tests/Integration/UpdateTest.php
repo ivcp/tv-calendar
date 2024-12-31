@@ -97,7 +97,7 @@ class UpdateTest extends TestCase
             $this->assertSame(60, $firstShow->getRuntime());
             $this->assertSame('image.medium', $firstShow->getImageMedium());
             $this->assertSame('image.original', $firstShow->getImageOriginal());
-            $this->assertSame(2, $firstShow->getEpisodes()->count());
+            $this->assertSame(3, $firstShow->getEpisodes()->count());
             $this->assertSame('updated E1', $firstShow->getEpisodes()->first()->getName());
             $this->assertSame('updated E4', $secondShow->getEpisodes()->last()->getName());
             $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
@@ -248,6 +248,12 @@ class UpdateTest extends TestCase
                             tvMazeShowId: 1,
                             tvMazeEpisodeId: 2,
                             episodeName: 'test E2'
+                        ),
+                        //new episode
+                        new EpisodeData(
+                            tvMazeShowId: 1,
+                            tvMazeEpisodeId: 5,
+                            episodeName: 'test E5'
                         )
                     ],
                     [
@@ -256,6 +262,8 @@ class UpdateTest extends TestCase
                             tvMazeEpisodeId: 3,
                             episodeName: 'test E3'
                         ),
+
+
                         new EpisodeData(
                             tvMazeShowId: 2,
                             tvMazeEpisodeId: 4,
