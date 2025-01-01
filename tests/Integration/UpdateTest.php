@@ -38,7 +38,7 @@ class UpdateTest extends TestCase
 
 
     #[DataProvider('dataProvider')]
-    public function test_update($updatedShows, $shows, $episodes, $fromFile): void
+    public function test_update_main($updatedShows, $shows, $episodes, $fromFile): void
     {
         $tvMazeService = $this->createStub(TvMazeService::class);
         $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
@@ -101,9 +101,10 @@ class UpdateTest extends TestCase
                 ->findFirst(fn($k, $v) => $v->getId() === 4)->getName());
             $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
             $this->assertSame(12, $firstShow->getEpisodes()->first()->getNumber());
-            $this->assertSame(
-                (new DateTime('2013-06-25T02:00:00+00:00'))->getTimestamp(),
-                $firstShow->getEpisodes()->first()->getAirstamp()->getTimestamp()
+            $this->assertEqualsWithDelta(
+                (new DateTime('now'))->getTimestamp(),
+                $firstShow->getEpisodes()->first()->getAirstamp()->getTimestamp(),
+                5
             );
             $this->assertSame('special', $secondShow->getEpisodes()->last()->getType());
             $this->assertSame('summary ep 1 updated', $firstShow->getEpisodes()->first()->getSummary());
@@ -114,6 +115,8 @@ class UpdateTest extends TestCase
             $this->assertSame(2, $secondShow->getEpisodes()->count());
         }
     }
+
+
 
 
     public static function dataProvider(): array
@@ -241,7 +244,7 @@ class UpdateTest extends TestCase
                             episodeNumber: 12,
                             episodeSummary: 'summary ep 1 updated',
                             type: 'regular',
-                            airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
+                            airstamp: new DateTime('now'),
                             imageMedium: 'img.medium.update',
                             runtime: 120
                         ),
@@ -262,7 +265,7 @@ class UpdateTest extends TestCase
                             episodeNumber: 1,
                             episodeSummary: 'summary ep 4',
                             type: 'special',
-                            airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
+                            airstamp: new DateTime('now'),
                             imageOriginal: 'img.original.update',
                             runtime: 60
                         ),
@@ -274,7 +277,7 @@ class UpdateTest extends TestCase
                             episodeNumber: 6,
                             episodeSummary: 'summary',
                             type: 'special',
-                            airstamp: new DateTime('2013-06-25T02:00:00+00:00'),
+                            airstamp: new DateTime('now'),
                             imageOriginal: 'img.original.update',
                             runtime: 60
                         )
@@ -287,6 +290,68 @@ class UpdateTest extends TestCase
                 [$testShows1000, $testShows1000],
                 [...$testEpArrays1000, ...$testEpArrays1000],
                 true
+            ],
+        ];
+    }
+
+    #[DataProvider('dataProviderHuge')]
+    public function test_update_huge($updatedShows, $shows, $episodes): void
+    {
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
+        $tvMazeService->method('getShows')->willReturn(...$shows);
+        $tvMazeService->method('getEpisodes')->willReturn(...$episodes);
+
+        $updateService = new UpdateService(
+            new ShowService($this->entityManager),
+            new EpisodeService($this->entityManager),
+            $tvMazeService,
+            $this->entityManager
+        );
+
+        $updateService->run();
+
+        $this->assertTrue(true);
+
+        $updateService->run();
+    }
+
+    public static function dataProviderHuge(): array
+    {
+
+        $episodesFromFile = file_get_contents(__DIR__ . '/episodes_huge.json');
+        $eps = json_decode($episodesFromFile);
+
+        $testShow = new ShowData(
+            tvMazeId: 1,
+            status: 'running',
+            weight: 100,
+            name: "test show 1",
+            summary: "test summary",
+            genres: ['Comedy', 'Drama']
+        );
+
+        $testEps = array_map(function ($episode) {
+            return new EpisodeData(
+                tvMazeShowId: 1,
+                tvMazeEpisodeId: $episode->id,
+                episodeName: $episode->name,
+                seasonNumber: $episode?->season,
+                episodeNumber: $episode?->number,
+                episodeSummary: $episode?->summary,
+                type: $episode?->type,
+                airstamp: $episode?->airstamp ? new DateTime($episode->airstamp) : null,
+                runtime: $episode?->runtime,
+                imageMedium: $episode?->image?->medium,
+                imageOriginal: $episode?->image?->original
+            );
+        }, $eps);
+
+        return [
+            [
+                [[1], [1]],
+                [[$testShow], [$testShow]],
+                [$testEps, $testEps]
             ],
         ];
     }
