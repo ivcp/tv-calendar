@@ -26,6 +26,7 @@ class UpdateService
             return;
         }
 
+
         $updatedShowsData = $this->tvMazeService->getShows($updatedShowIDs);
 
         $showsInDB = $this->showService->getShowsByTvMazeId($updatedShowIDs);
@@ -106,7 +107,7 @@ class UpdateService
                 $epInsertCount += $insertedEpisodes;
             } catch (\Throwable $e) {
                 //log it
-                echo 'ERROR insert episodes: ' . $e->getMessage() . PHP_EOL;
+                echo "ERROR insert episodes for $show->tvMazeId: " . $e->getMessage() . PHP_EOL;
             }
         }
 
@@ -140,14 +141,10 @@ class UpdateService
             $episodesToUpdate = [];
             $episodesInDbTvMazeIds = array_map(fn($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
             $episodesInDbIds =  array_map(fn($e) => $e->getId(), $episodesInDb->toArray());
+
             foreach ($episodes as $episode) {
-                $episodesInDb->first();
-                while ($episodesInDb->current()) {
-                    if ($episode->tvMazeEpisodeId === $episodesInDb->current()->getTvMazeEpisodeId()) {
-                        $episodesToUpdate[$episodesInDb->current()->getId()] = $episode;
-                    }
-                    $episodesInDb->next();
-                }
+                $ep = $episodesInDb->findFirst(fn($k, $v) => $v->getTvMazeEpisodeId() === $episode->tvMazeEpisodeId);
+                $episodesToUpdate[$ep->getId()] = $episode;
             }
 
             $this->entityManager->clear();
@@ -157,7 +154,7 @@ class UpdateService
                     $epUpdatedCount += $updatedEpisodesNumber;
                 } catch (\Throwable $e) {
                     //log
-                    echo 'ERROR updateEpisodes: ' . $e->getMessage() . PHP_EOL;
+                    echo "ERROR updateEpisodes for $show->tvMazeId: " . $e->getMessage() . PHP_EOL;
                     return;
                 }
             }
@@ -172,7 +169,7 @@ class UpdateService
                     $epInsertCount += $insertedEpisodes;
                     $this->episodeService->connectEpisodesWithShows();
                 } catch (\Throwable $e) {
-                    echo 'ERROR update insertEpisodes: ' . $e->getMessage() . PHP_EOL;
+                    echo "ERROR update insertEpisodesfor $show->tvMazeId: " . $e->getMessage() . PHP_EOL;
                     return;
                 }
             }
@@ -184,12 +181,12 @@ class UpdateService
                     $removedEpisodes = $this->episodeService->removeEpisodes($episodesToRemove);
                     $epRemovedCount += $removedEpisodes;
                 } catch (\Throwable $e) {
-                    echo 'ERROR update removeEpisodes: ' . $e->getMessage() . PHP_EOL;
+                    echo "ERROR update removeEpisodes: $show->tvMazeId: " . $e->getMessage() . PHP_EOL;
                     return;
                 }
             }
         }
 
-        echo 'UNIT OF WORK ' . $this->entityManager->getUnitOfWork()->size() . PHP_EOL;
+        //echo 'UNIT OF WORK ' . $this->entityManager->getUnitOfWork()->size() . PHP_EOL;
     }
 }
