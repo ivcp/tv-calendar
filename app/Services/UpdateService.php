@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use DateTime;
 use Doctrine\ORM\EntityManager;
 
 class UpdateService
@@ -141,16 +142,18 @@ class UpdateService
             $episodesToUpdate = [];
             $episodesInDbTvMazeIds = array_map(fn($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
             $episodesInDbIds =  array_map(fn($e) => $e->getId(), $episodesInDb->toArray());
-
             foreach ($episodes as $episode) {
                 $ep = $episodesInDb->findFirst(fn($k, $v) => $v->getTvMazeEpisodeId() === $episode->tvMazeEpisodeId);
-                $episodesToUpdate[$ep->getId()] = $episode;
+                if ($ep) {
+                    $episodesToUpdate[$ep->getId()] = $episode;
+                }
             }
 
             $this->entityManager->clear();
             if ($episodesToUpdate) {
+                $epsToUpdateFiltered = array_filter($episodesToUpdate, fn($e) => $e->airstamp > new DateTime('7 days ago'));
                 try {
-                    $updatedEpisodesNumber = $this->episodeService->updateEpisodes($episodesToUpdate, $showId);
+                    $updatedEpisodesNumber = $this->episodeService->updateEpisodes($epsToUpdateFiltered, $showId);
                     $epUpdatedCount += $updatedEpisodesNumber;
                 } catch (\Throwable $e) {
                     //log
@@ -175,7 +178,6 @@ class UpdateService
             }
 
             $episodesToRemove = array_filter($episodesInDbIds, fn($e) => !in_array($e,  array_keys($episodesToUpdate)));
-
             if ($episodesToRemove) {
                 try {
                     $removedEpisodes = $this->episodeService->removeEpisodes($episodesToRemove);
