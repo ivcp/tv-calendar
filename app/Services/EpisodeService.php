@@ -107,18 +107,32 @@ class EpisodeService
             $this->setParameterAndType($params,  $types, $paramsIterator,  $episode->tvMazeShowId, ParameterType::INTEGER);
         }
 
+        $paramsArray = $params->toArray();
+        $typesArray = $types->toArray();
 
+        $rowsInserted = 0;
         try {
-            $rows = $conn->executeStatement('INSERT INTO episodes 
-            (tv_maze_episode_id, season, number, airstamp, type, summary, name, 
-            runtime, image_medium, image_original, created_at, updated_at, tv_maze_show_id)
-            VALUES ' . implode(',', $values), $params->toArray(), $types->toArray());
+            if (count($paramsArray) < 65535) {
+                $rowsInserted = $conn->executeStatement('INSERT INTO episodes 
+                (tv_maze_episode_id, season, number, airstamp, type, summary, name, 
+                runtime, image_medium, image_original, created_at, updated_at, tv_maze_show_id)
+                VALUES ' . implode(',', $values), $paramsArray, $typesArray);
+            } else {
+                $chunkedValues = array_chunk($values, 5000);
+                $chunkedParams = array_chunk($paramsArray, 55000);
+                $chunkedTypes = array_chunk($typesArray, 55000);
+                foreach ($chunkedValues as $i => $chunk) {
+                    $rowsInserted += $conn->executeStatement('INSERT INTO episodes 
+                    (tv_maze_episode_id, season, number, airstamp, type, summary, name, 
+                    runtime, image_medium, image_original, created_at, updated_at, tv_maze_show_id)
+                    VALUES ' . implode(',', $chunk), $chunkedParams[$i], $chunkedTypes[$i]);
+                }
+            }
         } catch (Exception $e) {
             throw $e;
         }
 
-
-        return (int) $rows;
+        return (int) $rowsInserted;
     }
 
 
