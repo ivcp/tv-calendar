@@ -73,6 +73,7 @@ services:
     build: ./docker/cron
     volumes:
       - .:/var/www
+      - ./docker/cron/local.ini:/usr/local/etc/php/conf.d/local.ini
 
 volumes:
   tv-calendar-db-data:
