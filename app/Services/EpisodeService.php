@@ -209,9 +209,12 @@ class EpisodeService
         $this->setParameterAndType($params, $types, $it, $showId, ParameterType::INTEGER);
         $this->setParameterAndType($params, $types, $it, $ids, ArrayParameterType::INTEGER);
 
+
+        $rows = 0;
         try {
-            $rows = $conn->executeStatement(
-                "UPDATE episodes 
+            if ($params->count() < 65535) {
+                $rows = $conn->executeStatement(
+                    "UPDATE episodes 
                     SET 
                         name = CASE $nameCase END,
                         season = CASE $seasonNumberCase END,
@@ -224,9 +227,10 @@ class EpisodeService
                         image_original = CASE $imageOriginalCase END
                         
                  WHERE show_id = ? AND id IN (?);",
-                $params->toArray(),
-                $types->toArray()
-            );
+                    $params->toArray(),
+                    $types->toArray(),
+                );
+            }
         } catch (Exception $e) {
             throw $e;
         }
