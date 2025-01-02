@@ -52,7 +52,13 @@ class UpdateTest extends TestCase
             $this->entityManager
         );
 
-        $updateService->run();
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $updateService->run();
 
 
         $showsInserted = $this->entityManager->createQuery('SELECT COUNT(s) FROM App\Entity\Show s')->getSingleScalarResult();
@@ -63,18 +69,36 @@ class UpdateTest extends TestCase
         $this->assertSame('test show 1', $firstShow->getName());
         if (!$fromFile) {
             $this->assertSame(2, $showsInserted);
+            $this->assertSame(2, $showInsertCount);
             $this->assertSame(4, $episodesInserted);
+            $this->assertSame(4, $epInsertCount);
+            $this->assertSame(0, $showUpdatedCount);
+            $this->assertSame(0, $epUpdatedCount);
+            $this->assertSame(0, $epRemovedCount);
             $this->assertSame(2, $firstShow->getEpisodes()->count());
         } else {
             $this->assertSame(1000, $showsInserted);
             $this->assertSame(40000, $episodesInserted);
             $this->assertSame(40, $firstShow->getEpisodes()->count());
+            $this->assertSame(1000, $showInsertCount);
+            $this->assertSame(40000, $episodesInserted);
         }
 
-        $updateService->run();
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $updateService->run();
 
         $this->entityManager->clear();
         if (!$fromFile) {
+            $this->assertSame(1, $showInsertCount);
+            $this->assertSame(2, $showUpdatedCount);
+            $this->assertSame(2, $epInsertCount);
+            $this->assertSame(2, $epUpdatedCount);
+            $this->assertSame(2, $epRemovedCount);
             $firstShow = $this->entityManager->find(Show::class, 1);
             $secondShow = $this->entityManager->find(Show::class, 2);
             $thirdShow = $this->entityManager->find(Show::class, 3);
@@ -118,6 +142,8 @@ class UpdateTest extends TestCase
                 $firstShow->getUpdatedAt()->getTimestamp(),
                 1
             );
+        } else {
+            $this->assertSame(1000, $epUpdatedCount);
         }
     }
 
@@ -314,11 +340,30 @@ class UpdateTest extends TestCase
             $this->entityManager
         );
 
-        $updateService->run();
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $updateService->run();
 
-        $this->assertTrue(true);
+        $this->assertSame(1, $showInsertCount);
+        $this->assertSame(9215, $epInsertCount);
+        $this->assertSame(0, $showUpdatedCount);
+        $this->assertSame(0, $epUpdatedCount);
+        $this->assertSame(0, $epRemovedCount);
 
-        $updateService->run();
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $updateService->run();
+        $this->assertSame(0, $epInsertCount);
+        $this->assertSame(47, $epUpdatedCount);
+        $this->assertSame(0, $epRemovedCount);
     }
 
     public static function dataProviderHuge(): array
