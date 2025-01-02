@@ -209,7 +209,8 @@ class ShowService
                         summary = CASE $summaryCase END,
                         runtime = CASE $runtimeCase END,
                         image_medium = CASE $imageMediumCase END,
-                        image_original = CASE $imageOriginalCase END
+                        image_original = CASE $imageOriginalCase END,
+                        updated_at = current_timestamp
                     WHERE id IN (?);",
                 $params->toArray(),
                 $types->toArray()

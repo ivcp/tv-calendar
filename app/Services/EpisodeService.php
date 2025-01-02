@@ -224,8 +224,8 @@ class EpisodeService
                         summary = CASE $episodeSummaryCase END,
                         runtime = CASE $runtimeCase END,
                         image_medium = CASE $imageMediumCase END,
-                        image_original = CASE $imageOriginalCase END
-                        
+                        image_original = CASE $imageOriginalCase END,
+                        updated_at = current_timestamp                        
                  WHERE show_id = ? AND id IN (?);",
                     $params->toArray(),
                     $types->toArray(),
