@@ -17,6 +17,7 @@ services:
       - "9003:9003"
     volumes:
       - .:/var/www
+      - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
 
   nginx:
     image: nginx:1.19-alpine
