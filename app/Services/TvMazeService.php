@@ -77,7 +77,6 @@ class TvMazeService
 
 
         if ($response->getStatusCode() === 429) {
-            echo "pause and retry show $id after $this->pause s" . PHP_EOL;
             $this->pauseAndIncrease();
             return $this->getShow($id);
         }
@@ -124,7 +123,6 @@ class TvMazeService
 
 
         if ($response->getStatusCode() === 429) {
-            echo "pause and retry episodes for $showId after $this->pause s" . PHP_EOL;
             $this->pauseAndIncrease();
             return $this->getEpisodes($showId);
         }
