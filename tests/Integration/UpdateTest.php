@@ -113,6 +113,11 @@ class UpdateTest extends TestCase
             $this->assertSame('img.original.update', $secondShow->getEpisodes()->last()->getImageOriginal());
             $this->assertSame('test E5', $firstShow->getEpisodes()->last()->getName());
             $this->assertSame(2, $secondShow->getEpisodes()->count());
+            $this->assertEqualsWithDelta(
+                (new DateTime('now'))->getTimestamp(),
+                $firstShow->getUpdatedAt()->getTimestamp(),
+                1
+            );
         }
     }
 
