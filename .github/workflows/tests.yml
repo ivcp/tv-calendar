@@ -21,10 +21,13 @@ jobs:
         run: docker compose up -d app
 
       - name: Set permissions
+        shell: bash
         run: docker exec -it tv-calendar-app bash -c 'chmod 755 /var/www/'
 
       - name: Composer install
+        shell: bash
         run: ./tv-calendar app composer install
 
       - name: Run tests
+        shell: bash
         run: ./tv-calendar app composer test
