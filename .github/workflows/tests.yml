@@ -28,3 +28,22 @@ jobs:
 
       - name: Run tests
         run: docker exec -t tv-calendar-app bash -c 'composer test'
+
+  test-integration:
+    name: Run integration tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start container
+        run: docker compose up -d app db-test
+
+      - name: Set permissions
+        run: chmod -R 777 ./
+
+      - name: Composer install
+        run: docker exec -t tv-calendar-app bash -c 'composer install'
+
+      - name: Run tests
+        run: docker exec -t tv-calendar-app bash -c 'composer test-integration'

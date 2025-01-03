@@ -44,6 +44,7 @@
     "lint": "phplint --no-cache app/ public/index.php bootstrap.php configs/ scripts/ tests/",
     "phpcs": "phpcs --standard=PSR12 app/ public/index.php bootstrap.php configs/ scripts/ tests/",
     "phpcbf": "phpcbf --standard=PSR12 app/ public/index.php bootstrap.php configs/ scripts/ tests/",
-    "test": "phpunit tests/Unit"
+    "test": "phpunit tests/Unit",
+    "test-integration": "phpunit tests/Integration"
   }
 }
