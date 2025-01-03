@@ -68,7 +68,8 @@ return [
                 return false;
             }
             if ($e instanceof ConnectException) {
-                echo "Unable to connect to " . $request->getUri() . ". Retrying (" . ($retries + 1) . "/" . 3 . ")...\n";
+                echo "Unable to connect to " .
+                $request->getUri() . ". Retrying (" . ($retries + 1) . "/" . 3 . ")...\n";
                 return true;
             }
             return false;
@@ -91,11 +92,11 @@ return [
         return new UpdateService($showService, $episodeService, $tvMazeService, $entityManager);
     },
 
-    'webpack_encore.packages'     => fn() => new Packages(
+    'webpack_encore.packages'     => fn () => new Packages(
         new Package(new JsonManifestVersionStrategy(BUILD_PATH . '/manifest.json'))
     ),
-    '_default' => fn() => new EntrypointLookup(BUILD_PATH . '/entrypoints.json'),
-    'webpack_encore.tag_renderer' => fn(ContainerInterface $container) => new TagRenderer(
+    '_default' => fn () => new EntrypointLookup(BUILD_PATH . '/entrypoints.json'),
+    'webpack_encore.tag_renderer' => fn (ContainerInterface $container) => new TagRenderer(
         new EntrypointLookupCollection($container),
         $container->get('webpack_encore.packages')
     ),

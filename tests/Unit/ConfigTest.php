@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
 {
-
-    public function test_it_is_able_to_get_nested_settings(): void
+    public function testItIsAbleToGetNestedSettings(): void
     {
         $config = [
             'doctrine' => [
@@ -27,7 +26,7 @@ class ConfigTest extends TestCase
     }
 
 
-    public function test_it_gets_the_default_value_when_setting_is_not_found(): void
+    public function testItGetsTheDefaultValueWhenSettingIsNotFound(): void
     {
         $config = [
             'doctrine' => [
@@ -45,7 +44,7 @@ class ConfigTest extends TestCase
     }
 
 
-    public function test_it_returns_null_by_default_when_setting_is_not_found(): void
+    public function testItReturnsNullByDefaultWhenSettingIsNotFound(): void
     {
         $config = [
             'doctrine' => [

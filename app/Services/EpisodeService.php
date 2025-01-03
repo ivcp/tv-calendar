@@ -17,12 +17,12 @@ use SplFixedArray;
 
 class EpisodeService
 {
-
     use ParamsTypesCases;
 
     public function __construct(
         private readonly EntityManager $entityManager,
-    ) {}
+    ) {
+    }
 
     public function getEpisodesForMonth(DateTime $month): array
     {
@@ -64,7 +64,7 @@ class EpisodeService
     /**
      * Bulk insert episodes
      *
-     * @param EpisodeData[] $episodes 
+     * @param EpisodeData[] $episodes
      * @return int number of episodes inserted
      **/
     public function insertEpisodes(array $episodes): int
@@ -88,9 +88,27 @@ class EpisodeService
         $types = new SplFixedArray($episodeCount * 11);
         $paramsIterator = $params->getIterator();
         foreach ($episodes as $episode) {
-            $this->setParameterAndType($params, $types, $paramsIterator, $episode->tvMazeEpisodeId, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types,  $paramsIterator, $episode->seasonNumber, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types, $paramsIterator,  $episode->episodeNumber, ParameterType::INTEGER);
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->tvMazeEpisodeId,
+                ParameterType::INTEGER
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->seasonNumber,
+                ParameterType::INTEGER
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->episodeNumber,
+                ParameterType::INTEGER
+            );
 
             $this->setParameterAndType(
                 $params,
@@ -99,13 +117,55 @@ class EpisodeService
                 $episode->airstamp ? $episode->airstamp->format(DATE_ATOM) : null,
                 ParameterType::STRING
             );
-            $this->setParameterAndType($params,  $types, $paramsIterator,  $episode->type, ParameterType::STRING);
-            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->episodeSummary, ParameterType::STRING);
-            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->episodeName, ParameterType::STRING);
-            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->runtime, ParameterType::INTEGER);
-            $this->setParameterAndType($params,  $types, $paramsIterator,  $episode->imageMedium, ParameterType::STRING);
-            $this->setParameterAndType($params,  $types, $paramsIterator, $episode->imageOriginal, ParameterType::STRING);
-            $this->setParameterAndType($params,  $types, $paramsIterator,  $episode->tvMazeShowId, ParameterType::INTEGER);
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->type,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->episodeSummary,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->episodeName,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->runtime,
+                ParameterType::INTEGER
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->imageMedium,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->imageOriginal,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $episode->tvMazeShowId,
+                ParameterType::INTEGER
+            );
         }
 
         $paramsArray = $params->toArray();
@@ -158,7 +218,7 @@ class EpisodeService
     /**
      * Update episodes
      *
-     * @param EpisodeData[] $episodes 
+     * @param EpisodeData[] $episodes
      * @return int number of episodes updated
      **/
     public function updateEpisodes(array $episodes, int $showId): int
@@ -239,7 +299,7 @@ class EpisodeService
         return (int) $rows;
     }
     /**
-     * Remove episodes    
+     * Remove episodes
      * @return int number of episodes removed
      **/
     public function removeEpisodes(array $ids): int

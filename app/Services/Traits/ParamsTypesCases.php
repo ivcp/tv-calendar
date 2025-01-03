@@ -11,7 +11,6 @@ use SplFixedArray;
 
 trait ParamsTypesCases
 {
-
     private function setParameterAndType(
         SplFixedArray $params,
         SplFixedArray $types,

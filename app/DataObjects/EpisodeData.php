@@ -20,5 +20,6 @@ class EpisodeData
         public readonly ?int $runtime = null,
         public readonly ?string $imageMedium = null,
         public readonly ?string $imageOriginal = null,
-    ) {}
+    ) {
+    }
 }

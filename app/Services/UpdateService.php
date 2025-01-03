@@ -14,7 +14,8 @@ class UpdateService
         private readonly EpisodeService $episodeService,
         private readonly TvMazeService $tvMazeService,
         private readonly EntityManager $entityManager
-    ) {}
+    ) {
+    }
 
     public function run(): array
     {
@@ -158,7 +159,10 @@ class UpdateService
 
             $this->entityManager->clear();
             if ($episodesToUpdate) {
-                $epsToUpdateFiltered = array_filter($episodesToUpdate, fn($e) => $e->airstamp > new DateTime('7 days ago'));
+                $epsToUpdateFiltered = array_filter(
+                    $episodesToUpdate,
+                    fn($e) => $e->airstamp > new DateTime('7 days ago')
+                );
                 try {
                     $updatedEpisodesNumber = $this->episodeService->updateEpisodes($epsToUpdateFiltered, $showId);
                     $epUpdatedCount += $updatedEpisodesNumber;
@@ -184,7 +188,7 @@ class UpdateService
                 }
             }
 
-            $episodesToRemove = array_filter($episodesInDbIds, fn($e) => !in_array($e,  array_keys($episodesToUpdate)));
+            $episodesToRemove = array_filter($episodesInDbIds, fn($e) => !in_array($e, array_keys($episodesToUpdate)));
             if ($episodesToRemove) {
                 try {
                     $removedEpisodes = $this->episodeService->removeEpisodes($episodesToRemove);
