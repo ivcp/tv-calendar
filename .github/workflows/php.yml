@@ -34,6 +34,12 @@ jobs:
       - name: Run linter
         run: composer lint
 
+      - name: Run cs fixer
+        run: composer phpcbf
+
+      - name: Run phpcs
+        run: composer phpcs
+
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 
