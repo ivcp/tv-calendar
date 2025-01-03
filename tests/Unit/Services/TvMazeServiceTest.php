@@ -30,7 +30,7 @@ class TvMazeServiceTest extends TestCase
             new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{"1" : 123, "2": 456}')
         ]);
         $updated = $tvMazeService->getUpdatedShowIDs();
-        $this->assertCount(2, $updated);
+        $this->assertCount(1, $updated);
         $this->assertSame(1, $updated[0]);
         $this->assertSame(2, $updated[1]);
         $this->assertSame(1, $tvMazeService->getPause());

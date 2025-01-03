@@ -16,7 +16,7 @@ class CalendarServiceTest extends TestCase
     public static function monthProvider(): array
     {
         return [
-            'december 2024' => ['2024-12', 1, 'test sho'],
+            'december 2024' => ['2024-12', 1, 'test show'],
             'february 2025' => ['2025-02', 6, 'test new name'],
             'december 1999' => ['1999-12', 1, 'test'],
         ];
