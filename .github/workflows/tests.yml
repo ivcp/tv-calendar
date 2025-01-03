@@ -20,5 +20,8 @@ jobs:
       - name: Start container
         run: docker compose up -d app
 
+      - name: Composer install
+        run: ./tv-calendar app composer install
+
       - name: Run tests
         run: ./tv-calendar app composer test
