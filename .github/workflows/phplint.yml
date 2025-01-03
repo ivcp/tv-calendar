@@ -1,0 +1,23 @@
+name: Tests
+
+on:
+  workflow_run:
+    workflows: ["Lint and CS"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start container
+        run: docker compose up -d app
+
+      - name: Run tests
+        run: ./tv-calendar app composer test
