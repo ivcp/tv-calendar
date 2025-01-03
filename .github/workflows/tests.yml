@@ -45,8 +45,10 @@ jobs:
       - name: Composer install
         run: docker exec -t tv-calendar-app bash -c 'composer install'
 
-      - name: Run tests
+      - name: Set env
         run: |
-          docker exec -t \
-          -e APP_ENV=development -e DB_USER=test -e DB_NAME=tv-calendar-test-db -e DB_PASS=test -e DB_HOST=db-test \
-          -t tv-calendar-app bash -c 'composer test-integration'
+          docker exec -t tv-calendar-app bash \
+          -c 'printf "APP_ENV=development\nDB_USER=test\nDB_NAME=tv-calendar-test-db\nDB_PASS=test" > test.txt'
+
+      - name: Run tests
+        run: docker exec -t tv-calendar-app bash -c 'composer test-integration'
