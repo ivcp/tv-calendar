@@ -20,6 +20,9 @@ jobs:
       - name: Start container
         run: docker compose up -d app
 
+      - name: Set permissions
+        run: docker exec -it tv-calendar-app bash -c 'chmod 755 /var/www/'
+
       - name: Composer install
         run: ./tv-calendar app composer install
 
