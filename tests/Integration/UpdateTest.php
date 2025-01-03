@@ -27,7 +27,7 @@ class UpdateTest extends TestCase
 
         exec('./bin/doctrine migrations:migrate --no-interaction', $_, $result);
         if ($result > 0) {
-            exit('runing migrations failed' . PHP_EOL);
+            $this->fail('runing migrations failed' . PHP_EOL);
         }
         require_once __DIR__ . '/../../configs/path_constants.php';
         $this->container = require CONFIG_PATH . '/container/container.php';
@@ -412,7 +412,7 @@ class UpdateTest extends TestCase
     {
         exec('./bin/doctrine orm:schema-tool:drop --full-database --force', $_, $result);
         if ($result > 0) {
-            exit('db teardown failed' . PHP_EOL);
+            $this->fail('db teardown failed' . PHP_EOL);
         }
     }
 }
