@@ -1,9 +1,10 @@
 name: Tests
 
 on:
-  workflow_run:
-    workflows: ["Lint and CS"]
-    types: [completed]
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
 
 permissions:
   contents: read
