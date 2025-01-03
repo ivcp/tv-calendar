@@ -15,3 +15,6 @@ $container = require CONFIG_PATH . '/container/container.php';
 
 
 $container->get(UpdateService::class)->run();
+
+
+//test comment
