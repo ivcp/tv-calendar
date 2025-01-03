@@ -15,5 +15,6 @@ class ScheduleData
         public readonly ?string $episodeSummary,
         public readonly string $type,
         public readonly string $airstamp,
-    ) {}
+    ) {
+    }
 }

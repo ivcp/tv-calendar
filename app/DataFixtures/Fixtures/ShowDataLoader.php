@@ -10,7 +10,6 @@ use Doctrine\Persistence\ObjectManager;
 
 class ShowDataLoader implements FixtureInterface
 {
-
     public function load(ObjectManager $manager): void
     {
 

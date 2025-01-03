@@ -16,7 +16,9 @@ class TvMazeService
 
     private int $pause = 1;
 
-    public function __construct(private readonly Client $client) {}
+    public function __construct(private readonly Client $client)
+    {
+    }
 
 
     //TODO: logging
@@ -188,7 +190,7 @@ class TvMazeService
     private function statusOK(ResponseInterface $response, string $method): bool
     {
         if ($response->getStatusCode() !== 200) {
-            $this->logError($method, $response->getStatusCode(),  $response->getReasonPhrase());
+            $this->logError($method, $response->getStatusCode(), $response->getReasonPhrase());
             return false;
         }
 

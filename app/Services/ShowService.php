@@ -18,7 +18,9 @@ class ShowService
 {
     use ParamsTypesCases;
 
-    public function __construct(private readonly EntityManager $entityManager) {}
+    public function __construct(private readonly EntityManager $entityManager)
+    {
+    }
 
     public function getById(int $id): ?Show
     {
@@ -58,7 +60,7 @@ class ShowService
     /**
      * Bulk insert shows
      *
-     * @param ShowData[] $shows 
+     * @param ShowData[] $shows
      * @return int number of shows inserted
      **/
     public function insertShows(array $shows): int
@@ -83,8 +85,20 @@ class ShowService
         $types = new SplFixedArray($showCount * $paramNumber);
         $paramsIterator = $params->getIterator();
         foreach ($shows as $show) {
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->tvMazeId, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->imdbId, ParameterType::STRING);
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->tvMazeId,
+                ParameterType::INTEGER
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->imdbId,
+                ParameterType::STRING
+            );
             $this->setParameterAndType(
                 $params,
                 $types,
@@ -92,20 +106,104 @@ class ShowService
                 $show->genres ? implode(',', $show->genres) : null,
                 ParameterType::STRING
             );
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->status, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->premiered, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->ended, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->officialSite, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->weight, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->networkName, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->networkCountry, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->webChannelName, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->webChannelCountry, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->summary, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->name, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->runtime, ParameterType::INTEGER);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->imageMedium, ParameterType::STRING);
-            $this->setParameterAndType($params, $types, $paramsIterator, $show->imageOriginal, ParameterType::STRING);
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->status,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->premiered,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->ended,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->officialSite,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->weight,
+                ParameterType::INTEGER
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->networkName,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->networkCountry,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->webChannelName,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->webChannelCountry,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->summary,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->name,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->runtime,
+                ParameterType::INTEGER
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->imageMedium,
+                ParameterType::STRING
+            );
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                $show->imageOriginal,
+                ParameterType::STRING
+            );
         }
 
         try {
@@ -125,7 +223,7 @@ class ShowService
     /**
      * Update shows
      *
-     * @param array[int]ShowData $shows 
+     * @param array[int]ShowData $shows
      * @return int number of shows updated
      **/
     public function updateShows(array $shows): int

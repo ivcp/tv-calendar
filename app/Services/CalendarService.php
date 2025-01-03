@@ -9,8 +9,9 @@ use DateTime;
 
 class CalendarService
 {
-
-    public function __construct(private readonly EpisodeService $episodeService) {}
+    public function __construct(private readonly EpisodeService $episodeService)
+    {
+    }
 
     public function getSchedule(string $month): array
     {

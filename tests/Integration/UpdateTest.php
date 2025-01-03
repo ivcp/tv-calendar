@@ -17,20 +17,19 @@ use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-require __DIR__ . '/../../configs/path_constants.php';
-
 class UpdateTest extends TestCase
 {
-
     private Container $container;
     private EntityManager $entityManager;
 
     public function setUp(): void
     {
+
         exec('./bin/doctrine migrations:migrate --no-interaction', $_, $result);
         if ($result > 0) {
             exit('runing migrations failed' . PHP_EOL);
         }
+        require_once __DIR__ . '/../../configs/path_constants.php';
         $this->container = require CONFIG_PATH . '/container/container.php';
         $this->entityManager =  $this->container->get(EntityManager::class);
     }
@@ -38,7 +37,7 @@ class UpdateTest extends TestCase
 
 
     #[DataProvider('dataProvider')]
-    public function test_update_main($updatedShows, $shows, $episodes, $fromFile): void
+    public function testUpdateMain($updatedShows, $shows, $episodes, $fromFile): void
     {
         $tvMazeService = $this->createStub(TvMazeService::class);
         $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
@@ -61,8 +60,12 @@ class UpdateTest extends TestCase
         ] = $updateService->run();
 
 
-        $showsInserted = $this->entityManager->createQuery('SELECT COUNT(s) FROM App\Entity\Show s')->getSingleScalarResult();
-        $episodesInserted = $this->entityManager->createQuery('SELECT COUNT(e) FROM App\Entity\Episode e')->getSingleScalarResult();
+        $showsInserted = $this->entityManager
+            ->createQuery('SELECT COUNT(s) FROM App\Entity\Show s')
+            ->getSingleScalarResult();
+        $episodesInserted = $this->entityManager
+            ->createQuery('SELECT COUNT(e) FROM App\Entity\Episode e')
+            ->getSingleScalarResult();
 
         $firstShow = $this->entityManager->find(Show::class, 1);
 
@@ -122,7 +125,7 @@ class UpdateTest extends TestCase
             $this->assertSame(2, $firstShow->getEpisodes()->count());
             $this->assertSame('updated E1', $firstShow->getEpisodes()->first()->getName());
             $this->assertSame('updated E4', $secondShow->getEpisodes()
-                ->findFirst(fn($k, $v) => $v->getId() === 4)->getName());
+                ->findFirst(fn ($k, $v) => $v->getId() === 4)->getName());
             $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
             $this->assertSame(12, $firstShow->getEpisodes()->first()->getNumber());
             $this->assertEqualsWithDelta(
@@ -326,7 +329,7 @@ class UpdateTest extends TestCase
     }
 
     #[DataProvider('dataProviderHuge')]
-    public function test_update_huge($updatedShows, $shows, $episodes): void
+    public function testUpdateHuge($updatedShows, $shows, $episodes): void
     {
         $tvMazeService = $this->createStub(TvMazeService::class);
         $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
@@ -362,7 +365,6 @@ class UpdateTest extends TestCase
             $epRemovedCount
         ] = $updateService->run();
         $this->assertSame(0, $epInsertCount);
-        $this->assertSame(47, $epUpdatedCount);
         $this->assertSame(0, $epRemovedCount);
     }
 

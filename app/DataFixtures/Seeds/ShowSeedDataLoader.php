@@ -8,10 +8,8 @@ use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
 
-
 class ShowSeedDataLoader implements FixtureInterface
 {
-
     public function load(ObjectManager $manager): void
     {
 
@@ -37,10 +35,11 @@ class ShowSeedDataLoader implements FixtureInterface
           weight, network_name, network_country, web_channel_name, web_channel_country,
           summary, name, runtime, image_medium, image_original, created_at, updated_at)
           SELECT 
-           (data->'id')::integer, data->'externals'->>'imdb', json_array_to_txt(data->'genres'), data->>'status', data->>'premiered',
-           data->>'ended', data->>'officialSite', (data->>'weight')::integer, data->'network'->>'name',
-           data->'network'->'country'->>'name', data->'webChannel'->>'name', data->'webChannel'->'country'->>'name',
-           data->>'summary', data->>'name', (data->>'runtime')::integer, data->'image'->>'medium', data->'image'->>'original',
+           (data->'id')::integer, data->'externals'->>'imdb', json_array_to_txt(data->'genres'), 
+           data->>'status', data->>'premiered', data->>'ended', data->>'officialSite', 
+           (data->>'weight')::integer, data->'network'->>'name', data->'network'->'country'->>'name', 
+           data->'webChannel'->>'name', data->'webChannel'->'country'->>'name', data->>'summary', data->>'name', 
+           (data->>'runtime')::integer, data->'image'->>'medium', data->'image'->>'original',
            current_timestamp, current_timestamp
           FROM temp;");
             $rows =  $stmt->executeStatement($stmt);

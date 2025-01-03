@@ -10,7 +10,6 @@ use Exception;
 
 class EpisodeSeedDataLoader implements FixtureInterface
 {
-
     public function load(ObjectManager $manager): void
     {
 
@@ -26,9 +25,11 @@ class EpisodeSeedDataLoader implements FixtureInterface
             (tv_maze_episode_id, season, number, airstamp, type, summary, name, runtime, image_medium, 
             image_original, created_at, updated_at, tv_maze_show_id)
             SELECT 
-            (data->'id')::integer, (data->>'season')::smallint, (data->>'number')::integer, timestamptz (data->>'airstamp'),
-            data->>'type', data->>'summary', data->>'name', (data->>'runtime')::smallint, data->'image'->>'medium', 
-            data->'image'->>'original', current_timestamp, current_timestamp, (data->'tv_maze_show_id')::integer
+            (data->'id')::integer, (data->>'season')::smallint, (data->>'number')::integer, 
+            timestamptz (data->>'airstamp'), data->>'type', data->>'summary', data->>'name', 
+            (data->>'runtime')::smallint, data->'image'->>'medium', 
+            data->'image'->>'original', current_timestamp, current_timestamp, 
+            (data->'tv_maze_show_id')::integer
             FROM temp;");
             $rows =  $stmt->executeStatement($stmt);
             $stmt = $conn->prepare("UPDATE episodes 

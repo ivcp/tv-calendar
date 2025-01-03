@@ -16,7 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SeedDB extends Command
 {
-
     public function __construct(
         private readonly EntityManager $entityManager,
         private string $name = 'db:seed',
@@ -32,8 +31,8 @@ class SeedDB extends Command
         $output->write('Loading data...', true);
 
         $loader = new Loader();
-        $loader->addFixture(new ShowSeedDataLoader);
-        $loader->addFixture(new EpisodeSeedDataLoader);
+        $loader->addFixture(new ShowSeedDataLoader());
+        $loader->addFixture(new EpisodeSeedDataLoader());
         $executor = new ORMExecutor($this->entityManager, new ORMPurger());
         $executor->execute($loader->getFixtures());
 

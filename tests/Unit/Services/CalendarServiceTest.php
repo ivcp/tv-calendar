@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 class CalendarServiceTest extends TestCase
 {
-
     public static function monthProvider(): array
     {
         return [
@@ -24,7 +23,7 @@ class CalendarServiceTest extends TestCase
     }
 
     #[DataProvider('monthProvider')]
-    public function test_gets_schedule_for_current_month(
+    public function testGetsScheduleForCurrentMonth(
         string $month,
         int $date,
         string $expectedShow,

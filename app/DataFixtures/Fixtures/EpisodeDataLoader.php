@@ -12,7 +12,6 @@ use Doctrine\Persistence\ObjectManager;
 
 class EpisodeDataLoader implements FixtureInterface
 {
-
     public function load(ObjectManager $manager): void
     {
 

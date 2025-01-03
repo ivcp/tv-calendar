@@ -16,7 +16,6 @@ use PHPUnit\Framework\TestCase;
 
 class TvMazeServiceTest extends TestCase
 {
-
     private function getTvMazeService(array $responses): TvMazeService
     {
         $mock = new MockHandler($responses);
@@ -25,7 +24,7 @@ class TvMazeServiceTest extends TestCase
         return new TvMazeService($client);
     }
 
-    public function test_gets_updated_shows(): void
+    public function testGetsUpdatedShows(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{"1" : 123, "2": 456}')
@@ -37,7 +36,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
-    public function test_updated_shows_returns_empty_arr_on_404_and_500(): void
+    public function testUpdatedShowsReturnsEmptyArrOn404and500(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(404, ['Content-Type' => 'application/json; charset=UTF-8'], ''),
@@ -49,7 +48,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertEmpty($updated);
     }
 
-    public function test_updated_shows_retries_on_429(): void
+    public function testUpdatedShowsRetriesOn429(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(429, [], ''),
@@ -60,7 +59,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
-    public function test_updated_shows_retries_on_429_and_fail(): void
+    public function testUpdatedShowsRetriesOn429AndFail(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(429, [], ''),
@@ -72,7 +71,7 @@ class TvMazeServiceTest extends TestCase
     }
 
 
-    public function test_get_show(): void
+    public function testGetShow(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(
@@ -115,7 +114,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertNull($show->imageOriginal);
     }
 
-    public function test_get_show_returns_null_on_500_and_404(): void
+    public function testGetShowReturnsNullOn500and404(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(500, [], ''),
@@ -129,7 +128,7 @@ class TvMazeServiceTest extends TestCase
     }
 
 
-    public function test_get_show_retries_on_429(): void
+    public function testGetShowRetriesOn429(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(429, [], ''),
@@ -160,7 +159,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
-    public function test_get_episodes(): void
+    public function testGetEpisodes(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(
@@ -192,7 +191,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertNull($episodes[0]->imageMedium);
     }
 
-    public function test_get_episodes_file(): void
+    public function testGetEpisodesFile(): void
     {
         $episodes = file_get_contents(__DIR__ . '/episodes_test.json');
 
@@ -209,7 +208,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame('The Fire', $episodes[1]->episodeName);
     }
 
-    public function test_get_episodes_returns_empty_arr_on_500_and_404(): void
+    public function testGetEpisodesReturnsEmptyArrOn500and404(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(500, [], ''),
@@ -221,7 +220,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertEmpty($episodes);
     }
 
-    public function test_get_episodes_retries_on_429(): void
+    public function testGetEpisodesRetriesOn429(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(429, [], ''),
@@ -249,7 +248,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
-    public function test_get_multiple_shows(): void
+    public function testGetMultipleShows(): void
     {
 
         $tvMazeService = $this->getTvMazeService([

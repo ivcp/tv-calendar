@@ -16,7 +16,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LoadFixtures extends Command
 {
-
     public function __construct(
         private readonly EntityManager $entityManager,
         private string $name = 'fixtures:load',
@@ -28,8 +27,8 @@ class LoadFixtures extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $loader = new Loader();
-        $loader->addFixture(new ShowDataLoader);
-        $loader->addFixture(new EpisodeDataLoader);
+        $loader->addFixture(new ShowDataLoader());
+        $loader->addFixture(new EpisodeDataLoader());
 
         $executor = new ORMExecutor($this->entityManager, new ORMPurger());
         $executor->execute($loader->getFixtures());
