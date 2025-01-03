@@ -1,4 +1,4 @@
-name: PHP Composer
+name: Lint and CS
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
