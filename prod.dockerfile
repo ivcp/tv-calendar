@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.3-fpm AS base
 
 
 ARG UID
@@ -28,19 +28,29 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql 
 RUN docker-php-ext-install pdo pdo_pgsql pgsql 
-
-RUN pecl install xdebug \
-    && docker-php-ext-enable xdebug 
-
-COPY xdebug.ini "${PHP_INI_DIR}/conf.d"
-
+RUN docker-php-ext-install pdo opcache
 
 RUN groupadd --force -g $GID $GROUP
 RUN useradd -ms /bin/bash --no-user-group -g $GID -u $UID $USER
 RUN usermod -u $UID $USER
 
-RUN chmod -R 770 ./
+COPY . .
+
+RUN chown -R $USER:$GROUP ./
 
 USER $USER
 
+RUN composer install --optimize-autoloader --no-dev && mkdir -p storage/logs/app
 
+FROM node:lts-alpine AS node_modules
+
+RUN mkdir -p /app
+WORKDIR /app
+COPY . .
+
+RUN npm install 
+RUN npm run build
+
+FROM base
+
+COPY --from=node_modules /app/public/build /var/www/public/build
