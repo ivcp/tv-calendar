@@ -1,7 +1,7 @@
 services:
   app:
     build:
-      context: "./docker"
+      context: .
       dockerfile: prod.dockerfile
       args:
         - UID=${UID:-1000}
@@ -16,15 +16,15 @@ services:
     ports:
       - "9000:9000"
     volumes:
-      - .:/var/www
       - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./docker/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
 
   nginx:
     image: nginx:1.19-alpine
     container_name: tv-calendar-nginx
     restart: always
     ports:
-      - "80:80"
+      - "8000:80"
       - "433:433"
     volumes:
       - .:/var/www
