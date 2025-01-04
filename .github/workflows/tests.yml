@@ -22,7 +22,7 @@ jobs:
         run: chmod -R 777 ./
 
       - name: Composer install
-        run: docker exec -t tv-calendar-app bash -c 'composer install'
+        run: docker exec -t tv-calendar-app bash -c 'composer install --optimize-autoloader'
 
       - name: Run tests
         run: docker exec -t tv-calendar-app bash -c 'composer test'
@@ -41,7 +41,7 @@ jobs:
         run: sudo chmod -Rf 777 ./
 
       - name: Composer install
-        run: docker exec -t tv-calendar-app bash -c 'composer install'
+        run: docker exec -t tv-calendar-app bash -c 'composer install --optimize-autoloader'
 
       - name: Set env
         run: |
