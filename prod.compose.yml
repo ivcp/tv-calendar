@@ -1,0 +1,60 @@
+services:
+  app:
+    build:
+      context: "./docker"
+      dockerfile: prod.dockerfile
+      args:
+        - UID=${UID:-1000}
+        - GID=${UID:-1000}
+        - USER=${USER}
+        - GROUP=${GROUP}
+    container_name: tv-calendar-app
+    restart: always
+    working_dir: /var/www/
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "9000:9000"
+    volumes:
+      - .:/var/www
+      - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
+
+  nginx:
+    image: nginx:1.19-alpine
+    container_name: tv-calendar-nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "433:433"
+    volumes:
+      - .:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+
+  db:
+    container_name: tv-calendar-db
+    image: postgres
+    volumes:
+      - ./storage:/storage
+      - tv-calendar-db-data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - 5432:5432
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8001:8080
+
+  cron:
+    build: ./docker/cron
+    volumes:
+      - .:/var/www
+      - ./docker/cron/local.ini:/usr/local/etc/php/conf.d/local.ini
+
+volumes:
+  tv-calendar-db-data:
