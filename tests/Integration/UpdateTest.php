@@ -211,6 +211,7 @@ class UpdateTest extends TestCase
         for ($i = 0; $i < 1000; $i++) {
             $testEpArrays1000[] = array_map(function ($index, $episode) use ($i, $eps) {
                 $epId = count($eps) * $i + $index + 1;
+                $airstamp = $index === 39 ? 'now' : $episode?->airstamp;
                 return new EpisodeData(
                     tvMazeShowId: $i + 1,
                     tvMazeEpisodeId: $epId,
@@ -219,7 +220,7 @@ class UpdateTest extends TestCase
                     episodeNumber: $episode?->number,
                     episodeSummary: $episode?->summary,
                     type: $episode?->type,
-                    airstamp: $episode?->airstamp ? new DateTime($episode->airstamp) : null,
+                    airstamp: $airstamp ? new DateTime($airstamp) : null,
                     runtime: $episode?->runtime,
                     imageMedium: $episode?->image?->medium,
                     imageOriginal: $episode?->image?->original
