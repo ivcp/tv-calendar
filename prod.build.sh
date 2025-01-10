@@ -10,10 +10,6 @@ msg () {
 source .env
 
 
-msg "Pulling from github" 
-
-git pull
-
 msg "Stopping containers"
 
 sudo docker compose down --remove-orphans
