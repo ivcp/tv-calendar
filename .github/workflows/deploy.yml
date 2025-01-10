@@ -14,8 +14,8 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           ssh-keyscan -p ${{secrets.SSH_PORT}} ${{ secrets.SSH_HOST }} > ~/.ssh/known_hosts
 
-      - name: connect and pull
-        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{secrets.SSH_PORT}} -t "cd ${{ secrets.WORK_DIR }} && touch hellogithub.txt"
+      - name: connect, pull and build
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} -p ${{secrets.SSH_PORT}}  "cd ${{ secrets.WORK_DIR }} && bash prod.build.sh"
 
       - name: cleanup
         run: rm -rf ~/.ssh
