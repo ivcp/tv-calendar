@@ -20,7 +20,7 @@ sudo docker compose down --remove-orphans
 
 msg "Building containers"
 
-sudo docker compose -f prod.compose.yml up -d  app nginx db cron --build`
+sudo docker compose -f prod.compose.yml up -d  app nginx db cron --build
 sudo docker cp tv-calendar-app:var/www/vendor .
 sudo docker cp tv-calendar-app:var/www/public/build ./public/
 
