@@ -50,6 +50,7 @@ services:
 
   cron:
     build: ./docker/cron
+    restart: always
     volumes:
       - .:/var/www
       - ./docker/cron/local.ini:/usr/local/etc/php/conf.d/local.ini
