@@ -18,7 +18,10 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Slim\App;
+use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Component\Asset\Package;
@@ -32,6 +35,15 @@ use Symfony\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use function DI\create;
 
 return [
+    App::class => function (ContainerInterface $container) {
+        AppFactory::setContainer($container);
+        $router = require CONFIG_PATH . '/routes/web.php';
+        $addMiddlewares = require CONFIG_PATH . '/middleware.php';
+        $app = AppFactory::create();
+        $router($app);
+        $addMiddlewares($app);
+        return $app;
+    },
     Config::class  => create(Config::class)->constructor(require CONFIG_PATH . '/app.php'),
     Twig::class                   => function (Config $config, ContainerInterface $container) {
         $twig = Twig::create(VIEW_PATH, [
@@ -100,4 +112,5 @@ return [
         new EntrypointLookupCollection($container),
         $container->get('webpack_encore.packages')
     ),
+    ResponseFactoryInterface::class => fn (App $app) => $app->getResponseFactory(),
 ];

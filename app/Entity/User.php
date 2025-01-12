@@ -12,10 +12,6 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\HasLifecycleCallbacks;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\InverseJoinColumn;
-use Doctrine\ORM\Mapping\JoinColumn;
-use Doctrine\ORM\Mapping\JoinTable;
-use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 
@@ -28,10 +24,7 @@ class User
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
 
-    #[Column(type:'string')]
-    private string $name;
-
-    #[Column(type:'string')]
+    #[Column(type:'string', unique:true)]
     private string $email;
 
     #[Column(type:'string')]
@@ -68,6 +61,46 @@ class User
         $userShow->setUser($this);
         $userShow->setShow($show);
         $this->userShows->add($userShow);
+
+        return $this;
+    }
+
+    /**
+     * Get the value of email
+     */
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    /**
+     * Set the value of email
+     *
+     * @return  self
+     */
+    public function setEmail(string $email): User
+    {
+        $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of password
+     */
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    /**
+     * Set the value of password
+     *
+     * @return  self
+     */
+    public function setPassword($password): User
+    {
+        $this->password = $password;
 
         return $this;
     }
