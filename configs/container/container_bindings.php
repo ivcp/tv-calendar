@@ -2,12 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Auth;
 use App\Config;
+use App\Contracts\AuthInterface;
+use App\Contracts\SessionInterface;
+use App\Contracts\UserProviderServiceInterface;
+use App\DataObjects\SessionConfig;
 use App\Enum\AppEnvironment;
+use App\Enum\SameSite;
 use App\Services\EpisodeService;
 use App\Services\ShowService;
 use App\Services\TvMazeService;
 use App\Services\UpdateService;
+use App\Services\UserProviderService;
+use App\Session;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
@@ -75,13 +83,13 @@ return [
             RequestInterface $request,
             ?ResponseInterface $response,
             ?\RuntimeException $e
-        ) {
-            if ($retries >= 3) {
+        ) use ($config) {
+            if ($retries >= $config->get('client.retries', 3)) {
                 return false;
             }
             if ($e instanceof ConnectException) {
                 echo "Unable to connect to " .
-                $request->getUri() . ". Retrying (" . ($retries + 1) . "/" . 3 . ")...\n";
+                $request->getUri() . ". Retrying (" . ($retries + 1) . "/" . $config->get('client.retries', 3) . ")...\n";
                 return true;
             }
             return false;
@@ -93,15 +101,15 @@ return [
         $stack->push($retryMiddleware);
 
         return new Client([
-            'timeout'  => 3.0,
+            'timeout'  => $config->get('client.timeout', 3.0),
             'handler' => $stack
         ]);
     },
-    UpdateService::class => function (EntityManager $entityManager, Client $client) {
-        $showService = new ShowService($entityManager);
-        $episodeService = new EpisodeService($entityManager);
-        $tvMazeService = new TvMazeService($client);
-        return new UpdateService($showService, $episodeService, $tvMazeService, $entityManager);
+    UpdateService::class => function (ContainerInterface $container) {
+        $showService = $container->get(ShowService::class);
+        $episodeService = $container->get(EpisodeService::class);
+        $tvMazeService = $container->get(TvMazeService::class);
+        return new UpdateService($showService, $episodeService, $tvMazeService, $container->get(EntityManager::class));
     },
 
     'webpack_encore.packages'     => fn () => new Packages(
@@ -113,4 +121,16 @@ return [
         $container->get('webpack_encore.packages')
     ),
     ResponseFactoryInterface::class => fn (App $app) => $app->getResponseFactory(),
+    AuthInterface::class => fn (ContainerInterface $container) => $container->get(Auth::class),
+    UserProviderServiceInterface::class =>
+        fn (ContainerInterface $container) => $container->get(UserProviderService::class),
+    SessionInterface::class => fn (Config $config) => new Session(
+        new SessionConfig(
+            $config->get('session.name', ''),
+            $config->get('session.secure', true),
+            $config->get('session.httponly', true),
+            $config->get('session.flash_name', 'flash'),
+            SameSite::from($config->get('session.samesite', 'lax'))
+        )
+    ),
 ];

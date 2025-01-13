@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Enum\AppEnvironment;
 
 $appEnv = $_ENV['APP_ENV'] ?? AppEnvironment::Production->value;
+$appName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME']));
 
 return [
     'app_name'              => $_ENV['APP_NAME'],
@@ -26,4 +27,15 @@ return [
             'password' => $_ENV['DB_PASS'],
         ],
     ],
+    'client' => [
+        'retries' => 3,
+        'timeout' => 3.0
+    ],
+    'session' => [
+        'name' => $appName . '_session',
+        'name' => $appName . '_flash',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'lax',
+    ]
 ];

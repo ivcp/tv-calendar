@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Contracts\UserInterface;
 use App\Entity\Traits\HasTimestamps;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -17,7 +18,7 @@ use Doctrine\ORM\Mapping\Table;
 
 #[Entity, Table('users')]
 #[HasLifecycleCallbacks]
-class User
+class User implements UserInterface
 {
     use HasTimestamps;
 
@@ -103,5 +104,13 @@ class User
         $this->password = $password;
 
         return $this;
+    }
+
+    /**
+     * Get the value of id
+     */
+    public function getId(): int
+    {
+        return $this->id;
     }
 }

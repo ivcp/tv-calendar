@@ -28,6 +28,7 @@
         name="email"
         class="grow"
         placeholder="Email"
+        value="{{ old.email }}"
         required
       />
     </label>
@@ -56,6 +57,7 @@
         name="password"
         class="grow"
         placeholder="Password"
+        required
       />
     </label>
     <div class="label -mt-4">
@@ -83,6 +85,7 @@
         class="grow"
         name="confirm_password"
         placeholder="Confirm password"
+        required
       />
     </label>
     <div class="label -mt-4">
@@ -92,11 +95,11 @@
     </div>
     <button
       type="submit"
-      class="btn btn-primary self-center font-bold lg:text-base"
+      class="btn btn-primary self-center font-bold mt-4 lg:text-base"
     >
       Register
     </button>
-    <p class="text-center text-sm mt-3">
+    <p class="text-center text-sm mt-4">
       Already have an account?
       <a href="/login" class="text-primary font-bold">Sign in!</a>
     </p>

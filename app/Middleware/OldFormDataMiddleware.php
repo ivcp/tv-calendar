@@ -11,18 +11,18 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Views\Twig;
 
-class ValidationErrorsMiddleware implements MiddlewareInterface
+class OldFormDataMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly Twig $twig,
         private readonly SessionInterface $session,
     ) {
     }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-
-        if ($errors = $this->session->getFlashed('errors')) {
-            $this->twig->getEnvironment()->addGlobal('errors', $errors);
+        if ($old = $this->session->getFlashed('old')) {
+            $this->twig->getEnvironment()->addGlobal('old', $old);
         }
 
         return $handler->handle($request);
