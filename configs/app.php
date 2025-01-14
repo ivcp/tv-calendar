@@ -33,7 +33,7 @@ return [
     ],
     'session' => [
         'name' => $appName . '_session',
-        'name' => $appName . '_flash',
+        'flash_name' => $appName . '_flash',
         'secure' => true,
         'httponly' => true,
         'samesite' => 'lax',

@@ -5,11 +5,13 @@ declare(strict_types=1);
 use App\Auth;
 use App\Config;
 use App\Contracts\AuthInterface;
+use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\SessionInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\SessionConfig;
 use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
+use App\RequestValidators\RequestValidatorFactory;
 use App\Services\EpisodeService;
 use App\Services\ShowService;
 use App\Services\TvMazeService;
@@ -29,6 +31,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Slim\App;
+use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Views\Twig;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
@@ -133,4 +136,7 @@ return [
             SameSite::from($config->get('session.samesite', 'lax'))
         )
     ),
+    RequestValidatorFactoryInterface::class =>
+        fn (ContainerInterface $container) => $container->get(RequestValidatorFactory::class),
+    'csrf' => fn (ResponseFactoryInterface $responseFactory) => new Guard($responseFactory, persistentTokenMode:true),
 ];

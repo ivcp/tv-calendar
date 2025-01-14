@@ -46,7 +46,7 @@ class User implements UserInterface
     /**
      * Get userShows
      */
-    public function getUserShows(): Collection
+    public function getShows(): Collection
     {
         return $this->userShows;
     }

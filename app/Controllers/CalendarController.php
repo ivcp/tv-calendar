@@ -24,6 +24,9 @@ class CalendarController
         $month = (new DateTime('now'))->format('Y-m');
         $schedule = $this->calendarService->getSchedule($month);
 
+
+        // var_dump($request->getAttribute('user'));
+
         return $this->twig->render(
             $response,
             'calendar.twig',
