@@ -2,17 +2,17 @@
 
 if [ "$1" == "app" ]; then
     if [ "$2" == "doctrine" ]; then
-    docker exec -t tv-calendar-app bash -c "./bin/doctrine $3"
+    docker exec -it tv-calendar-app bash -c "./bin/doctrine $3"
     fi 
     if [ "$2" == "composer" ]; then
     shift
     shift
-    docker exec -t tv-calendar-app bash -c "composer $@"
+    docker exec -it tv-calendar-app bash -c "composer $@"
     fi 
     if [ "$2" == "test" ]; then
     shift
     shift
-    docker exec -t tv-calendar-app bash -c "./vendor/bin/phpunit $@"
+    docker exec -it tv-calendar-app bash -c "./vendor/bin/phpunit $@"
     fi
     if [ "$2" == "bash" ]; then
     docker exec -it tv-calendar-app bash
