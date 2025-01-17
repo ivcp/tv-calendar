@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\CalendarController;
+use App\Controllers\ShowController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
 use Slim\App;
@@ -20,6 +21,8 @@ return function (App $app) {
         $guest->post('/register', [AuthController::class, 'register']);
 
     })->add(GuestMiddleware::class);
+
+    $app->get('/discover', [ShowController::class, 'discover']);
 
     $app->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
 };
