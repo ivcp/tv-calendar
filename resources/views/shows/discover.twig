@@ -4,30 +4,60 @@
 >
   <div class="grow flex flex-col gap-4">
     <div
-      class="navbar justify-center lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+      class="navbar justify-around gap-4 lg:justify-center lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
     >
       <div class="">
         <div
           role="tablist"
           class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
         >
-          <a role="tab" class="tab text-xs font-bold rounded-full">
-            My Shows
-          </a>
           <a
             role="tab"
-            class="tab text-xs font-bold tab-active rounded-full bg-primary text-primary-content"
-            >Popular</a
+            class="tab text-xs font-bold rounded-full tab-active bg-primary text-primary-content"
           >
+            Popular
+          </a>
+          <a role="tab" class="tab text-xs font-bold rounded-full">New</a>
         </div>
       </div>
+      <select
+        class="select select-bordered rounded-badge h-10 min-h-10 max-w-xs"
+      >
+        <option disabled selected>Select a genre</option>
+        <option>All</option>
+        <option>Action</option>
+        <option>Adult</option>
+        <option>Adventure</option>
+        <option>Anime</option>
+        <option>Crime</option>
+        <option>Comedy</option>
+        <option>DIY</option>
+        <option>Drama</option>
+        <option>Espionage</option>
+        <option>Family</option>
+        <option>Fantasy</option>
+        <option>Food</option>
+        <option>History</option>
+        <option>Horror</option>
+        <option>Legal</option>
+        <option>Medical</option>
+        <option>Music</option>
+        <option>Mystery</option>
+        <option>Nature</option>
+        <option>Romance</option>
+        <option>Science Fiction</option>
+        <option>Sports</option>
+        <option>Supernatural</option>
+        <option>Thriller</option>
+        <option>Travel</option>
+        <option>War</option>
+        <option>Western</option>
+      </select>
     </div>
     <div
       class="grid gap-4 place-items-center lg:grid-flow-row lg:place-items-center lg:grid-cols-4 xl:grid-cols-5 lg:gap-y-4 lg:auto-rows-auto"
     >
-     {% for i in 1..20%}
-     {% include 'shows/show-card.twig' %}
-     {% endfor %}
+      {% for i in 1..20%} {% include 'shows/show-card.twig' %} {% endfor %}
     </div>
     <div class="join self-center mt-2">
       <button class="join-item btn">«</button>
