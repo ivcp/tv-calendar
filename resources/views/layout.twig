@@ -20,8 +20,8 @@
       <nav
         class="navbar justify-between items-center bg-base-200 rounded-b-lg min-h-20"
       >
-        <div class="dropdown md:hidden">
-          <div
+        <details class="dropdown md:hidden">
+          <summary
             tabindex="0"
             role="button"
             class="btn btn-ghost btn-circle md:hidden"
@@ -40,10 +40,10 @@
                 d="M4 6h16M4 12h16M4 18h7"
               />
             </svg>
-          </div>
+          </summary>
           <ul
             tabindex="0"
-            class="menu dropdown-content bg-base-300 rounded-lg z-[1] mt-3 w-48 shadow"
+            class="menu dropdown-content bg-base-100 rounded-lg z-[1] mt-3 w-48 shadow-lg"
           >
             <li>
               <a
@@ -107,7 +107,7 @@
               </a>
             </li>
           </ul>
-        </div>
+        </details>
 
         <div class="">
           <a class="btn btn-ghost text-xl" href="/">tvCalendar</a>
@@ -206,9 +206,9 @@
             </button>
           </div>
 
-          <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn btn-ghost px-2">
-              <div class="w-10 flex justify-center">
+          <details class="dropdown dropdown-end">
+            <summary tabindex="0" role="button" class="btn btn-ghost px-0">
+              <div class="w-14 h-full flex justify-center items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -224,10 +224,10 @@
                   />
                 </svg>
               </div>
-            </div>
+            </summary>
             <ul
               tabindex="0"
-              class="menu dropdown-content bg-base-300 rounded-lg z-[1] mt-3 py-2 px-2 w-48 shadow"
+              class="menu dropdown-content bg-base-100 rounded-lg z-[1] mt-3 py-2 shadow-lg"
             >
               {% if user %}
               <li>
@@ -238,7 +238,10 @@
               </li>
               {% else %}
               <li>
-                <a href="/login">
+                <a
+                  href="/login"
+                  class="{{ current_url() is same as('/login') ? 'active' }}"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -257,7 +260,10 @@
                 >
               </li>
               <li>
-                <a href="/register">
+                <a
+                  href="/register"
+                  class="{{ current_url() is same as('/register') ? 'active' }}"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -302,9 +308,9 @@
               </li>
               <li>
                 <button
-                  class="btn w-max bg-base-300 border-none hover:bg-base-content/10"
+                  class="btn bg-base-100 h-10 min-h-10 border-none hover:bg-base-content/10"
                 >
-                  <label class="flex cursor-pointer gap-2 mr-10">
+                  <label class="flex cursor-pointer gap-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
@@ -345,7 +351,7 @@
                 </button>
               </li>
             </ul>
-          </div>
+          </details>
         </div>
       </nav>
     </header>
