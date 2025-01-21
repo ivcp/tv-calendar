@@ -1,0 +1,98 @@
+{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{{ parent() }}
+{{ encore_entry_script_tags("calendar") }}
+{% endblock %}
+<section
+  class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
+>
+  <div class="grow flex flex-col gap-2 lg:gap-0">
+    <div
+      class="navbar flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+    >
+      <div class="flex-1 flex items-center">
+        <a
+          href="/{{ month|date_modify('-1 month')|date('Y-m') }}"
+          class="mr-4 btn btn-sm h-10 lg:btn-md"
+          ><svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.2"
+            stroke="currentColor"
+            class="size-6 lg:size-7"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061A1.125 1.125 0 0 1 21 8.689v8.122ZM11.25 16.811c0 .864-.933 1.406-1.683.977l-7.108-4.061a1.125 1.125 0 0 1 0-1.954l7.108-4.061a1.125 1.125 0 0 1 1.683.977v8.122Z"
+            />
+          </svg>
+          <span class="sr-only">previous month</span>
+        </a>
+        <h1 class="text-xl font-bold uppercase">
+          {{ month|date('F') }}
+          <span class="font-normal">| {{month|date('Y')}}</span>
+        </h1>
+        <a
+          href="/{{ month|date_modify('+1 month')|date('Y-m') }}"
+          class="ml-4 btn btn-sm h-10 lg:btn-md"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.2"
+            stroke="currentColor"
+            class="size-6 lg:size-7"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811V8.69ZM12.75 8.689c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061a1.125 1.125 0 0 1-1.683-.977V8.69Z"
+            />
+          </svg>
+          <span class="sr-only">next month</span>
+        </a>
+      </div>
+      <div class="flex-none">
+        <div
+          role="tablist"
+          class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
+        >
+          <a role="tab" class="tab text-xs font-bold rounded-full">
+            My Shows
+          </a>
+          <a
+            role="tab"
+            class="tab text-xs font-bold rounded-full tab-active bg-primary text-primary-content"
+            >Popular</a
+          >
+        </div>
+      </div>
+    </div>
+    <div class="lg:hidden">{% include 'calendar/airing-today.twig' %}</div>
+    <div class="mt-2 bg-base-100 px-2 lg:px-0">
+      <div
+        class="hidden font-bold py-3 lg:grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:justify-items-center"
+      >
+        <span>Monday</span>
+        <span>Tuesday</span>
+        <span>Wednesday</span>
+        <span>Thursday</span>
+        <span>Friday</span>
+        <span>Saturday</span>
+        <span>Sunday</span>
+      </div>
+      <div
+        id="calendar"
+        class="mt-2 grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:gap-1 lg:auto-rows-auto"
+        data-schedule="{{ schedule }}"
+      >
+        {% set daysInMonth = month|date('t') %} {% for i in 1..daysInMonth %} {%
+        include 'calendar/date-card.twig' with {'i': i, 'month': month} %} {%
+        endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

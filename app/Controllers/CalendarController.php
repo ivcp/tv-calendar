@@ -29,7 +29,7 @@ class CalendarController
 
         return $this->twig->render(
             $response,
-            'calendar.twig',
+            'calendar/index.twig',
             ['schedule' => json_encode($schedule), 'month' => 'now']
         );
     }
@@ -42,7 +42,7 @@ class CalendarController
 
         return $this->twig->render(
             $response,
-            'calendar.twig',
+            'calendar/index.twig',
             ['schedule' => json_encode($schedule), 'month' => $month]
         );
     }
