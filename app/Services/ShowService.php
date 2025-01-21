@@ -56,6 +56,22 @@ class ShowService
         return $show;
     }
 
+    /**
+     * Get popular shows, paginated
+     *
+     * @return Show[]
+     **/
+    public function getPaginatedShows(int $start, int $length, bool $new = false): array
+    {
+        $query = $this->entityManager->getRepository(Show::class)
+                ->createQueryBuilder('c')
+                ->addOrderBy($new ? 'c.tvMazeId' : 'c.weight', 'desc')
+                ->addOrderBy('c.id', 'desc')
+                ->setFirstResult($start)
+                ->setMaxResults($length);
+
+        return $query->getQuery()->getResult();
+    }
 
     /**
      * Bulk insert shows

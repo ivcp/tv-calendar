@@ -1,4 +1,4 @@
-<article>
+<article class="flex flex-col items-center lg:h-80">
   <div class="card bg-base-100 image-full w-max rounded-lg before:hidden">
     <figure>
       <img
@@ -25,5 +25,9 @@
       </svg>
     </div>
   </div>
-  <p class="mt-1 text-center font-bold">Under the Dome</p>
+  <p
+    class="mt-1 text-center font-bold break-words max-w-[22ch] max-h-12 text-ellipsis overflow-clip"
+  >
+    {{ show.name }}
+  </p>
 </article>
