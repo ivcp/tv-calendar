@@ -13,11 +13,17 @@
         >
           <a
             role="tab"
-            class="tab text-xs font-bold rounded-full tab-active bg-primary text-primary-content"
+            class="tab text-xs font-bold rounded-full {{ '?sort=new' not in current_url(true) ? 'tab-active bg-primary text-primary-content' }}"
+            href="/discover"
           >
             Popular
           </a>
-          <a role="tab" class="tab text-xs font-bold rounded-full">New</a>
+          <a
+            role="tab"
+            class="tab text-xs font-bold rounded-full {{ '?sort=new' in current_url(true) ? 'tab-active bg-primary text-primary-content' }}"
+            href="/discover?sort=new"
+            >New</a
+          >
         </div>
       </div>
       <select
