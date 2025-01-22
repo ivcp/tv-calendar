@@ -1,10 +1,12 @@
-<article class="flex flex-col items-center lg:h-80">
+<a class="flex flex-col items-center lg:h-80" href="#">
   <div class="card bg-base-100 image-full w-max rounded-lg before:hidden">
     <figure>
       <img
-        src="https://static.tvmaze.com/uploads/images/medium_portrait/81/202627.jpg"
-        alt="show"
+        src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
+        alt="{{ show.name }}"
         loading="lazy"
+        decoding="async"
+        class="rounded-lg {{show.imageMedium ?: 'border-2 border-base-200'}}"
       />
     </figure>
     <div class="justify-self-end p-2">
@@ -15,7 +17,7 @@
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="size-8"
+        class="size-8 hover:fill-secondary"
       >
         <path
           stroke-linecap="round"
@@ -30,4 +32,4 @@
   >
     {{ show.name }}
   </p>
-</article>
+</a>
