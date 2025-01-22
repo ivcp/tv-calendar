@@ -34,27 +34,27 @@ class Show
     #[Column(name: 'tv_maze_id', unique: true, options: ['unsigned' => true])]
     private int $tvMazeId;
     #[Column(name: 'imdb_id', type: 'string', nullable: true)]
-    private string $imdbId;
+    private ?string $imdbId;
     #[Column(type: 'simple_array', nullable: true)]
     private array $genres;
     #[Column(type: 'string')]
     private string $status;
     #[Column(type: 'string', nullable: true)]
-    private string $premiered;
+    private ?string $premiered;
     #[Column(type: 'string', nullable: true)]
-    private string $ended;
+    private ?string $ended;
     #[Column(type: 'text', name: 'official_site', nullable: true)]
-    private string $officialSite;
+    private ?string $officialSite;
     #[Column(type: 'smallint', options: ['unsigned' => true])]
     private int $weight;
     #[Column(name: 'network_name', type: 'string', nullable: true)]
-    private string $networkName;
+    private ?string $networkName;
     #[Column(name: 'network_country', type: 'string', nullable: true)]
-    private string $networkCountry;
+    private ?string $networkCountry;
     #[Column(name: 'web_channel_name', type: 'string', nullable: true)]
-    private string $webChannelName;
+    private ?string $webChannelName;
     #[Column(name: 'web_channel_country', type: 'string', nullable: true)]
-    private string $webChannelCountry;
+    private ?string $webChannelCountry;
 
 
     #[OneToMany(mappedBy: 'show', targetEntity: Episode::class, cascade: ['persist', 'remove'])]
@@ -96,7 +96,7 @@ class Show
     /**
      * Get the value of imdbId
      */
-    public function getImdbId(): string
+    public function getImdbId(): ?string
     {
         return $this->imdbId;
     }
@@ -161,7 +161,7 @@ class Show
     /**
      * Get the value of premiered
      */
-    public function getPremiered(): string
+    public function getPremiered(): ?string
     {
         return $this->premiered;
     }
@@ -183,7 +183,7 @@ class Show
     /**
      * Get the value of ended
      */
-    public function getEnded(): string
+    public function getEnded(): ?string
     {
         return $this->ended;
     }
@@ -205,7 +205,7 @@ class Show
     /**
      * Get the value of officialSite
      */
-    public function getOfficialSite(): string
+    public function getOfficialSite(): ?string
     {
         return $this->officialSite;
     }
@@ -248,7 +248,7 @@ class Show
     /**
      * Get the value of networkName
      */
-    public function getNetworkName(): string
+    public function getNetworkName(): ?string
     {
         return $this->networkName;
     }
@@ -270,7 +270,7 @@ class Show
     /**
      * Get the value of networkCountry
      */
-    public function getNetworkCountry(): string
+    public function getNetworkCountry(): ?string
     {
         return $this->networkCountry;
     }
@@ -292,7 +292,7 @@ class Show
     /**
      * Get the value of webChannelName
      */
-    public function getWebChannelName(): string
+    public function getWebChannelName(): ?string
     {
         return $this->webChannelName;
     }
@@ -334,7 +334,7 @@ class Show
     /**
      * Get the value of webChannelCountry
      */
-    public function getWebChannelCountry(): string
+    public function getWebChannelCountry(): ?string
     {
         return $this->webChannelCountry;
     }
