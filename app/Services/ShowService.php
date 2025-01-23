@@ -56,12 +56,17 @@ class ShowService
         return $show;
     }
 
+    public function getShowCount(): int
+    {
+        return $this->entityManager->getRepository(Show::class)->count();
+    }
+
     /**
-     * Get popular shows, paginated
+     * Get shows, paginated
      *
      * @return Show[]
      **/
-    public function getPaginatedShows(int $start, int $length, bool $new = false): array
+    public function getPaginatedShows(int $start, int $length, bool $new = false, $genre = 'All'): array
     {
         $query = $this->entityManager->getRepository(Show::class)
                 ->createQueryBuilder('c')
@@ -69,6 +74,10 @@ class ShowService
                 ->addOrderBy('c.id', 'desc')
                 ->setFirstResult($start)
                 ->setMaxResults($length);
+
+        if ($genre !== 'All') {
+            $query->add('where', "c.genres LIKE '%$genre%'");
+        }
 
         return $query->getQuery()->getResult();
     }
