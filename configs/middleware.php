@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Config;
+use App\Middleware\BadRequestExceptionMiddleware;
 use App\Middleware\CsrfFieldsMiddleware;
 use App\Middleware\OldFormDataMiddleware;
 use App\Middleware\StartSessionsMiddleware;
@@ -21,6 +22,7 @@ return function (App $app) {
     $app->add(CsrfFieldsMiddleware::class);
     $app->add('csrf');
     $app->add(TwigMiddleware::create($app, $container->get(Twig::class)));
+    $app->add(BadRequestExceptionMiddleware::class);
     $app->add(ValidationExceptionMiddleware::class);
     $app->add(ValidationErrorsMiddleware::class);
     $app->add(OldFormDataMiddleware::class);
