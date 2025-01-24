@@ -11,24 +11,22 @@
           role="tablist"
           class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
         >
-        {% set url = current_url(true)%}
-        {% set page_removed = get_uri().getQuery() | split('&') | filter( v => 'page' not in v ) | join('&') %}
-        {% set separator =  page_removed is empty ? '' : '?'  %}
-        {% set current_url = current_url() ~ separator ~ page_removed %}
+        {% set url = current_url(true) %}
+        {% set filterArr = pagination | filter((v,k) => k != 'totalPages' and k != 'page' and k != 'sort') %}
+        {% set queryStr = filterArr | map((v,k) => "#{k}=#{v}") | join('&') %}
+               
          <a
             role="tab"
             class="tab text-xs font-bold rounded-full {{ 'sort=new' not in url ? 'tab-active bg-primary text-primary-content' }}"
-            href="{{ 'sort=new' not in url ? current_url : '?sort=new' in url? current_url | replace({'sort=new':''}) : current_url | replace({'&sort=new':''}) }}"
+            href="/discover{{queryStr != '' ? '?' ~ queryStr}}"
           >
             Popular
           </a>
-          {% set page_removed = get_uri().getQuery() | split('&') | filter( v => 'page' not in v ) | join('&') %}
-          {% set current_url = current_url()  %}
-          {% set current_url_no_page = current_url ~ '?' ~ page_removed   %}
+          
           <a
           role="tab"
           class="tab text-xs font-bold rounded-full {{ 'sort=new' in url ? 'tab-active bg-primary text-primary-content' }}"
-          href="{{ 'sort=new' in url ? current_url_no_page : '?' not in url? current_url ~ '?sort=new' : current_url_no_page ~ '&sort=new' }}"
+          href="/discover{{queryStr == '' ? '?sort=new' : '?' ~ queryStr ~ '&sort=new' }}"
           >New</a
           >
         </div>
@@ -67,8 +65,8 @@
       show} %} {% endfor %}
     </div>
     <div class="join self-center mt-4">
-      {% set queryArr = pagination | filter((v,k) => k != 'totalPages') %} {%
-      set prevPage = queryArr | map((v, k) => k == 'page' ? "page=#{v > 1 ? v -
+      {% set queryArr = pagination | filter((v,k) => k != 'totalPages') %}
+      {% set prevPage = queryArr | map((v, k) => k == 'page' ? "page=#{v > 1 ? v -
       1}" : "#{k}=#{v}" ) | join('&') %} {% set nextPage = queryArr | map((v, k)
       => k == 'page' ? "page=#{v + 1}" : "#{k}=#{v}" ) | join('&') %}
       <a
