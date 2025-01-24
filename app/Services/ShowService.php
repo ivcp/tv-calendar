@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\DataObjects\ShowData;
 use App\Entity\Show;
+use App\Enum\Genres;
+use App\Enum\Sort;
 use App\Services\Traits\ParamsTypesCases;
 use ArrayObject;
 use Doctrine\DBAL\ArrayParameterType;
@@ -66,18 +68,31 @@ class ShowService
      *
      * @return Show[]
      **/
-    public function getPaginatedShows(int $start, int $length, bool $new = false, $genre = 'All'): array
-    {
+    public function getPaginatedShows(
+        int $start,
+        int $length,
+        string $sort,
+        string $genre = Genres::Default->value
+    ): array {
         $query = $this->entityManager->getRepository(Show::class)
                 ->createQueryBuilder('c')
-                ->addOrderBy($new ? 'c.tvMazeId' : 'c.weight', 'desc')
-                ->addOrderBy('c.id', 'desc')
                 ->setFirstResult($start)
                 ->setMaxResults($length);
 
-        if ($genre !== 'All') {
+        switch ($sort) {
+            case Sort::New->value:
+                $query->addOrderBy('c.tvMazeId', 'desc');
+                break;
+            case Sort::Popular->value:
+                $query->addOrderBy('c.weight', 'desc');
+                break;
+        }
+
+        if ($genre !== Genres::Default->value) {
             $query->add('where', "c.genres LIKE '%$genre%'");
         }
+
+        $query->addOrderBy('c.id', 'desc');
 
         return $query->getQuery()->getResult();
     }
