@@ -1,4 +1,7 @@
-{% extends 'layout.twig' %} {% block content %}
+{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{{ parent() }}
+{{ encore_entry_script_tags("discover") }}
+{% endblock %}
 <section
   class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
 >
