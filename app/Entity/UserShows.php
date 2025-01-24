@@ -30,7 +30,7 @@ class UserShows
      *
      * @return  self
      */
-    public function setUser($user): self
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
@@ -50,7 +50,7 @@ class UserShows
      *
      * @return  self
      */
-    public function setShow($show): self
+    public function setShow(Show $show): self
     {
         $this->show = $show;
 
