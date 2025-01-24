@@ -14,6 +14,11 @@ return function (App $app) {
     $app->get('/', [CalendarController::class, 'index']);
     $app->get('/{year:\b[0-9]{4}\b}-{month:\b0[1-9]|1[0-2]\b}', [CalendarController::class, 'getMonth']);
 
+    $app->get('/discover', [ShowController::class, 'discover']);
+
+    $app->post('/showlist', [ShowController::class, 'store']);
+
+
     $app->group('', function (RouteCollectorProxy $guest) {
         $guest->get('/login', [AuthController::class, 'loginView']);
         $guest->get('/register', [AuthController::class, 'registerView']);
@@ -21,8 +26,5 @@ return function (App $app) {
         $guest->post('/register', [AuthController::class, 'register']);
 
     })->add(GuestMiddleware::class);
-
-    $app->get('/discover', [ShowController::class, 'discover']);
-
     $app->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
 };
