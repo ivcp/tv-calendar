@@ -6,10 +6,8 @@ namespace App\RequestValidators;
 
 use App\Contracts\RequestValidatorInterface;
 use App\Enum\Genres;
+use App\Enum\Sort;
 use App\Exception\BadRequestException;
-use App\Exception\ValidationException;
-use Slim\Exception\HttpBadRequestException;
-use Slim\Exception\HttpNotFoundException;
 use Valitron\Validator;
 
 class DiscoverRequestValidator implements RequestValidatorInterface
@@ -30,7 +28,7 @@ class DiscoverRequestValidator implements RequestValidatorInterface
                 ['page', 1]
             ],
             'in' => [
-                ['sort', ['popular', 'new']],
+                ['sort', array_column(Sort::cases(), 'value')],
                 ['genre', array_column(Genres::cases(), 'value')]
             ]
         ]);
