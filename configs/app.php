@@ -37,5 +37,6 @@ return [
         'secure' => true,
         'httponly' => true,
         'samesite' => 'lax',
-    ]
+    ],
+    'json_tags' => JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS | JSON_THROW_ON_ERROR
 ];

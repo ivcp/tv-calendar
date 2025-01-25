@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Config;
 use App\Services\CalendarService;
 use DateTime;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -15,6 +16,7 @@ class CalendarController
     public function __construct(
         private readonly Twig $twig,
         private readonly CalendarService $calendarService,
+        private readonly Config $config
     ) {
     }
 
@@ -30,7 +32,10 @@ class CalendarController
         return $this->twig->render(
             $response,
             'calendar/index.twig',
-            ['schedule' => json_encode($schedule), 'month' => 'now']
+            [
+                'schedule' => json_encode($schedule, $this->config->get('json_tags')),
+                'month' => 'now'
+            ]
         );
     }
 
@@ -43,7 +48,10 @@ class CalendarController
         return $this->twig->render(
             $response,
             'calendar/index.twig',
-            ['schedule' => json_encode($schedule), 'month' => $month]
+            [
+                'schedule' => json_encode($schedule, $this->config->get('json_tags')),
+                'month' => $month
+            ]
         );
     }
 }
