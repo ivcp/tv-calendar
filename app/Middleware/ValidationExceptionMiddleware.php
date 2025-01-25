@@ -32,7 +32,7 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
             $response = $this->responseFactory->createResponse();
 
             if ($this->requestService->isXhr($request)) {
-                return $this->responseFormatter->asJSON($response->withStatus(422), $e->errors);
+                return $this->responseFormatter->asJSON($response->withStatus(422), ['errors' => $e->errors]);
             }
 
             $referer = $this->requestService->getReferer($request);
