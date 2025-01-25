@@ -17,6 +17,7 @@ return function (App $app) {
     $app->get('/discover', [ShowController::class, 'discover']);
 
     $app->post('/showlist', [ShowController::class, 'store']);
+    $app->delete('/showlist/{id}', [ShowController::class, 'delete']);
 
 
     $app->group('', function (RouteCollectorProxy $guest) {
