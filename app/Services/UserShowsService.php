@@ -7,7 +7,10 @@ namespace App\Services;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
+use App\Exception\BadRequestException;
+use App\Exception\ShowNotInListException;
 use Doctrine\ORM\EntityManager;
+use Exception;
 
 class UserShowsService
 {
@@ -24,6 +27,17 @@ class UserShowsService
         $this->entityManager->persist($userShow);
         $this->entityManager->flush();
 
+    }
+
+    public function delete(Show $show, User $user): void
+    {
+        $userShow = $this->entityManager->getRepository(UserShows::class)->findOneBy(['user' => $user, 'show' => $show]);
+        if (! $userShow) {
+            throw new ShowNotInListException();
+        }
+
+        $this->entityManager->remove($userShow);
+        $this->entityManager->flush();
     }
 
     public function get(User $user): array
