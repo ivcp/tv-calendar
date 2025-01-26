@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
+use App\Enum\Genres;
 use App\Exception\BadRequestException;
 use App\Exception\ShowNotInListException;
 use Doctrine\ORM\EntityManager;
@@ -43,5 +44,28 @@ class UserShowsService
     public function get(User $user): array
     {
         return  $this->entityManager->getRepository(UserShows::class)->findBy(['user' => $user]);
+    }
+
+    public function getShowCount(User $user, string $genre = Genres::Default->value): int
+    {
+        $repository = $this->entityManager->getRepository(UserShows::class);
+
+        if ($genre === Genres::Default->value) {
+            return  $repository->count(['user' => $user]);
+        }
+
+        $qb = $repository->createQueryBuilder('c');
+        $qb->select('count(c.show)')
+        ->where($qb->expr()->eq('c.user', ':userId'))
+        ->innerJoin('c.show', 's')
+        ->andWhere($qb->expr()->like('s.genres', ':genre'))
+        ->addGroupBy('c.createdAt')
+        ->addGroupBy('c.updatedAt')
+        ->addGroupBy('c.user')
+        ->addGroupBy('c.show')
+        ->setParameter('userId', $user->getId())
+        ->setParameter('genre', '%' . $genre . '%');
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 }
