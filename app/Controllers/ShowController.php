@@ -8,6 +8,7 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use App\Exception\ShowNotInListException;
 use App\RequestValidators\DeleteShowRequestValidator;
 use App\RequestValidators\DiscoverRequestValidator;
+use App\RequestValidators\ShowListRequestValidator;
 use App\RequestValidators\StoreShowRequestValidator;
 use App\ResponseFormatter;
 use App\Services\PaginationService;
@@ -30,13 +31,34 @@ class ShowController
     ) {
     }
 
+    public function index(Request $request, Response $response): Response
+    {
+
+        $params = $this->requestValidatorFactory
+        ->make(ShowListRequestValidator::class)
+        ->validate($request->getQueryParams());
+
+
+        $user = $request->getAttribute('user');
+        $showList = $this->paginationService->showlist($params, $user);
+
+        return $this->twig->render(
+            $response,
+            'shows/index.twig',
+            [
+                'shows' => $showList->getShows(),
+                'pagination' => [],
+            ]
+        );
+    }
+
     public function discover(Request $request, Response $response): Response
     {
         $params = $this->requestValidatorFactory
         ->make(DiscoverRequestValidator::class)
         ->validate($request->getQueryParams());
 
-        $discover = $this->paginationService->get($params);
+        $discover = $this->paginationService->discover($params);
 
 
         $user = $request->getAttribute('user');
@@ -63,10 +85,7 @@ class ShowController
         ->make(StoreShowRequestValidator::class)
         ->validate($request->getParsedBody());
 
-        $user = $request->getAttribute('user');
-        if (! $user) {
-            return $this->responseFormatter->asJSONError($response, 403, 'log in to add shows');
-        }
+
         $showId = (int) $params['showId'];
 
         $show = $this->showService->getById($showId);
@@ -78,6 +97,7 @@ class ShowController
             );
         }
 
+        $user = $request->getAttribute('user');
         try {
             $this->userShowsService->add($show, $user);
         } catch (UniqueConstraintViolationException $e) {
@@ -93,12 +113,6 @@ class ShowController
         ->make(DeleteShowRequestValidator::class)
         ->validate($args);
 
-
-        $user = $request->getAttribute('user');
-        if (! $user) {
-            return $this->responseFormatter->asJSONError($response, 403, 'log in needed for action');
-        }
-
         $showId = (int) $args['id'];
         $show = $this->showService->getById($showId);
 
@@ -109,6 +123,8 @@ class ShowController
                 "show with id $showId does not exist"
             );
         }
+
+        $user = $request->getAttribute('user');
         try {
             $this->userShowsService->delete($show, $user);
         } catch (ShowNotInListException $e) {
