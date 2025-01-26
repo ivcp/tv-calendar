@@ -16,9 +16,11 @@ return function (App $app) {
 
     $app->get('/discover', [ShowController::class, 'discover']);
 
-    $app->post('/showlist', [ShowController::class, 'store']);
-    $app->delete('/showlist/{id}', [ShowController::class, 'delete']);
-
+    $app->group('/showlist', function (RouteCollectorProxy $showlist) {
+        $showlist->get('', [ShowController::class, 'index']);
+        $showlist->post('', [ShowController::class, 'store']);
+        $showlist->delete('/{id}', [ShowController::class, 'delete']);
+    })->add(AuthMiddleware::class);
 
     $app->group('', function (RouteCollectorProxy $guest) {
         $guest->get('/login', [AuthController::class, 'loginView']);
