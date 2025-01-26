@@ -116,7 +116,8 @@ class ShowService
         }
 
         if ($genre !== Genres::Default->value) {
-            $query->add('where', "c.genres LIKE :genre")->setParameter('genre', '%' . $genre . '%');
+            $i = $user ? 's' : 'c';
+            $query->andWhere("$i.genres LIKE :genre")->setParameter('genre', '%' . $genre . '%');
         }
 
         $query->addOrderBy($user ? 's.id' : 'c.id', 'desc');
