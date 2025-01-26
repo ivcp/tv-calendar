@@ -6,7 +6,10 @@ namespace App\Services;
 
 use App\DataObjects\ShowData;
 use App\Entity\Show;
+use App\Entity\User;
+use App\Entity\UserShows;
 use App\Enum\Genres;
+use App\Enum\ShowListSort;
 use App\Enum\Sort;
 use App\Services\Traits\ParamsTypesCases;
 use ArrayObject;
@@ -58,9 +61,19 @@ class ShowService
         return $show;
     }
 
-    public function getShowCount(): int
+    public function getShowCount(string $genre = Genres::Default->value): int
     {
-        return $this->entityManager->getRepository(Show::class)->count();
+        $repository = $this->entityManager->getRepository(Show::class);
+        if ($genre === Genres::Default->value) {
+            return $repository->count();
+        }
+
+        $qb = $repository->createQueryBuilder('c')
+        ->select('count(c)')
+        ->where('c.genres LIKE :genre')
+        ->setParameter('genre', '%' . $genre . '%');
+
+        return $qb->getQuery()->getSingleScalarResult();
     }
 
     /**
@@ -72,12 +85,23 @@ class ShowService
         int $start,
         int $length,
         string $sort,
-        string $genre = Genres::Default->value
+        string $genre = Genres::Default->value,
+        User $user = null,
     ): array {
         $query = $this->entityManager->getRepository(Show::class)
                 ->createQueryBuilder('c')
                 ->setFirstResult($start)
                 ->setMaxResults($length);
+
+        if ($user) {
+            $query = $this->entityManager->getRepository(UserShows::class)->createQueryBuilder('c');
+            $query->select('s')
+            ->where($query->expr()->eq('c.user', ':userId'))
+            ->innerJoin(Show::class, 's', 'WITH', 's.id = c.show')
+            ->setFirstResult($start)
+            ->setMaxResults($length)
+            ->setParameter('userId', $user->getId());
+        }
 
         switch ($sort) {
             case Sort::New->value:
@@ -86,13 +110,17 @@ class ShowService
             case Sort::Popular->value:
                 $query->addOrderBy('c.weight', 'desc');
                 break;
+            case ShowListSort::Added->value:
+                $query->addOrderBy('c.createdAt', 'desc');
+                break;
         }
 
         if ($genre !== Genres::Default->value) {
-            $query->add('where', "c.genres LIKE '%$genre%'");
+            $query->add('where', "c.genres LIKE :genre")->setParameter('genre', '%' . $genre . '%');
         }
 
-        $query->addOrderBy('c.id', 'desc');
+        $query->addOrderBy($user ? 's.id' : 'c.id', 'desc');
+
 
         return $query->getQuery()->getResult();
     }
