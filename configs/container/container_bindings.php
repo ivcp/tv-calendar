@@ -18,6 +18,7 @@ use App\Services\TvMazeService;
 use App\Services\UpdateService;
 use App\Services\UserProviderService;
 use App\Session;
+use App\TwigDefaultSort;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
@@ -62,6 +63,8 @@ return [
             'auto_reload' => AppEnvironment::isDevelopment($config->get('app_environment')),
         ]);
 
+
+        $twig->addExtension(new TwigDefaultSort());
         $twig->addExtension(new EntryFilesTwigExtension($container));
         $twig->addExtension(new AssetExtension($container->get('webpack_encore.packages')));
         return $twig;
