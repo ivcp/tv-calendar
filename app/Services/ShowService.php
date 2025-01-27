@@ -8,11 +8,12 @@ use App\DataObjects\ShowData;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
+use App\Enum\DiscoverSort;
 use App\Enum\Genres;
 use App\Enum\ShowListSort;
-use App\Enum\Sort;
 use App\Services\Traits\ParamsTypesCases;
 use ArrayObject;
+use BackedEnum;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
@@ -61,17 +62,19 @@ class ShowService
         return $show;
     }
 
-    public function getShowCount(string $genre = Genres::Default->value): int
+    public function getShowCount(BackedEnum $genre = Genres::Default): int
     {
         $repository = $this->entityManager->getRepository(Show::class);
-        if ($genre === Genres::Default->value) {
+        if ($genre === Genres::Default) {
             return $repository->count();
         }
 
         $qb = $repository->createQueryBuilder('c')
-        ->select('count(c)')
+        ->select('count(distinct c)')
         ->where('c.genres LIKE :genre')
-        ->setParameter('genre', '%' . $genre . '%');
+        ->setParameter('genre', '%' . $genre->value . '%');
+
+
 
         return $qb->getQuery()->getSingleScalarResult();
     }
@@ -84,8 +87,8 @@ class ShowService
     public function getPaginatedShows(
         int $start,
         int $length,
-        string $sort,
-        string $genre = Genres::Default->value,
+        BackedEnum $sort,
+        BackedEnum $genre,
         User $user = null,
     ): array {
         $query = $this->entityManager->getRepository(Show::class)
@@ -104,20 +107,29 @@ class ShowService
         }
 
         switch ($sort) {
-            case Sort::New->value:
+            case DiscoverSort::New:
                 $query->addOrderBy('c.tvMazeId', 'desc');
                 break;
-            case Sort::Popular->value:
+            case DiscoverSort::Popular:
                 $query->addOrderBy('c.weight', 'desc');
                 break;
-            case ShowListSort::Added->value:
+            case ShowListSort::Added:
                 $query->addOrderBy('c.createdAt', 'desc');
+                break;
+            case ShowListSort::Alphabetical:
+                $query->addOrderBy('s.name', 'asc');
+                break;
+            case ShowListSort::Popular:
+                $query->addOrderBy('s.weight', 'desc');
+                break;
+            case ShowListSort::New:
+                $query->addOrderBy('s.tvMazeId', 'desc');
                 break;
         }
 
-        if ($genre !== Genres::Default->value) {
+        if ($genre !== Genres::Default) {
             $i = $user ? 's' : 'c';
-            $query->andWhere("$i.genres LIKE :genre")->setParameter('genre', '%' . $genre . '%');
+            $query->andWhere("$i.genres LIKE :genre")->setParameter('genre', '%' . $genre->value . '%');
         }
 
         $query->addOrderBy($user ? 's.id' : 'c.id', 'desc');
