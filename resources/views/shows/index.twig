@@ -11,52 +11,8 @@
         <span class="font-normal">| 4</span>
       </h1>
       <div class="flex gap-4">
-        <div class="">
-          <div
-            role="tablist"
-            class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
-          >
-            <a
-              role="tab"
-              class="tab text-xs font-bold rounded-full {{ 'sort=new' not in url ? 'tab-active bg-primary text-primary-content' }}"
-              href="/showlist"
-            >
-              Added
-            </a>
-
-            <a
-              role="tab"
-              class="tab text-xs font-bold rounded-full {{ 'sort=new' in url ? 'tab-active bg-primary text-primary-content' }}"
-              href="/showlist?sort=alphabetical"
-              >A-Z</a
-            >
-            <a
-              role="tab"
-              class="tab text-xs font-bold rounded-full {{ 'sort=new' in url ? 'tab-active bg-primary text-primary-content' }}"
-              href="/showlist?sort=popular"
-              >Popular</a
-            >
-            <a
-              role="tab"
-              class="tab text-xs font-bold rounded-full {{ 'sort=new' in url ? 'tab-active bg-primary text-primary-content' }}"
-              href="/showlist?sort=new"
-              >New</a
-            >
-          </div>
-        </div>
-        <form action="#">
-          <select
-            class="select select-bordered rounded-badge h-10 min-h-10 max-w-xs"
-            name="genre"
-          >
-            <option disabled selected>Filter by genre</option>
-            {% for case in enum('App\\Enum\\Genres').cases %}
-            <option value="{{ case.value }}">
-              {{ case.value }}
-            </option>
-            {% endfor %}
-          </select>
-        </form>
+        {% include 'shows/sort.twig' with {'sort':
+        enum('App\\Enum\\ShowListSort')} %} {% include 'shows/genres.twig' %}
       </div>
     </div>
     <div
@@ -65,11 +21,7 @@
       {% for show in shows %} {% include 'shows/show-card.twig' with {'show':
       show} %} {% endfor %}
     </div>
-    <div class="join self-center mt-4">
-      <a class="join-item btn" href="#">«</a>
-      <button class="join-item btn">Page 1</button>
-      <a class="join-item btn" href="#">»</a>
-    </div>
+    {% include 'shows/pagination.twig' with {'pagination': pagination} %}
   </div>
 </section>
 {% endblock %}
