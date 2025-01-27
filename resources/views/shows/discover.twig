@@ -10,56 +10,10 @@
       class="navbar justify-around gap-4 lg:justify-center lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
     >
       <div class="">
-        <div
-          role="tablist"
-          class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
-        >
-        {% set url = current_url(true) %}
-        {% set filterArr = pagination | filter((v,k) => k != 'totalPages' and k != 'page' and k != 'sort') %}
-        {% set queryStr = filterArr | map((v,k) => "#{k}=#{v}") | join('&') %}
-               
-         <a
-            role="tab"
-            class="tab text-xs font-bold rounded-full {{ 'sort=new' not in url ? 'tab-active bg-primary text-primary-content' }}"
-            href="/discover{{queryStr != '' ? '?' ~ queryStr}}"
-          >
-            Popular
-          </a>
-          
-          <a
-          role="tab"
-          class="tab text-xs font-bold rounded-full {{ 'sort=new' in url ? 'tab-active bg-primary text-primary-content' }}"
-          href="/discover{{queryStr == '' ? '?sort=new' : '?' ~ queryStr ~ '&sort=new' }}"
-          >New</a
-          >
-        </div>
+        {% include 'shows/sort.twig' with {'sort':
+        enum('App\\Enum\\DiscoverSort')} %}
       </div>
-      <form action="/discover">
-        <select
-          class="select select-bordered rounded-badge h-10 min-h-10 max-w-xs"
-          name="genre"
-          onchange="this.form.submit()"
-        >
-          <option disabled {% if 'genre=' not in url %} selected {% endif %}>Select a genre</option>
-          {% for case in enum('App\\Enum\\Genres').cases %}
-          <option
-            value="{{ case.value }}"
-            {%
-            if
-            case.value
-            in
-            url
-            %}
-            selected
-            {%
-            endif
-            %}
-          >
-            {{ case.value }}
-          </option>
-          {% endfor %}
-        </select>
-      </form>
+      {% include 'shows/genres.twig' %}
     </div>
     <div
       class="grid gap-6 place-items-center lg:grid-flow-row lg:place-items-center lg:grid-cols-4 xl:grid-cols-5 lg:gap-y-8 lg:auto-rows-auto"
@@ -67,23 +21,7 @@
       {% for show in shows %} {% include 'shows/show-card.twig' with {'show':
       show} %} {% endfor %}
     </div>
-    <div class="join self-center mt-4">
-      {% set queryArr = pagination | filter((v,k) => k != 'totalPages') %}
-      {% set prevPage = queryArr | map((v, k) => k == 'page' ? "page=#{v > 1 ? v -
-      1}" : "#{k}=#{v}" ) | join('&') %} {% set nextPage = queryArr | map((v, k)
-      => k == 'page' ? "page=#{v + 1}" : "#{k}=#{v}" ) | join('&') %}
-      <a
-        class="join-item btn {{ pagination.page <= 1 ? 'btn-disabled' }}"
-        href="/discover?{{ prevPage }}"
-        >«</a
-      >
-      <button class="join-item btn">Page {{ pagination.page }}</button>
-      <a
-        class="join-item btn {{ pagination.totalPages == pagination.page ? 'btn-disabled' }}"
-        href="/discover?{{ nextPage }}"
-        >»</a
-      >
-    </div>
+    {% include 'shows/pagination.twig' with {'pagination': pagination} %}
   </div>
 </section>
 {% endblock %}
