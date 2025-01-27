@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Entity\User;
+use App\Enum\DiscoverSort;
 use App\Enum\Genres;
 use App\Enum\ShowListSort;
-use App\Enum\Sort;
 use App\Exception\NotFoundException;
-use Doctrine\ORM\NoResultException;
+use BackedEnum;
 
 class PaginationService
 {
@@ -17,8 +17,8 @@ class PaginationService
     private int $length = 20;
     private int $page = 1;
     private int $totalPages = 1;
-    private string $sort;
-    private string $genre = Genres::Default->value;
+    private BackedEnum $sort;
+    private BackedEnum $genre = Genres::Default;
     private array $params;
     private ?User $user = null;
 
@@ -43,14 +43,16 @@ class PaginationService
     {
         $pagination = ['page' => $this->page, 'totalPages' => $this->totalPages];
         if (isset($this->params['sort'])) {
-            $pagination['sort'] = $this->sort;
+            $pagination['sort'] = $this->sort->value;
         }
         if (isset($this->params['genre'])) {
-            $pagination['genre'] = $this->genre;
+            $pagination['genre'] = $this->genre->value;
         }
 
         return $pagination;
     }
+
+    //TODO: refactor
 
     public function discover(array $params): self
     {
@@ -60,18 +62,18 @@ class PaginationService
             $this->page = $pageNum;
         }
 
-        $this->sort = Sort::Popular->value;
+        $this->sort = DiscoverSort::default();
         if (isset($params['sort'])) {
-            $this->sort = $params['sort'];
+            $this->sort = DiscoverSort::tryFrom($params['sort']);
         }
 
         if (isset($params['genre'])) {
-            $this->genre = $params['genre'];
+            $this->genre = Genres::tryFrom($params['genre']);
         }
 
-        try {
-            $this->totalPages = (int) ceil($this->showService->getShowCount($this->genre) / $this->length);
-        } catch (NoResultException $e) {
+        $count = $this->showService->getShowCount($this->genre);
+        if ($count) {
+            $this->totalPages = (int) ceil($count / $this->length);
         }
 
         if ($this->page > $this->totalPages) {
@@ -92,18 +94,19 @@ class PaginationService
             $this->page = $pageNum;
         }
 
-        $this->sort = ShowListSort::Added->value;
+        $this->sort = ShowListSort::default();
         if (isset($params['sort'])) {
-            $this->sort = $params['sort'];
+            $this->sort = ShowListSort::tryFrom($params['sort']);
         }
 
         if (isset($params['genre'])) {
-            $this->genre = $params['genre'];
+            $this->genre = Genres::tryFrom($params['genre']);
         }
 
-        try {
-            $this->totalPages = (int) ceil($this->userShowsService->getShowCount($user, $this->genre) / $this->length);
-        } catch (NoResultException $e) {
+
+        $count = $this->userShowsService->getShowCount($user, $this->genre);
+        if ($count) {
+            $this->totalPages = (int) ceil($count / $this->length);
         }
 
         if ($this->page > $this->totalPages) {
