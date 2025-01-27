@@ -47,7 +47,7 @@ class ShowController
             'shows/index.twig',
             [
                 'shows' => $showList->getShows(),
-                'pagination' => [],
+                'pagination' => $showList->getPagination(),
             ]
         );
     }
