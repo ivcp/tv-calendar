@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\RequestValidators;
 
 use App\Contracts\RequestValidatorInterface;
+use App\Enum\DiscoverSort;
 use App\Enum\Genres;
-use App\Enum\Sort;
 use App\Exception\BadRequestException;
 use Valitron\Validator;
 
@@ -28,7 +28,7 @@ class DiscoverRequestValidator implements RequestValidatorInterface
                 ['page', 1]
             ],
             'in' => [
-                ['sort', array_column(Sort::cases(), 'value')],
+                ['sort', array_column(DiscoverSort::cases(), 'value')],
                 ['genre', array_column(Genres::cases(), 'value')]
             ]
         ]);
