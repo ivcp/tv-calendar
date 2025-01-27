@@ -1,0 +1,27 @@
+ {% set url = current_url(true) %}
+ <form action="{{current_url()}}">
+    <select
+        class="select select-bordered rounded-badge h-10 min-h-10 max-w-xs"
+        name="genre"
+        onchange="this.form.submit()"
+    >
+        <option disabled {% if 'genre=' not in url %} selected {% endif %}>Select a genre</option>
+        {% for case in enum('App\\Enum\\Genres').cases %}
+        <option
+        value="{{ case.value }}"
+        {%
+        if
+        case.value
+        in
+        url
+        %}
+        selected
+        {%
+        endif
+        %}
+        >
+        {{ case.value }}
+        </option>
+        {% endfor %}
+    </select>
+ </form>

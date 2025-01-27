@@ -1,0 +1,18 @@
+<div class="join self-center mt-4">
+  {% set queryArr = pagination | filter((v,k) => k != 'totalPages') %} {% set
+  prevPage = queryArr | map((v, k) => k == 'page' ? "page=#{v > 1 ? v - 1}" :
+  "#{k}=#{v}" ) | join('&') %} {% set nextPage = queryArr | map((v, k) => k ==
+  'page' ? "page=#{v + 1}" : "#{k}=#{v}" ) | join('&') %} {% set url =
+  current_url() %}
+  <a
+    class="join-item btn {{ pagination.page <= 1 ? 'btn-disabled' }}"
+    href="{{ url }}?{{ prevPage }}"
+    >«</a
+  >
+  <button class="join-item btn">Page {{ pagination.page }}</button>
+  <a
+    class="join-item btn {{ pagination.totalPages == pagination.page ? 'btn-disabled' }}"
+    href="{{ url }}?{{ nextPage }}"
+    >»</a
+  >
+</div>
