@@ -8,7 +8,7 @@
     >
       <h1 class="text-xl font-bold uppercase">
         Show Count&nbsp;
-        <span class="font-normal">| 4</span>
+        <span class="font-normal">| {{ pagination.showCount }}</span>
       </h1>
       <div class="flex gap-4">
         {% include 'shows/sort.twig' with {'sort':
