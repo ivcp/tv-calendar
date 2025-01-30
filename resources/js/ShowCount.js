@@ -1,19 +1,19 @@
 export class ShowCount {
-  #showCount;
+  #count;
 
-  constructor(showCount) {
-    this.#showCount = showCount;
+  constructor(count) {
+    this.#count = count;
   }
 
-  get showCount() {
-    return this.#showCount;
+  get count() {
+    return this.#count;
   }
 
   increment() {
-    this.#showCount++;
+    this.#count++;
   }
 
   decrement() {
-    this.#showCount--;
+    this.#count--;
   }
 }
