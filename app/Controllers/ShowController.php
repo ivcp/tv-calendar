@@ -90,7 +90,7 @@ class ShowController
 
         $show = $this->showService->getById($showId);
         if (! $show) {
-            return $this->responseFormatter->asJSONError(
+            return $this->responseFormatter->asJSON(
                 $response,
                 404,
                 "show with id $showId does not exist"
@@ -101,10 +101,10 @@ class ShowController
         try {
             $this->userShowsService->add($show, $user);
         } catch (UniqueConstraintViolationException $e) {
-            return $this->responseFormatter->asJSONError($response, 400, "show already added");
+            return $this->responseFormatter->asJSON($response, 400, "show already added");
         }
 
-        return $this->responseFormatter->asJSONSuccess($response, 200, $show->getName() . ' added!');
+        return $this->responseFormatter->asJSON($response, 200, $show->getName() . ' added');
     }
 
     public function delete(Request $request, Response $response, array $args): Response
@@ -117,7 +117,7 @@ class ShowController
         $show = $this->showService->getById($showId);
 
         if (! $show) {
-            return $this->responseFormatter->asJSONError(
+            return $this->responseFormatter->asJSON(
                 $response,
                 404,
                 "show with id $showId does not exist"
@@ -128,9 +128,9 @@ class ShowController
         try {
             $this->userShowsService->delete($show, $user);
         } catch (ShowNotInListException $e) {
-            return $this->responseFormatter->asJSONError($response, 400, "show not in your list");
+            return $this->responseFormatter->asJSON($response, 400, "show not in your list");
         }
 
-        return $this->responseFormatter->asJSONSuccess($response, 200, 'deleted!');
+        return $this->responseFormatter->asJSON($response, 200, $show->getName(). ' removed from your list');
     }
 }

@@ -12,44 +12,32 @@ class ResponseFormatter
     {
     }
 
-    public function asJSON(
+    public function asJSONErrors(
         ResponseInterface $response,
         mixed $data,
     ): ResponseInterface {
         $response = $response->withHeader('Content-Type', 'application/json');
         $response->getBody()->write(json_encode(
-            $data,
+            ['errors' => $data],
             $this->config->get('json_tags')
         ));
 
         return $response;
     }
 
-    public function asJSONError(
+    public function asJSON(
         ResponseInterface $response,
         int $status,
         string $msg,
     ): ResponseInterface {
         $response = $response->withHeader('Content-Type', 'application/json')->withStatus($status);
         $response->getBody()->write(json_encode(
-            ['error' => $msg],
+            ['msg' => $msg],
             $this->config->get('json_tags')
         ));
 
         return $response;
     }
 
-    public function asJSONSuccess(
-        ResponseInterface $response,
-        int $status,
-        string $msg,
-    ): ResponseInterface {
-        $response = $response->withHeader('Content-Type', 'application/json')->withStatus($status);
-        $response->getBody()->write(json_encode(
-            ['success' => $msg],
-            $this->config->get('json_tags')
-        ));
 
-        return $response;
-    }
 }
