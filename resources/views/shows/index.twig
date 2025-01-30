@@ -7,7 +7,7 @@
 >
   <div class="grow flex flex-col gap-6">
     <div
-      class="navbar justify-around gap-4 lg:justify-between lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+      class="navbar flex-col lg:flex-row justify-around gap-4 lg:justify-between lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
     >
       <h1 class="text-xl font-bold uppercase">
         Show Count&nbsp;
@@ -15,7 +15,7 @@
           >| {{ pagination.showCount }}</span
         >
       </h1>
-      <div class="flex gap-4">
+      <div class="flex flex-col lg:flex-row gap-4">
         {% include 'shows/sort.twig' with {'sort':
         enum('App\\Enum\\ShowListSort')} %} {% include 'shows/genres.twig' %}
       </div>
