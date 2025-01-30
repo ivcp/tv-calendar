@@ -14,17 +14,42 @@ async function post(el) {
 
 async function del(el) {
   const showId = el.getAttribute("data-show-id");
-  const response = await fetch(`/showlist/${showId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
-    },
-    body: JSON.stringify({
-      _METHOD: "DELETE",
-      ...getCsrfFields(),
-    }),
-  });
+  try {
+    const response = await fetch(`/showlist/${showId}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify({
+        _METHOD: "DELETE",
+        ...getCsrfFields(),
+      }),
+    });
+
+    if (!response.ok) {
+      if ([400, 404, 422].includes(response.status)) {
+        const json = await response.json();
+        if (response.status === 422) {
+          return result(true, json.errors.id);
+        }
+        return result(true, [json.msg]);
+      }
+      return result(true, ["something went wrong"]);
+    }
+
+    const json = await response.json();
+    return result(false, [json.msg]);
+  } catch (error) {
+    return result(true, ["something went wrong"]);
+  }
+}
+
+function result(error, messages) {
+  return {
+    error: error,
+    messages: messages,
+  };
 }
 
 function getCsrfFields() {
