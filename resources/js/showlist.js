@@ -1,4 +1,5 @@
 import { del } from "./ajax";
+import { notification } from "./notification";
 import { ShowCount } from "./ShowCount";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -16,15 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", async () => {
       const result = await del(btn);
       if (result.error) {
-        // notify err
-        console.log(result.messages);
+        notification(result.messages, "alert-error");
+        return;
       }
       showCount.decrement();
       //check null
       btn.parentElement.parentElement.remove();
-      showCountElement.textContent = `| ${showCount.showCount}`;
-      //notify
-      console.log(result.messages);
+      showCountElement.textContent = `| ${showCount.count}`;
+      notification(result.messages, "alert-success");
     })
   );
 });
