@@ -25,7 +25,7 @@ class ResponseFormatter
         return $response;
     }
 
-    public function asJSON(
+    public function asJSONMessage(
         ResponseInterface $response,
         int $status,
         string $msg,
@@ -33,6 +33,20 @@ class ResponseFormatter
         $response = $response->withHeader('Content-Type', 'application/json')->withStatus($status);
         $response->getBody()->write(json_encode(
             ['msg' => $msg],
+            $this->config->get('json_tags')
+        ));
+
+        return $response;
+    }
+
+    public function asJSON(
+        ResponseInterface $response,
+        int $status,
+        mixed $data,
+    ): ResponseInterface {
+        $response = $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+        $response->getBody()->write(json_encode(
+            $data,
             $this->config->get('json_tags')
         ));
 
