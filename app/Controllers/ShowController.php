@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\DataObjects\ShowCardData;
 use App\Exception\ShowNotInListException;
 use App\RequestValidators\DeleteShowRequestValidator;
 use App\RequestValidators\DiscoverRequestValidator;
@@ -12,6 +13,7 @@ use App\RequestValidators\ShowListRequestValidator;
 use App\RequestValidators\StoreShowRequestValidator;
 use App\ResponseFormatter;
 use App\Services\PaginationService;
+use App\Services\RequestService;
 use App\Services\ShowService;
 use App\Services\UserShowsService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -27,7 +29,8 @@ class ShowController
         private readonly PaginationService $paginationService,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly ResponseFormatter $responseFormatter,
-        private readonly UserShowsService $userShowsService
+        private readonly UserShowsService $userShowsService,
+        private readonly RequestService $requestService
     ) {
     }
 
@@ -42,11 +45,28 @@ class ShowController
         $user = $request->getAttribute('user');
         $showList = $this->paginationService->showlist($params, $user);
 
+        $shows = array_map(fn ($show) => new ShowCardData(
+            id:$show->getId(),
+            name:$show->getName(),
+            imageMedium: $show->getImageMedium()
+        ), $showList->getShows());
+
+        if ($this->requestService->isXhr($request)) {
+            return $this->responseFormatter->asJSON(
+                $response,
+                200,
+                [
+                    'shows' => $shows,
+                    'pagination' => $showList->getPagination(),
+                ]
+            );
+        }
+
         return $this->twig->render(
             $response,
             'shows/index.twig',
             [
-                'shows' => $showList->getShows(),
+                'shows' => $shows,
                 'pagination' => $showList->getPagination(),
             ]
         );
@@ -68,11 +88,17 @@ class ShowController
             $userShows = array_map(fn ($us) => $us->getShow()->getId(), $shows);
         }
 
+        $shows = array_map(fn ($show) => new ShowCardData(
+            id:$show->getId(),
+            name:$show->getName(),
+            imageMedium: $show->getImageMedium()
+        ), $discover->getShows());
+
         return $this->twig->render(
             $response,
             'shows/discover.twig',
             [
-                'shows' => $discover->getShows(),
+                'shows' =>   $shows,
                 'pagination' => $discover->getPagination(),
                 'userShows' => $userShows,
             ]
@@ -90,7 +116,7 @@ class ShowController
 
         $show = $this->showService->getById($showId);
         if (! $show) {
-            return $this->responseFormatter->asJSON(
+            return $this->responseFormatter->asJSONMessage(
                 $response,
                 404,
                 "show with id $showId does not exist"
@@ -101,10 +127,10 @@ class ShowController
         try {
             $this->userShowsService->add($show, $user);
         } catch (UniqueConstraintViolationException $e) {
-            return $this->responseFormatter->asJSON($response, 400, "show already added");
+            return $this->responseFormatter->asJSONMessage($response, 400, "show already added");
         }
 
-        return $this->responseFormatter->asJSON($response, 200, $show->getName() . ' added');
+        return $this->responseFormatter->asJSONMessage($response, 200, $show->getName() . ' added');
     }
 
     public function delete(Request $request, Response $response, array $args): Response
@@ -117,7 +143,7 @@ class ShowController
         $show = $this->showService->getById($showId);
 
         if (! $show) {
-            return $this->responseFormatter->asJSON(
+            return $this->responseFormatter->asJSONMessage(
                 $response,
                 404,
                 "show with id $showId does not exist"
@@ -128,9 +154,9 @@ class ShowController
         try {
             $this->userShowsService->delete($show, $user);
         } catch (ShowNotInListException $e) {
-            return $this->responseFormatter->asJSON($response, 400, "show not in your list");
+            return $this->responseFormatter->asJSONMessage($response, 400, "show not in your list");
         }
 
-        return $this->responseFormatter->asJSON($response, 200, $show->getName(). ' removed from your list');
+        return $this->responseFormatter->asJSONMessage($response, 200, $show->getName(). ' removed from your list');
     }
 }
