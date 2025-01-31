@@ -12,6 +12,24 @@ async function post(el) {
   });
 }
 
+async function get(url) {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+    if (!response.ok) {
+      return result(true, ["something went wrong"]);
+    }
+
+    const json = await response.json();
+    return result(false, [], json);
+  } catch (error) {
+    return result(true, ["something went wrong"]);
+  }
+}
+
 async function del(el) {
   const showId = el.getAttribute("data-show-id");
   try {
@@ -45,10 +63,11 @@ async function del(el) {
   }
 }
 
-function result(error, messages) {
+function result(error, messages, body = null) {
   return {
     error: error,
     messages: messages,
+    body: body,
   };
 }
 
@@ -66,4 +85,4 @@ function getCsrfFields() {
   };
 }
 
-export { post, del };
+export { post, del, get };

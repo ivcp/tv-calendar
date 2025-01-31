@@ -11,6 +11,7 @@
   >
   <button class="join-item btn">Page {{ pagination.page }}</button>
   <a
+    id="next-page-btn"
     class="join-item btn {{ pagination.totalPages == pagination.page ? 'btn-disabled' }}"
     href="{{ url }}?{{ nextPage }}"
     >»</a
