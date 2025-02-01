@@ -20,6 +20,10 @@ async function get(url) {
       },
     });
     if (!response.ok) {
+      if ([404].includes(response.status)) {
+        const json = await response.json();
+        return result(true, [json.msg]);
+      }
       return result(true, ["something went wrong"]);
     }
 
