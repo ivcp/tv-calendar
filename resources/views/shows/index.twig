@@ -29,10 +29,37 @@
       id="shows-grid"
       class="grid gap-6 place-items-center lg:grid-flow-row lg:place-items-center lg:grid-cols-4 xl:grid-cols-5 lg:gap-y-8 lg:auto-rows-auto"
     >
-      {% for show in shows %} {% include 'shows/show-card.twig' with {'show':
-      show} %} {% endfor %}
+      {% if pagination.showCount is same as(0) %}
+      <p class="text-center lg:col-start-3 text-lg mt-12 uppercase">
+        {{ pagination.genre and pagination.genre is not same as('All') ? "You have no shows in " ~ pagination.genre ~ " category" : "Your list is empty" }}
+      </p>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1"
+        stroke="currentColor"
+        class="size-12 lg:col-start-3"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125Z"
+        />
+      </svg>
+
+      <a
+        href="/discover{{ pagination.genre and pagination.genre is not same as('All') ? '?genre=' ~ pagination.genre}}"
+        class="text-center font-bold text-primary lg:col-start-3 text-lg"
+        >Add some
+        {{pagination.genre and pagination.genre is not same as('All') ? '' : 'shows'
+        }}</a
+      >
+      {% endif %} {% for show in shows %} {% include 'shows/show-card.twig' with
+      {'show': show} %} {% endfor %}
     </div>
-    {% include 'shows/pagination.twig' with {'pagination': pagination} %}
+    {% if pagination.showCount is not same as(0) %} {% include
+    'shows/pagination.twig' with {'pagination': pagination} %} {% endif %}
   </div>
 </section>
 {% endblock %}

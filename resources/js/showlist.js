@@ -1,11 +1,13 @@
 import { del, get } from "./ajax";
 import { notification } from "./notification";
+import NoImageSvg from "../images/no-img.svg";
 
 document.addEventListener("DOMContentLoaded", () => {
   let removeButtons = document.querySelectorAll(".remove-show");
   const nextPageBtn = document.querySelector("#next-page-btn");
   const showCountElement = document.querySelector("[data-show-count]");
   const showGrid = document.querySelector("#shows-grid");
+  const paginationElement = document.querySelector("#pagination");
   const event = new Event("show-deleted");
 
   removeButtons.forEach((btn) =>
@@ -28,17 +30,80 @@ document.addEventListener("DOMContentLoaded", () => {
 
     notification(result.messages, "alert-success");
 
-    const params = new URLSearchParams(document.location.search).toString();
-    const shows = await get(`/showlist?${params}`);
+    const params = new URLSearchParams(document.location.search);
+    const shows = await get(`/showlist?${params.toString()}`);
+    if (shows.error) {
+      if (params.has("page")) {
+        const currentPage = +params.get("page");
+        params.set("page", currentPage - 1);
+        window.location.href = `/showlist?${params.toString()}`;
+      }
+      return;
+    }
 
     showCountElement.textContent = `| ${shows.body.pagination.showCount}`;
 
-    const showCards = shows.body.shows.map(
-      (show) => `<article class="flex flex-col items-center lg:h-80 group">
+    if (shows.body.pagination.showCount === 0) {
+      const isGenre =
+        shows.body.pagination?.genre && shows.body.pagination.genre !== "All";
+
+      showGrid.innerHTML = noShowsHtml(isGenre, shows);
+      paginationElement.remove();
+      return;
+    }
+
+    const showCards = shows.body.shows.map((show) => showCardHtml(show));
+
+    showGrid.replaceChildren();
+    showGrid.innerHTML = showCards.join("");
+    showGrid.dispatchEvent(event);
+
+    if (shows.body.pagination.totalPages === shows.body.pagination.page) {
+      nextPageBtn.classList.add("btn-disabled");
+    }
+  }
+});
+
+const noShowsHtml = (isGenre, shows) => `
+       <p class="text-center lg:col-start-3 text-lg mt-12 uppercase">
+        ${
+          isGenre
+            ? "You have no shows in " +
+              shows.body.pagination.genre +
+              " category"
+            : "Your list is empty"
+        }
+      </p>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1"
+        stroke="currentColor"
+        class="size-12 lg:col-start-3"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125Z"
+        />
+      </svg>
+      <a
+        href="/discover${
+          isGenre ? "?genre=" + shows.body.pagination.genre : ""
+        }"
+        class="text-center font-bold text-primary lg:col-start-3 text-lg"
+        >Add some
+        ${isGenre ? "" : "shows"}</a>
+      `;
+
+const showCardHtml = (
+  show
+) => `<article class="flex flex-col items-center lg:h-80 group">
           <div class="card bg-base-100 image-full w-max rounded-lg before:hidden">
             <figure>
               <img
-                src="${show.imageMedium}"
+                src="${show.imageMedium ?? NoImageSvg}"
                 alt="${show.name}"
                 loading="lazy"
                 decoding="async"
@@ -75,15 +140,4 @@ document.addEventListener("DOMContentLoaded", () => {
           >
             ${show.name}
           </p>
-        </article>`
-    );
-
-    showGrid.replaceChildren();
-    showGrid.innerHTML = showCards.join("");
-    showGrid.dispatchEvent(event);
-
-    if (shows.body.pagination.totalPages === shows.body.pagination.page) {
-      nextPageBtn.classList.add("btn-disabled");
-    }
-  }
-});
+        </article>`;
