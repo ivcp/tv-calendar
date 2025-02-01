@@ -22,6 +22,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   async function deleteShow(el) {
+    if (
+      !confirm(
+        `Remove "${el.parentElement.parentElement
+          .querySelector("p")
+          .textContent.trim()}" from your list?`
+      )
+    ) {
+      return;
+    }
+
     const result = await del(el);
     if (result.error) {
       notification(result.messages, "alert-error");
