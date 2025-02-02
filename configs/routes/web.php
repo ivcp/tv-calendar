@@ -16,6 +16,8 @@ return function (App $app) {
 
     $app->get('/discover', [ShowController::class, 'discover']);
 
+    $app->get('/shows/{showId:[0-9]+}', [ShowController::class, 'get']);
+
     $app->group('/showlist', function (RouteCollectorProxy $showlist) {
         $showlist->get('', [ShowController::class, 'index']);
         $showlist->post('', [ShowController::class, 'store']);
