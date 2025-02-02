@@ -1,0 +1,16 @@
+{% extends 'layout.twig' %} {% block content %}
+<section
+  class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
+>
+  <div class="grow flex flex-col gap-6">
+    <div
+      class="navbar justify-around gap-4 lg:justify-around lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+    >
+      <h1 class="text-xl font-bold uppercase">{{ show.name }}</h1>
+      <button class="btn btn-primary h-10 min-h-10 uppercase">Add</button>
+    </div>
+
+    <article></article>
+  </div>
+</section>
+{% endblock %}
