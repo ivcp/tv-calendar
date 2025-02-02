@@ -7,10 +7,9 @@ namespace App\Controllers;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\DataObjects\ShowCardData;
 use App\Exception\ShowNotInListException;
-use App\RequestValidators\DeleteShowRequestValidator;
 use App\RequestValidators\DiscoverRequestValidator;
 use App\RequestValidators\ShowListRequestValidator;
-use App\RequestValidators\StoreShowRequestValidator;
+use App\RequestValidators\ShowRequestValidator;
 use App\ResponseFormatter;
 use App\Services\PaginationService;
 use App\Services\RequestService;
@@ -108,7 +107,7 @@ class ShowController
     public function store(Request $request, Response $response): Response
     {
         $params = $this->requestValidatorFactory
-        ->make(StoreShowRequestValidator::class)
+        ->make(ShowRequestValidator::class)
         ->validate($request->getParsedBody());
 
 
@@ -136,10 +135,10 @@ class ShowController
     public function delete(Request $request, Response $response, array $args): Response
     {
         $args = $this->requestValidatorFactory
-        ->make(DeleteShowRequestValidator::class)
+        ->make(ShowRequestValidator::class)
         ->validate($args);
 
-        $showId = (int) $args['id'];
+        $showId = (int) $args['showId'];
         $show = $this->showService->getById($showId);
 
         if (! $show) {
