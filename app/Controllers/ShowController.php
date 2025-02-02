@@ -6,8 +6,10 @@ namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\DataObjects\ShowCardData;
+use App\Exception\NotFoundException;
 use App\Exception\ShowNotInListException;
 use App\RequestValidators\DiscoverRequestValidator;
+use App\RequestValidators\GetShowRequestValidator;
 use App\RequestValidators\ShowListRequestValidator;
 use App\RequestValidators\ShowRequestValidator;
 use App\ResponseFormatter;
@@ -15,6 +17,7 @@ use App\Services\PaginationService;
 use App\Services\RequestService;
 use App\Services\ShowService;
 use App\Services\UserShowsService;
+use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -69,6 +72,35 @@ class ShowController
                 'pagination' => $showList->getPagination(),
             ]
         );
+    }
+
+    public function get(Request $request, Response $response, array $args): Response
+    {
+        $params = $this->requestValidatorFactory
+        ->make(GetShowRequestValidator::class)
+        ->validate($args);
+
+        $showId = (int) $params['showId'];
+
+        try {
+            $show = $this->showService->getById($showId);
+        } catch (DriverException $e) {
+            throw new NotFoundException();
+        }
+        if (! $show) {
+            throw new NotFoundException();
+        }
+
+
+        return $this->twig->render(
+            $response,
+            'shows/show.twig',
+            [
+                'show' =>   $show,
+            ]
+        );
+
+
     }
 
     public function discover(Request $request, Response $response): Response
