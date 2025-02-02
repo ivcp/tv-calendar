@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    notification(result.messages, "alert-success");
+    notification(result.messages, "alert-info");
 
     const params = new URLSearchParams(document.location.search);
     const shows = await get(`/showlist?${params.toString()}`);
