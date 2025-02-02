@@ -25,15 +25,13 @@ class AuthMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-
-
         if ($this->auth->user()) {
             return $handler->handle($request);
         }
 
         if ($this->requestService->isXhr($request)) {
             $response = $this->responseFactory->createResponse();
-            return $this->responseFormatter->asJSONError($response, 403, 'log in to perform action');
+            return $this->responseFormatter->asJSONMessage($response, 403, 'log in to perform action');
         }
 
         return $this->responseFactory->createResponse(302)->withHeader('Location', '/login');
