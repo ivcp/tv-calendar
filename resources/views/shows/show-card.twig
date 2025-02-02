@@ -1,5 +1,8 @@
 <article class="flex flex-col items-center lg:h-80 group">
-  <div class="card bg-base-100 image-full w-max rounded-lg before:hidden">
+  <a
+    class="card bg-base-100 image-full w-max rounded-lg before:hidden"
+    href="/shows/{{ show.id }}"
+  >
     <figure>
       <img
         src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
@@ -13,7 +16,7 @@
     'shows/add-remove-btn.twig' with {'show': show, 'userShows': userShows }%}
     {% else %} {% include 'shows/remove-show-btn.twig' with {'show': show } %}
     {% endif %}
-  </div>
+  </a>
   <p
     class="mt-1 text-center font-bold break-words max-w-[22ch] max-h-12 text-ellipsis overflow-clip"
   >
