@@ -34,7 +34,7 @@ return [
     'session' => [
         'name' => $appName . '_session',
         'flash_name' => $appName . '_flash',
-        'secure' => true,
+        'secure' => AppEnvironment::isDevelopment($appEnv) ? false : true,
         'httponly' => true,
         'samesite' => 'lax',
     ],
