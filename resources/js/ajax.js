@@ -50,7 +50,7 @@ async function getResult(url, method, body = null) {
       : null,
   });
   if (!response.ok) {
-    if ([400, 404, 422].includes(response.status)) {
+    if ([400, 403, 404, 422].includes(response.status)) {
       const json = await response.json();
       if (response.status === 422) {
         return result(true, json.errors.showId);
