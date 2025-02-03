@@ -33,6 +33,17 @@ class ShowService
         return $this->entityManager->find(Show::class, $id);
     }
 
+    public function getImageOriginal(int $id): ?string
+    {
+        return $this->entityManager->getRepository(Show::class)
+        ->createQueryBuilder('c')
+        ->select('c.imageOriginal')
+        ->where('c.id = :id')
+        ->setParameter('id', $id)
+        ->getQuery()
+        ->getSingleResult()['imageOriginal'];
+    }
+
     public function getShowsByTvMazeId(array $ids): array
     {
         return $this->entityManager->getRepository(Show::class)->findBy(['tvMazeId' => $ids]);
