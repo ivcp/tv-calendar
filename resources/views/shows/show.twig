@@ -1,16 +1,44 @@
 {% extends 'layout.twig' %} {% block content %}
 <section
-  class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
+  class="mt-4 lg:mt-2 mb-4 mx-2 flex flex-col gap-2 lg:flex-row lg:items-start"
 >
   <div class="grow flex flex-col gap-6">
     <div
-      class="navbar justify-around gap-4 lg:justify-around lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+      class="navbar gap-4 flex-col lg:flex-row lg:justify-between lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
     >
-      <h1 class="text-xl font-bold uppercase">{{ show.name }}</h1>
+      <h1
+        class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
+      >
+        {{ show.name }}
+      </h1>
       <button class="btn btn-primary h-10 min-h-10 uppercase">Add</button>
     </div>
 
-    <article></article>
+    <article
+      class="flex gap-6 flex-col items-center lg:items-start lg:justify-center lg:flex-row"
+    >
+      <picture
+        class="w-[210px] h-[295px] lg:w-[340px] lg:h-[500px] skeleton rounded-lg"
+      >
+        <source
+          media="(max-width:1024px)"
+          srcset="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
+        />
+        <source media="(min-width:1025px)" srcset="/shows/{{show.id}}/image" />
+        <img
+          src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
+          alt="{{ show.name }}"
+          decoding="async"
+          onload="this.classList.add('bg-base-200')"
+          class="block w-max object-cover mx-auto rounded-lg"
+        />
+      </picture>
+      <div class="lg:w-96">
+        {% for genre in show.genres %}
+        <div class="badge badge-neutral h-6 px-4">{{ genre }}</div>
+        {% endfor %}
+      </div>
+    </article>
   </div>
 </section>
 {% endblock %}
