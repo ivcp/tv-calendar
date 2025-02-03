@@ -3,12 +3,13 @@
     class="card bg-base-100 image-full w-max rounded-lg before:hidden"
     href="/shows/{{ show.id }}"
   >
-    <figure>
+    <figure class="w-[210px] h-[295px] skeleton rounded-lg">
       <img
         src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
         alt="{{ show.name }}"
         loading="lazy"
         decoding="async"
+        onload="this.classList.add('bg-base-200')"
         class="rounded-lg {{show.imageMedium ?: 'border-2 border-base-200'}}"
       />
     </figure>
