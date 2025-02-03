@@ -190,4 +190,32 @@ class ShowController
 
         return $this->responseFormatter->asJSONMessage($response, 200, $show->getName(). ' removed from your list');
     }
+
+    public function serveOptimizedShowImage(Request $request, Response $response, array $args): void
+    {
+
+        $params = $this->requestValidatorFactory
+        ->make(GetShowRequestValidator::class)
+        ->validate($args);
+
+        $showId = (int) $params['showId'];
+
+        try {
+            $img = $this->showService->getImageOriginal($showId);
+        } catch (DriverException $e) {
+            header('Content-Type: image/svg+xml');
+            readfile(IMAGES_PATH . '/no-img-lg.svg');
+            exit;
+        }
+        if (! $img) {
+            header('Content-Type: image/svg+xml');
+            readfile(IMAGES_PATH . '/no-img-lg.svg');
+            exit;
+        }
+        $img = imagecreatefromstring(file_get_contents($img));
+        $img = imagescale($img, 340, 500);
+        header('Content-Type: image/webp');
+        imagewebp($img, null, quality:100);
+
+    }
 }
