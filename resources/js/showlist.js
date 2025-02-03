@@ -11,13 +11,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const event = new Event("show-deleted");
 
   removeButtons.forEach((btn) =>
-    btn.addEventListener("click", () => deleteShow(btn))
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      deleteShow(btn);
+    })
   );
 
   showGrid.addEventListener("show-deleted", () => {
     removeButtons = document.querySelectorAll(".remove-show");
     removeButtons.forEach((btn) =>
-      btn.addEventListener("click", () => deleteShow(btn))
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        deleteShow(btn);
+      })
     );
   });
 
@@ -111,12 +117,13 @@ const showCardHtml = (
   show
 ) => `<article class="flex flex-col items-center lg:h-80 group">
           <div class="card bg-base-100 image-full w-max rounded-lg before:hidden">
-            <figure>
+            <figure class="w-[210px] h-[295px] skeleton rounded-lg">
               <img
                 src="${show.imageMedium ?? NoImageSvg}"
                 alt="${show.name}"
                 loading="lazy"
                 decoding="async"
+                onload="this.classList.add('bg-base-200')"
                 class="rounded-lg ${
                   show.imageMedium ?? "border-2 border-base-200"
                 }"

@@ -5,7 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const addButtons = document.querySelectorAll(".add-show");
 
   addButtons.forEach((btn) =>
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
       if (!btn.hasAttribute("added")) {
         const result = await post(btn);
         if (result.error) {
