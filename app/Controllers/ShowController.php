@@ -213,9 +213,8 @@ class ShowController
             exit;
         }
         $img = imagecreatefromstring(file_get_contents($img));
-        $img = imagescale($img, 340, 500);
+        $img = imagescale($img, 340, 500, IMG_BICUBIC);
         header('Content-Type: image/webp');
         imagewebp($img, null, quality:100);
-
     }
 }
