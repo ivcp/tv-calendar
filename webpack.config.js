@@ -21,7 +21,7 @@ Encore
    */
   .addEntry("app", "./resources/js/app.js")
   .addEntry("calendar", "./resources/js/calendar.js")
-  .addEntry("discover", "./resources/js/discover.js")
+  .addEntry("addRemoveShow", "./resources/js/addRemoveShow.js")
   .addEntry("showlist", "./resources/js/showlist.js")
 
   // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
