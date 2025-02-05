@@ -1,4 +1,7 @@
-{% extends 'layout.twig' %} {% block content %}
+{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{{ parent() }}
+{{ encore_entry_script_tags("addRemoveShow") }}
+{% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
 >
@@ -11,7 +14,27 @@
       >
         {{ show.name }}
       </h1>
-      <button class="btn btn-primary h-10 min-h-10 uppercase">Add</button>
+      <div
+        class="tooltip"
+        data-tip="{{ show.id in userShows ? 'Remove from my shows' : 'Add to my shows' }}"
+      >
+        <button
+          {%
+          if
+          show.id
+          in
+          userShows
+          %}
+          added
+          {%
+          endif
+          %}
+          class="btn {{ show.id in userShows ? 'btn-secondary' : 'btn-primary' }} h-10 min-h-10 uppercase add-show"
+          data-show-id="{{ show.id }}"
+        >
+          {{ show.id in userShows ? 'Remove' : 'Add' }}
+        </button>
+      </div>
     </div>
 
     <article
