@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %} {% block content %}
 <section
-  class="mt-4 lg:mt-2 mb-4 mx-2 flex flex-col gap-2 lg:flex-row lg:items-start"
+  class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
 >
   <div class="grow flex flex-col gap-10">
     <div
@@ -180,12 +180,12 @@
         <p class="text-lg">{{ show.summary | striptags }}</p>
       </div>
     </article>
-    <div class="w-[95%] mx-auto">
+    <div class="w-full mx-auto flex flex-col gap-2">
       {% set episodes = show.getEpisodes.toArray %} {% set seasons = episodes |
       map(e => e.season) %}
 
       <div
-        class="navbar mb-4 gap-4 flex-col lg:flex-row lg:justify-around lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
+        class="navbar gap-4 flex-col lg:flex-row lg:justify-around lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
       >
         <div class="stats overflow-y-clip bg-inherit">
           <div class="stat py-0">
@@ -202,21 +202,68 @@
           </div>
         </div>
       </div>
-      <div>
+      <div class="w-[95%] flex flex-col gap-2 lg:w-1/2 mx-auto">
         {% if episodes %} {% for season in 1..max(seasons) %}
-        <div class="collapse bg-base-200">
+        <div class="collapse collapse-arrow rounded-lg bg-base-300">
           <input type="checkbox" />
           <div class="collapse-title text-xl font-medium">
             Season {{ season }}
           </div>
           <div class="collapse-content">
-            {% for ep in episodes | filter(e=> e.season is same as(season)) %}
-            <p>{{ ep.name }} {{ ep.number }}</p>
-            {% endfor %}
+            <div class="overflow-x-auto">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Airdate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% set allEps = episodes | filter(e=> e.season is same
+                  as(season)) | sort((a, b) => a.number <=> b.number) %} {% set
+                  regularEps = allEps | filter(e=> e.type is same as('regular'))
+                  %} {% set specials = allEps | filter(e=> e.type is not same
+                  as('regular')) %} {% for ep in regularEps %}
+
+                  <tr class="hover">
+                    <th>{{ ep.number }}</th>
+                    <td>
+                      <a
+                        href="#"
+                        class="hover:text-primary transition-colors"
+                        >{{ ep.name }}</a
+                      >
+                    </td>
+                    <td class="">
+                      {{ ep.airstamp | date('M j, Y') }}
+                    </td>
+                  </tr>
+                  {% endfor %} {% for ep in specials %}
+                  <tr class="hover">
+                    <th>
+                      <div class="tooltip text-xs" data-tip="special">SP</div>
+                    </th>
+                    <td>
+                      <a
+                        href="#"
+                        class="hover:text-primary transition-colors"
+                        >{{ ep.name }}</a
+                      >
+                    </td>
+                    <td class="">
+                      {{ ep.airstamp | date('M j, Y') }}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
         {% endfor %} {% endif %}
       </div>
+      <!-- TODO: specials -->
     </div>
   </div>
 </section>
