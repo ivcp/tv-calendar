@@ -91,12 +91,19 @@ class ShowController
             throw new NotFoundException();
         }
 
+        $user = $request->getAttribute('user');
+        $userShows = [];
+        if ($user) {
+            $shows = $this->userShowsService->get($user);
+            $userShows = array_map(fn ($us) => $us->getShow()->getId(), $shows);
+        }
 
         return $this->twig->render(
             $response,
             'shows/show.twig',
             [
                 'show' =>   $show,
+                'userShows' => $userShows,
             ]
         );
 
