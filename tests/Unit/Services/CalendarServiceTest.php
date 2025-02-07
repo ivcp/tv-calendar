@@ -23,7 +23,7 @@ class CalendarServiceTest extends TestCase
     }
 
     #[DataProvider('monthProvider')]
-    public function testGetsScheduleForCurrentMonth(
+    public function testGetsScheduleForMonth(
         string $month,
         int $date,
         string $expectedShow,
