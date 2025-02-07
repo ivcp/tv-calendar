@@ -59,14 +59,37 @@
           role="tablist"
           class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
         >
-          <a role="tab" class="tab text-xs font-bold rounded-full">
-            My Shows
-          </a>
-          <a
+          <button
             role="tab"
-            class="tab text-xs font-bold rounded-full tab-active bg-primary text-primary-content"
-            >Popular</a
+            class="tab text-xs font-bold rounded-full transition-colors duration-250"
+            id="user-shows"
+            {%
+            if
+            user
+            %}
+            active
+            {%
+            endif
+            %}
           >
+            My Shows
+          </button>
+          <button
+            role="tab"
+            class="tab text-xs font-bold rounded-full transition-colors duration-250 tab-active bg-primary text-primary-content"
+            id="popular-shows"
+            {%
+            if
+            not
+            user
+            %}
+            active
+            {%
+            endif
+            %}
+          >
+            Popular
+          </button>
         </div>
       </div>
     </div>
