@@ -13,6 +13,10 @@
         class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
       >
         {{ show.name }}
+        {{ show.premiered ? '(' ~ show.premiered | date('Y')
+
+
+        }}{{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
       </h1>
       <div
         class="tooltip"
@@ -226,11 +230,14 @@
         </div>
       </div>
       <div class="w-[95%] flex flex-col gap-2 lg:w-1/2 mx-auto">
-        {% if episodes %} {% for season in 1..max(seasons) %}
-        <div class="collapse collapse-arrow rounded-lg bg-base-300">
+        {% if episodes %} {% for season in min(seasons)..max(seasons) %}
+        <div
+          class="collapse collapse-arrow rounded-lg bg-base-300 {{ season is same as(0) ? 'order-last' }}"
+        >
           <input type="checkbox" />
           <div class="collapse-title text-xl font-medium">
-            Season {{ season }}
+            {% if season > 0 %} Season {{ season }}
+            {% else %} Other {% endif %}
           </div>
           <div class="collapse-content">
             <div class="overflow-x-auto">
