@@ -24,10 +24,9 @@ class CalendarController
     {
 
         $month = (new DateTime('now'))->format('Y-m');
-        $schedule = $this->calendarService->getSchedule($month);
+        $user = $request->getAttribute('user');
+        $schedule = $this->calendarService->getSchedule($month, $user);
 
-
-        // var_dump($request->getAttribute('user'));
 
         return $this->twig->render(
             $response,
@@ -43,7 +42,8 @@ class CalendarController
     {
 
         $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
-        $schedule = $this->calendarService->getSchedule($month);
+        $user = $request->getAttribute('user');
+        $schedule = $this->calendarService->getSchedule($month, $user);
 
         return $this->twig->render(
             $response,
