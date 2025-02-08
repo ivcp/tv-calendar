@@ -66,7 +66,7 @@ function fillBody(shows, el) {
   shows.forEach((show, i) => {
     el.insertAdjacentHTML(
       "beforeend",
-      `<div class="bg-base-100 rounded-sm p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden">
+      `<div  class="bg-base-content/85 text-primary-content rounded-md p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden">
       ${show.showName}<span>${show.seasonNumber}x${
         show.episodeNumber ?? "S"
       }</span>
