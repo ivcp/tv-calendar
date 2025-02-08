@@ -36,21 +36,28 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function populateDates(shows) {
+  const airingTodayContainer = document.querySelector(
+    "#airing-today-container"
+  );
   document.querySelectorAll(".card-body").forEach((e) => e.replaceChildren());
+  if (airingTodayContainer) {
+    airingTodayContainer.classList.add("hidden");
+    airingTodayContainer.querySelector("#airing-today-body").replaceChildren();
+  }
   for (const [key, value] of Object.entries(shows)) {
-    const cards = document.querySelectorAll(`#date-${key}`);
-    const cardBody = cards[0].querySelector(".card-body");
-    if (cards.length > 1) {
-      const airingTodayContainer = document.querySelector(
-        "#airing-today-container"
-      );
-      if (airingTodayContainer && value.length > 0) {
-        airingTodayContainer.classList.remove("hidden");
-        fillBody(value, cards[0].querySelector(".card-body"));
-        fillBody(value, cards[1].querySelector(".card-body"));
-      }
-      return;
+    const cardBody = document
+      .querySelector(`#date-${key}`)
+      .querySelector(".card-body");
+
+    if (
+      airingTodayContainer &&
+      airingTodayContainer.getAttribute("data-today") === key &&
+      value.length > 0
+    ) {
+      airingTodayContainer.classList.remove("hidden");
+      fillBody(value, airingTodayContainer.querySelector("#airing-today-body"));
     }
+
     fillBody(value, cardBody);
   }
 }
@@ -60,7 +67,7 @@ function fillBody(shows, el) {
     el.insertAdjacentHTML(
       "beforeend",
       `<div class="bg-base-100 rounded-sm p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden">
-      ${show.showName}<span class="">${show.seasonNumber}x${
+      ${show.showName}<span>${show.seasonNumber}x${
         show.episodeNumber ?? "S"
       }</span>
       </div>`

@@ -93,8 +93,13 @@
         </div>
       </div>
     </div>
-    {% if month == "now" or month is same as("now" | date('Y-m')) %}
-    <div id="airing-today-container" class="hidden lg:hidden -mb-8 px-2">
+    {% if month == "now" or month is same as("now" | date('Y-m')) %} {% set
+    today = "now"|date("j")%}
+    <div
+      id="airing-today-container"
+      data-today="{{ today }}"
+      class="hidden lg:hidden -mb-8 px-2"
+    >
       {% include 'calendar/airing-today.twig' %}
     </div>
     {% endif %}
