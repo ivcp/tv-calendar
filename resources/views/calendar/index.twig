@@ -5,7 +5,7 @@
 <section
   class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
 >
-  <div class="grow flex flex-col gap-2 lg:gap-0">
+  <div class="grow flex flex-col gap-12 lg:gap-0">
     <div
       class="navbar flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
     >
@@ -93,7 +93,11 @@
         </div>
       </div>
     </div>
-    <div class="lg:hidden">{% include 'calendar/airing-today.twig' %}</div>
+    {% if month == "now" or month is same as("now" | date('Y-m')) %}
+    <div id="airing-today-container" class="hidden lg:hidden -mb-8 px-2">
+      {% include 'calendar/airing-today.twig' %}
+    </div>
+    {% endif %}
     <div class="mt-2 bg-base-100 px-2 lg:px-0">
       <div
         class="hidden font-bold py-3 lg:grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:justify-items-center"

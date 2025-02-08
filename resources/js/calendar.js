@@ -38,18 +38,32 @@ document.addEventListener("DOMContentLoaded", () => {
 function populateDates(shows) {
   document.querySelectorAll(".card-body").forEach((e) => e.replaceChildren());
   for (const [key, value] of Object.entries(shows)) {
-    const cardBody = document
-      .querySelector(`#date-${key}`)
-      .querySelector(".card-body");
-    value.forEach((show, i) => {
-      cardBody.insertAdjacentHTML(
-        "beforeend",
-        `<div class="bg-base-100 rounded-sm p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden">
-        ${show.showName}<span class="">${show.seasonNumber}x${
-          show.episodeNumber ?? "S"
-        }</span>
-        </div>`
+    const cards = document.querySelectorAll(`#date-${key}`);
+    const cardBody = cards[0].querySelector(".card-body");
+    if (cards.length > 1) {
+      const airingTodayContainer = document.querySelector(
+        "#airing-today-container"
       );
-    });
+      if (airingTodayContainer && value.length > 0) {
+        airingTodayContainer.classList.remove("hidden");
+        fillBody(value, cards[0].querySelector(".card-body"));
+        fillBody(value, cards[1].querySelector(".card-body"));
+      }
+      return;
+    }
+    fillBody(value, cardBody);
   }
+}
+
+function fillBody(shows, el) {
+  shows.forEach((show, i) => {
+    el.insertAdjacentHTML(
+      "beforeend",
+      `<div class="bg-base-100 rounded-sm p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden">
+      ${show.showName}<span class="">${show.seasonNumber}x${
+        show.episodeNumber ?? "S"
+      }</span>
+      </div>`
+    );
+  });
 }
