@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Config;
 use App\DataObjects\EpisodeData;
 use App\Entity\Episode;
 use App\Entity\Show;
@@ -23,6 +24,7 @@ class EpisodeService
 
     public function __construct(
         private readonly EntityManager $entityManager,
+        private readonly Config $config
     ) {
     }
 
@@ -36,7 +38,8 @@ class EpisodeService
             ->where('e.airstamp BETWEEN :first AND :last');
 
         if (!$user) {
-            $query->andWhere('s.weight = 100')
+            $query->andWhere('s.weight >= :weight')
+                ->setParameter('weight', $this->config->get('popular_weight'))
                 ->innerJoin('e.show', 's');
         } else {
             $query->andWhere('us.user = :user')
