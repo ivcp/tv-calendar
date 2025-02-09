@@ -1,11 +1,52 @@
-  <dialog id="episode-modal" class="modal">
-    <div class="modal-box">
-      <form method="dialog">
-        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-          ✕
-        </button>
-      </form>
-      <h3 class="text-lg font-bold"></h3>
-      <p class="py-4"></p>
+<dialog id="episode-modal" class="modal">
+  <div
+    class="modal-box lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-6 lg:max-w-[42rem] lg:p-7"
+  >
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+        ✕
+      </button>
+    </form>
+    <h3
+      id="episode-modal-title"
+      class="text-lg font-bold lg:col-span-1 lg:row-start-1 lg:col-start-1 lg:place-self-start"
+    ></h3>
+    <a
+      id="episode-modal-show-name"
+      class="truncate max-w-40 text-base lg:col-span-1 lg:row-start-1 lg:place-self-end lg:justify-self-start lg:col-start-1 lg:-mt-8"
+    >
+    </a>
+    <p
+      class="mb-4 lg:mb-0 lg:col-span-1 lg:row-start-1 lg:col-start-1 lg:place-self-end justify-self-end bg-warning/90 text-warning-content rounded px-2"
+    >
+      <span id="episode-modal-airtime"></span> on
+      <span id="episode-modal-network"></span>
+    </p>
+    <img
+      id="episode-modal-img"
+      class="mb-4 w-full border-2 border-base-300 lg:col-span-1 lg:col-start-1 lg:row-start-2 lg:justify-self-end rounded-lg lg:mt-1 lg:-mb-6"
+    />
+    <div
+      class="stats mb-4 lg:mb-0 grid lg:inline-grid lg:col-start-2 lg:row-start-1 overflow-y-clip lg:place-self-start lg:justify-self-center"
+    >
+      <div class="stat justify-items-center lg:justify-items-start py-0">
+        <div class="stat-title">Season</div>
+        <div
+          id="episode-modal-season"
+          class="stat-value place-self-center"
+        ></div>
+      </div>
+      <div class="stat justify-items-center lg:justify-items-start py-0">
+        <div class="stat-title">Episode</div>
+        <div
+          id="episode-modal-number"
+          class="stat-value place-self-center"
+        ></div>
+      </div>
     </div>
-  </dialog>
+    <p
+      id="episode-modal-summary"
+      class="lg:col-start-2 lg:row-start-2 lg:text-lg lg:-mb-6"
+    ></p>
+  </div>
+</dialog>
