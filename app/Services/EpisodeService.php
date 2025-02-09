@@ -34,7 +34,8 @@ class EpisodeService
             ->createQueryBuilder('e');
 
         $query = $qb->select('e.id, s.name as showName, e.name as episodeName, 
-             e.season, e.number, e.summary, e.type, e.airstamp')
+             e.season, e.number, e.summary, e.type, e.airstamp, 
+             e.imageMedium as image, s.id as showId, s.networkName, s.webChannelName')
             ->where('e.airstamp BETWEEN :first AND :last');
 
         if (!$user) {

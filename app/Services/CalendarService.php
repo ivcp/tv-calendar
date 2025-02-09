@@ -56,13 +56,17 @@ class CalendarService
         return array_map(function ($episode) {
             return new ScheduleData(
                 id: $episode['id'],
+                showId: $episode['showId'],
                 showName: $episode['showName'],
                 episodeName: $episode['episodeName'],
                 seasonNumber: $episode['season'],
                 episodeNumber: $episode['number'],
                 episodeSummary: $episode['summary'],
                 type: $episode['type'],
-                airstamp: $episode['airstamp']->format(DATE_ATOM)
+                airstamp: $episode['airstamp']->format(DATE_ATOM),
+                image: $episode['image'],
+                networkName: $episode['networkName'],
+                webChannelName:$episode['webChannelName']
             );
         }, $episodes);
     }
