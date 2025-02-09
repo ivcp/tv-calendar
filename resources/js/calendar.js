@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-function populateDates(shows) {
+function populateDates(data) {
   const airingTodayContainer = document.querySelector(
     "#airing-today-container"
   );
@@ -44,7 +44,7 @@ function populateDates(shows) {
     airingTodayContainer.classList.add("hidden");
     airingTodayContainer.querySelector("#airing-today-body").replaceChildren();
   }
-  for (const [key, value] of Object.entries(shows)) {
+  for (const [key, value] of Object.entries(data)) {
     const cardBody = document
       .querySelector(`#date-${key}`)
       .querySelector(".card-body");
@@ -62,15 +62,34 @@ function populateDates(shows) {
   }
 }
 
-function fillBody(shows, el) {
-  shows.forEach((show, i) => {
+function fillBody(episodes, el) {
+  episodes.forEach((episode, i) => {
     el.insertAdjacentHTML(
       "beforeend",
-      `<div  class="bg-base-content/85 text-primary-content rounded-md p-4 lg:p-2 lg:px-2 flex justify-between overflow-hidden">
-      ${show.showName}<span>${show.seasonNumber}x${
-        show.episodeNumber ?? "S"
+      `<button href="#" id="ep-${
+        episode.id
+      }" class="bg-base-content/85 text-primary-content rounded-md p-4 lg:p-2 lg:px-2 lg:hover:bg-base-content transition-colors flex justify-between overflow-hidden">
+      ${episode.showName}<span>${episode.seasonNumber}x${
+        episode.episodeNumber ?? "S"
       }</span>
-      </div>`
+      </button>`
     );
+    const epBtn = document.querySelector(`#ep-${episode.id}`);
+    epBtn.addEventListener("click", () => openEpisodeModal(episode));
   });
+}
+
+function openEpisodeModal(episode) {
+  const modalElement = document.querySelector("#episode-modal");
+  modalElement.querySelector("h3").textContent = episode.episodeName;
+  modalElement.querySelector("p").textContent =
+    episode.episodeSummary && strip(episode.episodeSummary);
+
+  console.log(episode);
+  modalElement.showModal();
+}
+
+function strip(html) {
+  let doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body.textContent || "";
 }
