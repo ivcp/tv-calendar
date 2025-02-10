@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\DataObjects;
 
-class ScheduleData
+class EpisodeInfoData
 {
     public function __construct(
         public readonly int $id,

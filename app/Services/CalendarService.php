@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\DataObjects\ScheduleData;
+use App\DataObjects\EpisodeInfoData;
 use App\Entity\User;
 use DateTime;
 
@@ -54,7 +54,7 @@ class CalendarService
     private function getScheduleData(array $episodes): array
     {
         return array_map(function ($episode) {
-            return new ScheduleData(
+            return new EpisodeInfoData(
                 id: $episode['id'],
                 showId: $episode['showId'],
                 showName: $episode['showName'],
