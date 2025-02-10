@@ -15,7 +15,6 @@
         {{ show.name }}
         {{ show.premiered ? '(' ~ show.premiered | date('Y')
 
-
         }}{{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
       </h1>
       <div
@@ -208,8 +207,7 @@
       </div>
     </article>
     <div class="w-full mx-auto flex flex-col gap-2">
-      {% set episodes = show.getEpisodes.toArray %} {% set seasons = episodes |
-      map(e => e.season) %}
+      {% set seasons = episodes | map(e => e.seasonNumber) %}
 
       <div
         class="navbar gap-4 flex-col lg:flex-row lg:justify-around lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
@@ -250,19 +248,20 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% set allEps = episodes | filter(e=> e.season is same
-                  as(season)) | sort((a, b) => a.number <=> b.number) %} {% set
-                  regularEps = allEps | filter(e=> e.type is same as('regular'))
-                  %} {% set specials = allEps | filter(e=> e.type is not same
-                  as('regular')) %} {% for ep in regularEps %}
+                  {% set allEps = episodes | filter(e=> e.seasonNumber is same
+                  as(season)) | sort((a, b) => a.episodeNumber <=>
+                  b.episodeNumber) %} {% set regularEps = allEps | filter(e=>
+                  e.type is same as('regular')) %} {% set specials = allEps |
+                  filter(e=> e.type is not same as('regular')) %} {% for ep in
+                  regularEps %}
 
                   <tr class="hover">
-                    <th>{{ ep.number }}</th>
+                    <th>{{ ep.episodeNumber }}</th>
                     <td>
                       <a
                         href="#"
                         class="hover:text-primary transition-colors"
-                        >{{ ep.name }}</a
+                        >{{ ep.episodeName }}</a
                       >
                     </td>
                     <td class="">
@@ -278,7 +277,7 @@
                       <a
                         href="#"
                         class="hover:text-primary transition-colors"
-                        >{{ ep.name }}</a
+                        >{{ ep.episodeName }}</a
                       >
                     </td>
                     <td class="">

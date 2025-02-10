@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\DataObjects\EpisodeInfoData;
 use App\DataObjects\ShowCardData;
 use App\Exception\NotFoundException;
 use App\Exception\ShowNotInListException;
@@ -100,12 +101,28 @@ class ShowController
             $userShows = array_map(fn ($us) => $us->getShow()->getId(), $shows);
         }
 
+        $episodes = $show->getEpisodes()->map(fn ($episode) => new EpisodeInfoData(
+            id: $episode->getId(),
+            showId: $show->getId(),
+            showName: $show->getName(),
+            episodeName: $episode->getName(),
+            seasonNumber: $episode->getSeason(),
+            episodeNumber: $episode->getNumber(),
+            episodeSummary: $episode->getSummary(),
+            type: $episode->getType(),
+            airstamp: $episode->getAirstamp()->format(DATE_ATOM),
+            image: $episode->getImageMedium(),
+            networkName: $show->getNetworkName(),
+            webChannelName: $show->getWebChannelName()
+        ));
+
         return $this->twig->render(
             $response,
             'shows/show.twig',
             [
                 'show' =>   $show,
                 'userShows' => $userShows,
+                'episodes' => $episodes->toArray()
             ]
         );
 
