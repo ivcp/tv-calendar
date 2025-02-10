@@ -1,10 +1,13 @@
 {% extends 'layout.twig' %} {% block content %} {% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags("addRemoveShow") }}
+{{ encore_entry_script_tags("show") }}
 {% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
 >
+  {% include 'episode-modal.twig' %}
+
   <div class="grow flex flex-col gap-10">
     <div
       class="navbar gap-4 flex-col lg:flex-row lg:justify-between lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
@@ -14,6 +17,7 @@
       >
         {{ show.name }}
         {{ show.premiered ? '(' ~ show.premiered | date('Y')
+
 
         }}{{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
       </h1>
@@ -258,11 +262,12 @@
                   <tr class="hover">
                     <th>{{ ep.episodeNumber }}</th>
                     <td>
-                      <a
-                        href="#"
-                        class="hover:text-primary transition-colors"
-                        >{{ ep.episodeName }}</a
+                      <button
+                        data-episode-info="{{ ep | json_encode }}"
+                        class="hover:text-primary text-left transition-colors pointer"
                       >
+                        {{ ep.episodeName }}
+                      </button>
                     </td>
                     <td class="">
                       {{ ep.airstamp | date('M j, Y') }}
