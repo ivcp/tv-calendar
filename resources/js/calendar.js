@@ -112,8 +112,10 @@ function openEpisodeModal(episode) {
   if (episode.image) {
     imgElement.setAttribute("src", episode.image);
     imgElement.setAttribute("alt", episode.episodeName);
+    imgElement.classList.remove("border-2");
   } else {
     imgElement.setAttribute("src", NoEpImageSvg);
+    imgElement.classList.add("border-2");
   }
 
   if (episode.seasonNumber) {
