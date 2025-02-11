@@ -1,6 +1,6 @@
 <dialog id="episode-modal" class="modal">
   <div
-    class="modal-box lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-6 lg:max-w-[42rem] lg:p-7"
+    class="modal-box lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-4 lg:max-w-[42rem] lg:p-7"
   >
     <form method="dialog">
       <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
@@ -18,12 +18,19 @@
       class="lg:truncate lg:max-w-full text-base lg:col-span-1 lg:row-start-1 lg:place-self-start lg:justify-self-start lg:col-start-1 lg:text-lg lg:font-bold lg:uppercase"
       >Show name
     </a>
-    <p
-      class="mb-4 lg:mb-0 mt-4 lg:mt-0 lg:col-span-1 lg:row-start-1 lg:col-start-1 lg:place-self-end justify-self-end lg:justify-self-start bg-warning/90 text-warning-content rounded px-2"
+    <div
+      class="flex flex-col gap-1 mb-4 lg:mb-0 mt-4 lg:mt-8 lg:col-span-1 lg:row-start-1 lg:col-start-1 lg:place-self-center justify-self-end lg:justify-self-start"
     >
-      <span id="episode-modal-airtime"></span> on
-      <span id="episode-modal-network"></span>
-    </p>
+      <span
+        id="episode-modal-network"
+        class="bg-warning/90 text-warning-content rounded px-2"
+      ></span>
+      <span
+        id="episode-modal-web-channel"
+        class="bg-warning/90 text-warning-content rounded px-2"
+      ></span>
+    </div>
+
     <img
       id="episode-modal-img"
       src=""

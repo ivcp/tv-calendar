@@ -10,15 +10,17 @@ export function openEpisodeModal(episode) {
   const imgElement = modalElement.querySelector("#episode-modal-img");
   const seasonElement = modalElement.querySelector("#episode-modal-season");
   const episodeElement = modalElement.querySelector("#episode-modal-number");
-  const airtimeElement = modalElement.querySelector("#episode-modal-airtime");
   const networkElement = modalElement.querySelector("#episode-modal-network");
+  const webChannelElement = modalElement.querySelector(
+    "#episode-modal-web-channel"
+  );
   titleElement.textContent = "";
   showTitleElement.textContent = "";
   summaryElement.textContent = "No episode summary available.";
   seasonElement.textContent = "-";
   episodeElement.textContent = "-";
-  airtimeElement.textContent = "?";
-  networkElement.textContent = "?";
+  networkElement.textContent = "";
+  webChannelElement.textContent = "";
   imgElement.setAttribute("src", NoEpImageSvg);
   imgElement.classList.add("border-2");
   imgElement.setAttribute("alt", "no image available");
@@ -43,19 +45,17 @@ export function openEpisodeModal(episode) {
     episodeElement.textContent = episode.episodeNumber;
   }
 
-  if (episode.airstamp) {
-    airtimeElement.textContent = new Date(episode.airstamp).toLocaleTimeString(
-      [],
-      {
-        timeStyle: "short",
-        hour12: false,
-      }
-    );
+  if (episode.networkName) {
+    const airtime = episode.airstamp
+      ? new Date(episode.airstamp).toLocaleTimeString([], {
+          timeStyle: "short",
+          hour12: false,
+        })
+      : "";
+    networkElement.textContent = `${airtime + " "}on ${episode.networkName}`;
   }
-  if (episode.networkName || episode.webChannelName) {
-    networkElement.textContent = episode.networkName
-      ? episode.networkName
-      : episode.webChannelName;
+  if (episode.webChannelName) {
+    webChannelElement.textContent = `streaming on ${episode.webChannelName}`;
   }
 
   modalElement.showModal();
