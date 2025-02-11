@@ -65,7 +65,11 @@ function populateDates(data) {
 }
 
 function fillBody(episodes, el) {
-  episodes.forEach((episode, i) => {
+  const showIds = episodes.map((e) => e.showId);
+  const uniqueShowEps = episodes.filter(
+    (ep, i) => showIds.indexOf(ep.showId) === i
+  );
+  uniqueShowEps.forEach((episode) => {
     el.insertAdjacentHTML(
       "beforeend",
       `<button href="#" id="ep-${
