@@ -70,17 +70,30 @@ function fillBody(episodes, el) {
     (ep, i) => showIds.indexOf(ep.showId) === i
   );
   uniqueShowEps.forEach((episode) => {
+    const premiere = episode.episodeNumber === 1 && episode.seasonNumber === 1;
+    const newSeasonStart =
+      episode.episodeNumber === 1 && episode.seasonNumber > 1;
+
+    const premiereStyles =
+      "bg-warning/85 text-warning-content lg:hover:bg-warning";
+    const newSeasonStartStyles =
+      "bg-primary/85 text-primary-content lg:hover:bg-primary";
+
     el.insertAdjacentHTML(
       "beforeend",
-      `<button href="#" id="ep-${
+      `<button id="ep-${
         episode.id
-      }" class="bg-base-content/85 text-primary-content rounded-md p-4 lg:p-2 lg:px-2 lg:hover:bg-base-content transition-colors flex justify-between overflow-hidden">
+      }" class="bg-base-content/85 text-primary-content lg:hover:bg-base-content ${
+        premiere && premiereStyles
+      } ${
+        newSeasonStart && newSeasonStartStyles
+      }  rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between overflow-hidden">
       ${episode.showName}<span>${episode.seasonNumber}x${
         episode.episodeNumber ?? "S"
       }</span>
       </button>`
     );
-    const epBtn = document.querySelector(`#ep-${episode.id}`);
+    const epBtn = el.querySelector(`#ep-${episode.id}`);
     epBtn.addEventListener("click", () => openEpisodeModal(episode));
   });
 }
