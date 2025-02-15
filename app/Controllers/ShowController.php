@@ -11,6 +11,7 @@ use App\Exception\NotFoundException;
 use App\Exception\ShowNotInListException;
 use App\RequestValidators\DiscoverRequestValidator;
 use App\RequestValidators\GetShowRequestValidator;
+use App\RequestValidators\SearchShowRequestValidator;
 use App\RequestValidators\ShowListRequestValidator;
 use App\RequestValidators\ShowRequestValidator;
 use App\ResponseFormatter;
@@ -243,5 +244,23 @@ class ShowController
         $img = $this->imageService->getWebp($img, 340, 500, 100);
         $response->getBody()->write($img);
         return $response->withHeader('Content-Type', 'image/webp');
+    }
+
+    public function search(Request $request, Response $response, array $args): Response
+    {
+
+        $params = $this->requestValidatorFactory
+        ->make(SearchShowRequestValidator::class)
+        ->validate($request->getQueryParams());
+
+        $result = $this->showService->queryShow(trim($params['query']));
+
+        return $this->responseFormatter->asJSON(
+            $response,
+            200,
+            [
+             'result' => $result
+            ]
+        );
     }
 }
