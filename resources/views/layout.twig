@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -20,7 +20,7 @@
     {% endblock %}
     <title>TV Calendar</title>
   </head>
-  <body class="max-w-[100rem] mx-auto lg:overflow-y-scroll">
+  <body class="max-w-[100rem] mx-auto relative min-h-full lg:overflow-y-scroll">
     <div
       class="fixed space-y-2 transition-transform duration-200 z-50 left-0 right-0 top-10 mx-auto w-[90%] lg:w-96"
       id="alert"
@@ -193,12 +193,32 @@
         </ul>
         <div class="flex-none gap-2">
           <div class="form-control">
-            <input
-              type="text"
-              placeholder="Search..."
-              class="input input-bordered w-24 hidden md:w-auto md:block"
-            />
-            <button class="btn btn-ghost btn-circle sm:hidden">
+            <div
+              id="search"
+              class="hidden fixed flex-col w-[90%] top-1/2 left-1/2 right-1/2 -translate-y-1/2 -translate-x-1/2 z-20 md:relative md:left-0 md:right-0 md:translate-x-0 md:translate-y-0 md:w-auto md:block"
+            >
+              <input
+                type="text"
+                placeholder="Search..."
+                class="input input-bordered"
+              />
+              <!-- set hidden. flex to see -->
+              <ul
+                class="flex md:absolute bg-base-300 md:w-96 md:right-0 rounded-lg p-2 flex-col gap-1 shadow-md"
+              >
+                <li class="bg-base-100 hover:bg-base-200 rounded-lg">
+                  <a href="#" class="flex justify-between p-2">
+                    <span class="max-w-80 truncate">result asd adsa</span>
+                    <span>&#8594;</span></a
+                  >
+                </li>
+              </ul>
+            </div>
+            <div
+              id="search-backdrop"
+              class="bg-base-300/50 absolute hidden md:hidden top-0 bottom-0 right-0 left-0 z-10"
+            ></div>
+            <button id="search-btn" class="btn btn-ghost btn-circle sm:hidden">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-5 w-5"
