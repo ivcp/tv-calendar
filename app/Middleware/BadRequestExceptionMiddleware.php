@@ -6,7 +6,6 @@ namespace App\Middleware;
 
 use App\Contracts\SessionInterface;
 use App\Exception\BadRequestException;
-use App\Exception\ValidationException;
 use App\Services\RequestService;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
