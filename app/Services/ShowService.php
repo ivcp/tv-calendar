@@ -90,6 +90,18 @@ class ShowService
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    public function queryShow(string $query): array
+    {
+        $qb = $this->entityManager->getRepository(Show::class)->createQueryBuilder('c')
+        ->select('c.id, c.name')
+        ->where('lower(c.name) LIKE :query')
+        ->setParameter('query', '%' . strtolower($query) . '%')
+        ->addOrderBy('c.weight', 'desc')
+        ->addOrderBy('c.id', 'asc')
+        ->setMaxResults(20);
+        return $qb->getQuery()->getResult();
+    }
+
     /**
      * Get shows, paginated
      *
