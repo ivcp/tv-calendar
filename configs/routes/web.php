@@ -19,6 +19,9 @@ return function (App $app) {
     $app->get('/shows/{showId:[0-9]+}', [ShowController::class, 'get']);
     $app->get('/shows/{showId:[0-9]+}/image', [ShowController::class, 'serveOptimizedShowImage']);
 
+    $app->get('/search', [ShowController::class, 'search']);
+
+
     $app->group('/showlist', function (RouteCollectorProxy $showlist) {
         $showlist->get('', [ShowController::class, 'index']);
         $showlist->post('', [ShowController::class, 'store']);
