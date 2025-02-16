@@ -22,6 +22,7 @@ class PaginationService
     private BackedEnum $genre = Genres::Default;
     private array $params;
     private ?User $user = null;
+    private ?string $query = null;
 
     public function __construct(
         private readonly ShowService $showService,
@@ -36,7 +37,8 @@ class PaginationService
             $this->length,
             $this->sort,
             $this->genre,
-            $this->user
+            $this->user,
+            $this->query
         );
     }
 
@@ -98,6 +100,30 @@ class PaginationService
 
         $this->params = $params;
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function search(array $params): self
+    {
+        $this->length = 10;
+        $this->setStartAndPage($params);
+        $this->setSort(DiscoverSort::class, $params);
+
+        $query = trim($params['query']);
+
+        $count = $this->showService->getShowCount($this->genre, $query);
+        if ($count) {
+            $this->totalPages = (int) ceil($count / $this->length);
+            $this->showCount = $count;
+        }
+
+        if ($this->page > $this->totalPages) {
+            throw new NotFoundException();
+        }
+
+        $this->params = $params;
+        $this->query = $query;
 
         return $this;
     }

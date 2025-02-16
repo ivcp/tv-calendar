@@ -73,34 +73,29 @@ class ShowService
         return $show;
     }
 
-    public function getShowCount(BackedEnum $genre = Genres::Default): int
+    public function getShowCount(BackedEnum $genre = Genres::Default, ?string $query = null): int
     {
         $repository = $this->entityManager->getRepository(Show::class);
-        if ($genre === Genres::Default) {
+        if ($genre === Genres::Default && !$query) {
             return $repository->count();
         }
 
         $qb = $repository->createQueryBuilder('c')
-        ->select('count(distinct c)')
-        ->where('c.genres LIKE :genre')
-        ->setParameter('genre', '%' . $genre->value . '%');
+        ->select('count(distinct c)');
 
+        if ($genre === Genres::Default && $query) {
+            $qb->where('lower(c.name) LIKE :query')
+            ->setParameter('query', '%' . strtolower($query) . '%');
+        }
 
+        if ($genre !== Genres::Default) {
+            $qb->where('c.genres LIKE :genre')
+            ->setParameter('genre', '%' . $genre->value . '%');
+        }
 
         return $qb->getQuery()->getSingleScalarResult();
     }
 
-    public function queryShow(string $query): array
-    {
-        $qb = $this->entityManager->getRepository(Show::class)->createQueryBuilder('c')
-        ->select('c.id, c.name')
-        ->where('lower(c.name) LIKE :query')
-        ->setParameter('query', '%' . strtolower($query) . '%')
-        ->addOrderBy('c.weight', 'desc')
-        ->addOrderBy('c.id', 'asc')
-        ->setMaxResults(20);
-        return $qb->getQuery()->getResult();
-    }
 
     /**
      * Get shows, paginated
@@ -113,16 +108,17 @@ class ShowService
         BackedEnum $sort,
         BackedEnum $genre,
         User $user = null,
+        ?string $query = null,
     ): array {
-        $query = $this->entityManager->getRepository(Show::class)
+        $qb = $this->entityManager->getRepository(Show::class)
                 ->createQueryBuilder('c')
                 ->setFirstResult($start)
                 ->setMaxResults($length);
 
         if ($user) {
-            $query = $this->entityManager->getRepository(UserShows::class)->createQueryBuilder('c');
-            $query->select('s')
-            ->where($query->expr()->eq('c.user', ':userId'))
+            $qb = $this->entityManager->getRepository(UserShows::class)->createQueryBuilder('c');
+            $qb->select('s')
+            ->where($qb->expr()->eq('c.user', ':userId'))
             ->innerJoin(Show::class, 's', 'WITH', 's.id = c.show')
             ->setFirstResult($start)
             ->setMaxResults($length)
@@ -131,34 +127,41 @@ class ShowService
 
         switch ($sort) {
             case DiscoverSort::New:
-                $query->addOrderBy('c.tvMazeId', 'desc');
+                $qb->addOrderBy('c.tvMazeId', 'desc');
                 break;
             case DiscoverSort::Popular:
-                $query->addOrderBy('c.weight', 'desc');
+                $qb->addOrderBy('c.weight', 'desc');
                 break;
             case ShowListSort::Added:
-                $query->addOrderBy('c.createdAt', 'desc');
+                $qb->addOrderBy('c.createdAt', 'desc');
                 break;
             case ShowListSort::Alphabetical:
-                $query->addOrderBy('s.name', 'asc');
+                $qb->addOrderBy('s.name', 'asc');
                 break;
             case ShowListSort::Popular:
-                $query->addOrderBy('s.weight', 'desc');
+                $qb->addOrderBy('s.weight', 'desc');
                 break;
             case ShowListSort::New:
-                $query->addOrderBy('s.tvMazeId', 'desc');
+                $qb->addOrderBy('s.tvMazeId', 'desc');
                 break;
         }
 
         if ($genre !== Genres::Default) {
             $i = $user ? 's' : 'c';
-            $query->andWhere("$i.genres LIKE :genre")->setParameter('genre', '%' . $genre->value . '%');
+            $qb->andWhere("$i.genres LIKE :genre")->setParameter('genre', '%' . $genre->value . '%');
         }
 
-        $query->addOrderBy($user ? 's.id' : 'c.id', 'desc');
+        if ($query) {
+            $qb
+            ->select('c.id, c.name')
+            ->where('lower(c.name) LIKE :query')
+            ->setParameter('query', '%' . strtolower($query) . '%');
+        }
+
+        $qb->addOrderBy($user ? 's.id' : 'c.id', 'desc');
 
 
-        return $query->getQuery()->getResult();
+        return $qb->getQuery()->getResult();
     }
 
     /**
