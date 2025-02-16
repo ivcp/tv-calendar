@@ -253,13 +253,14 @@ class ShowController
         ->make(SearchShowRequestValidator::class)
         ->validate($request->getQueryParams());
 
-        $result = $this->showService->queryShow(trim($params['query']));
+        $result = $this->paginationService->search($params);
 
         return $this->responseFormatter->asJSON(
             $response,
             200,
             [
-             'result' => $result
+             'result' => $result->getShows(),
+             'pagination' => $result->getPagination()
             ]
         );
     }
