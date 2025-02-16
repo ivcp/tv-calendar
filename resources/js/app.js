@@ -42,37 +42,47 @@ document.addEventListener("DOMContentLoaded", () => {
       searchResults.replaceChildren();
       return;
     }
+    if (e.key === "Backspace") {
+      console.log("back");
+      renderResults(e.target.value, searchResults);
+    }
   });
 
-  searchInput.addEventListener("input", async (e) => {
-    if (e.target.value.trim() === "") {
-      searchResults.classList.add("hidden");
-      searchResults.classList.remove("flex");
-      searchResults.replaceChildren();
-      return;
-    }
-
-    searchResults.replaceChildren();
-
-    const result = await get(`/search?query=${e.target.value}`);
-    if (result.error) {
-      console.log(result.messages);
-      return;
-    }
-
-    searchResults.classList.remove("hidden");
-    searchResults.classList.add("flex");
-
-    result.body.result.forEach((result) => {
-      searchResults.insertAdjacentHTML(
-        "beforeend",
-        `<li class="bg-base-100 hover:bg-base-200 rounded-lg">
-            <a href="/shows/${result.id}" class="flex justify-between p-2">
-              <span class="max-w-80 truncate">${result.name}</span>
-              <span>&#8594;</span></a>
-        </li>
-        `
-      );
-    });
-  });
+  searchInput.addEventListener("input", (e) =>
+    renderResults(e.target.value, searchResults)
+  );
 });
+
+const renderResults = async (value, searchResults) => {
+  if (value.trim() === "") {
+    searchResults.classList.add("hidden");
+    searchResults.classList.remove("flex");
+    searchResults.replaceChildren();
+    return;
+  }
+
+  searchResults.replaceChildren();
+
+  const result = await get(`/search?query=${value.trim()}`);
+  if (result.error) {
+    console.log(result.messages);
+    return;
+  }
+
+  console.log(result.body.pagination);
+
+  searchResults.classList.remove("hidden");
+  searchResults.classList.add("flex");
+
+  result.body.result.forEach((result) => {
+    searchResults.insertAdjacentHTML(
+      "beforeend",
+      `<li class="bg-base-100 hover:bg-base-200 rounded-lg">
+          <a href="/shows/${result.id}" class="flex justify-between p-2">
+            <span class="max-w-80 truncate">${result.name}</span>
+            <span>&#8594;</span></a>
+      </li>
+      `
+    );
+  });
+};
