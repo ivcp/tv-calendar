@@ -22,6 +22,15 @@ class SearchShowRequestValidator implements RequestValidatorInterface
             'lengthMin' => [
                 ['query', 1]
             ],
+            'optional' => [
+                ['page']
+            ],
+            'numeric' => [
+                ['page']
+            ],
+            'min' => [
+                ['page', 1]
+            ],
         ]);
 
         if (! $v->validate()) {
