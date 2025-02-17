@@ -9,6 +9,20 @@
       name="{{ csrf.keys.value }}"
       content="{{ csrf.value }}"
     />
+    <link
+      rel="preload"
+      href="{{ asset('build/fonts/rubik-v28-latin-regular.woff2') }}"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="{{ asset('build/fonts/rubik-v28-latin-700.woff2') }}"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     {% block stylesheets %}
     {{
       encore_entry_link_tags("app")
