@@ -19,6 +19,8 @@
         {{ show.premiered ? '(' ~ show.premiered | date('Y')
 
 
+
+
         }}{{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
       </h1>
       <div
@@ -73,7 +75,7 @@
         </div>
 
         <div
-          class="stats self-center overflow-clip lg:self-start stats-horizontal"
+          class="stats flex justify-center lg:justify-start self-center overflow-clip lg:self-start stats-horizontal"
         >
           <div class="stat min-w-2 max-w-32 overflow-x-hidden w-max gap-2">
             <div class="stat-title text-center">Runtime</div>
