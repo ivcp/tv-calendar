@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
+use App\Config;
 use App\DataObjects\EpisodeData;
 use App\DataObjects\ShowData;
 use App\Entity\Show;
@@ -21,6 +22,7 @@ class UpdateTest extends TestCase
 {
     private Container $container;
     private EntityManager $entityManager;
+    private Config $config;
 
     public function setUp(): void
     {
@@ -32,6 +34,7 @@ class UpdateTest extends TestCase
         require_once __DIR__ . '/../../configs/path_constants.php';
         $this->container = require CONFIG_PATH . '/container/container.php';
         $this->entityManager =  $this->container->get(EntityManager::class);
+        $this->config = $this->container->get(Config::class);
     }
 
 
@@ -46,7 +49,7 @@ class UpdateTest extends TestCase
 
         $updateService = new UpdateService(
             new ShowService($this->entityManager),
-            new EpisodeService($this->entityManager),
+            new EpisodeService($this->entityManager, $this->config),
             $tvMazeService,
             $this->entityManager
         );
@@ -339,7 +342,7 @@ class UpdateTest extends TestCase
 
         $updateService = new UpdateService(
             new ShowService($this->entityManager),
-            new EpisodeService($this->entityManager),
+            new EpisodeService($this->entityManager, $this->config),
             $tvMazeService,
             $this->entityManager
         );
