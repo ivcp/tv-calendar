@@ -39,5 +39,5 @@ return [
         'samesite' => 'lax',
     ],
     'json_tags' => JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS | JSON_THROW_ON_ERROR,
-    'popular_weight' => 100
+    'popular_weight' => 99
 ];
