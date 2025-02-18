@@ -31,5 +31,4 @@ class BadRequestExceptionMiddleware implements MiddlewareInterface
             throw new HttpBadRequestException($request);
         }
     }
-
 }

@@ -33,5 +33,4 @@ class ShowRequestValidator implements RequestValidatorInterface
 
         return $data;
     }
-
 }

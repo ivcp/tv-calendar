@@ -32,7 +32,6 @@ class NotFoundExceptionMiddleware implements MiddlewareInterface
         try {
             return $handler->handle($request);
         } catch (NotFoundException $e) {
-
             $response = $this->responseFactory->createResponse();
             if ($this->requestService->isXhr($request)) {
                 return $this->responseFormatter->asJSONMessage($response, 404, 'page not found');
@@ -41,5 +40,4 @@ class NotFoundExceptionMiddleware implements MiddlewareInterface
             throw new HttpNotFoundException($request);
         }
     }
-
 }

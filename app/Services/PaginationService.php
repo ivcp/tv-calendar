@@ -149,6 +149,4 @@ class PaginationService
             $this->genre = Genres::tryFrom($params['genre']);
         }
     }
-
-
 }

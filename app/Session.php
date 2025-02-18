@@ -37,7 +37,6 @@ class Session implements SessionInterface
         if (! session_start()) {
             throw new SessionException('Unable to start session.');
         }
-
     }
 
     public function save(): void
@@ -73,7 +72,6 @@ class Session implements SessionInterface
     public function flash(string $key, array $messages): void
     {
         $_SESSION[$this->sessionConfig->flashName][$key] = $messages;
-
     }
     public function getFlashed(string $key): array
     {
@@ -83,5 +81,4 @@ class Session implements SessionInterface
 
         return $messages;
     }
-
 }

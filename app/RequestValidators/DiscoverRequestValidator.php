@@ -39,5 +39,4 @@ class DiscoverRequestValidator implements RequestValidatorInterface
 
         return $data;
     }
-
 }

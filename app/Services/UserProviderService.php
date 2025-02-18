@@ -37,5 +37,4 @@ class UserProviderService implements UserProviderServiceInterface
 
         return $user;
     }
-
 }

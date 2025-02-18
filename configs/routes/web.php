@@ -33,7 +33,6 @@ return function (App $app) {
         $guest->get('/register', [AuthController::class, 'registerView']);
         $guest->post('/login', [AuthController::class, 'login']);
         $guest->post('/register', [AuthController::class, 'register']);
-
     })->add(GuestMiddleware::class);
     $app->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
 };

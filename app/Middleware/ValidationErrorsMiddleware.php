@@ -27,5 +27,4 @@ class ValidationErrorsMiddleware implements MiddlewareInterface
 
         return $handler->handle($request);
     }
-
 }

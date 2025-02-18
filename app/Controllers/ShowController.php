@@ -126,8 +126,6 @@ class ShowController
                 'episodes' => $episodes->toArray()
             ]
         );
-
-
     }
 
     public function discover(Request $request, Response $response): Response
@@ -215,7 +213,7 @@ class ShowController
             return $this->responseFormatter->asJSONMessage($response, 400, "show not in your list");
         }
 
-        return $this->responseFormatter->asJSONMessage($response, 200, $show->getName(). ' removed from your list');
+        return $this->responseFormatter->asJSONMessage($response, 200, $show->getName() . ' removed from your list');
     }
 
     public function serveOptimizedShowImage(Request $request, Response $response, array $args): Response

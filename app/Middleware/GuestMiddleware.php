@@ -27,5 +27,4 @@ class GuestMiddleware implements MiddlewareInterface
 
         return $handler->handle($request);
     }
-
 }

@@ -73,7 +73,6 @@ class Auth implements AuthInterface
         $this->login($user);
 
         return $user;
-
     }
 
     public function login(UserInterface $user): void
@@ -82,5 +81,4 @@ class Auth implements AuthInterface
         $this->session->put('user', $user->getId());
         $this->user = $user;
     }
-
 }

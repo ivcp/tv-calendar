@@ -47,5 +47,4 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
             return $response->withHeader('Location', $referer)->withStatus(302);
         }
     }
-
 }

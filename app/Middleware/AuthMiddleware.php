@@ -36,5 +36,4 @@ class AuthMiddleware implements MiddlewareInterface
 
         return $this->responseFactory->createResponse(302)->withHeader('Location', '/login');
     }
-
 }

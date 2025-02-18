@@ -23,5 +23,4 @@ class LoginUserRequestValidator implements RequestValidatorInterface
 
         return $data;
     }
-
 }

@@ -28,12 +28,13 @@ class UserShowsService
 
         $this->entityManager->persist($userShow);
         $this->entityManager->flush();
-
     }
 
     public function delete(Show $show, User $user): void
     {
-        $userShow = $this->entityManager->getRepository(UserShows::class)->findOneBy(['user' => $user, 'show' => $show]);
+        $userShow = $this->entityManager
+            ->getRepository(UserShows::class)
+            ->findOneBy(['user' => $user, 'show' => $show]);
         if (! $userShow) {
             throw new ShowNotInListException();
         }

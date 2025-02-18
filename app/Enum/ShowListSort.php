@@ -18,6 +18,4 @@ enum ShowListSort: string implements SortInterface
     {
         return self::Added;
     }
-
-
 }

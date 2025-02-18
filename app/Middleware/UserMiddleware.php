@@ -28,5 +28,4 @@ class UserMiddleware implements MiddlewareInterface
 
         return $handler->handle($request);
     }
-
 }

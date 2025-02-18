@@ -27,5 +27,4 @@ class OldFormDataMiddleware implements MiddlewareInterface
 
         return $handler->handle($request);
     }
-
 }

@@ -95,7 +95,11 @@ return [
             }
             if ($e instanceof ConnectException) {
                 echo "Unable to connect to " .
-                $request->getUri() . ". Retrying (" . ($retries + 1) . "/" . $config->get('client.retries', 3) . ")...\n";
+                    $request->getUri() .
+                    ". Retrying (" . ($retries + 1) .
+                    "/" .
+                    $config->get('client.retries', 3) .
+                    ")...\n";
                 return true;
             }
             return false;

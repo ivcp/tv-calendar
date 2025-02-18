@@ -39,5 +39,4 @@ class SearchShowRequestValidator implements RequestValidatorInterface
 
         return $data;
     }
-
 }

@@ -14,5 +14,4 @@ interface AuthInterface
     public function logout(): void;
     public function register(RegisterUserData $data): UserInterface;
     public function login(UserInterface $user): void;
-
 }
