@@ -1,15 +1,14 @@
 <div
   id="date-{{i}}"
-  class="card gap-6 bg-base-200 rounded-lg p-2 lg:p-0
+  class="card gap-6 bg-base-300 rounded-lg p-2 lg:p-0
   {% if i == 1 %} lg:col-start-{{ month == "now" ? month|date('Y-m-1')|date('N') : month|date('N') }}{% endif %}
-  {# TODO: mark today with js ? #}
-  {{ month == "now" or month|date() == "now"|date('Y-m-1')|date() ? "now"|date("d") == i ? ' bg-info-content' }}"
+  {{ month == "now" or month|date() == "now"|date('Y-m-1')|date() ? "now"|date("d") == i ? 'outline outline-2 outline-warning -outline-offset-2' }}"
 >
   <p class="self-end px-3 py-1 text-sm lg:text-base font-semibold">
     {% set today = month|date('Y-m-' ~ i) %}
     <span class="font-normal lg:hidden">{{ today|date("l") }},</span>   
     {{ i }}<span class="text-xs lg:hidden">{{today|date("S")}}</span>
   </p>  
-  <div class="card-body justify-end gap-2 lg:gap-1 p-1"> 
+  <div class="card-body justify-end gap-2 lg:gap-1 p-2 text-base-300"> 
   </div>  
 </div>

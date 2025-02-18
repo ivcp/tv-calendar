@@ -1,0 +1,35 @@
+<div
+  role="tablist"
+  class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
+>
+  {% set url = current_url(true) %} {% set active = 'tab-active bg-primary
+  text-primary-content' %} {% set default_sort = get_default_sort(sort) %} {%
+  for case in sort.cases %} {% set value = case.value %} {% set filterArr =
+  pagination | filter((v,k) => k != 'totalPages' and k != 'page' and k != 'sort'
+  and k != 'showCount') %} {% set queryStr = filterArr | map((v,k) =>
+  "#{k}=#{v}") | join('&') %}
+  <a
+    role="tab"
+    class="tab text-xs font-bold rounded-full capitalize {{ value in url ? active : value is same as(default_sort) and 'sort' not in url ? active }}"
+    {%
+    if
+    value
+    is
+    same
+    as(default_sort)
+    %}
+    href="{{ current_url() }}{{queryStr != '' ? '?' ~ queryStr}}"
+    {%
+    else
+    %}
+    href="{{
+      current_url()
+    }}{{queryStr == '' ? '?sort=' ~ value : '?' ~ queryStr ~ '&sort=' ~ value }}"
+    {%
+    endif
+    %}
+  >
+    {{ value }}
+  </a>
+  {% endfor %}
+</div>

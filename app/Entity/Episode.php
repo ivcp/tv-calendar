@@ -33,13 +33,13 @@ class Episode
     #[Column(name: 'tv_maze_episode_id', unique: true, options: ['unsigned' => true])]
     private int $tvMazeEpisodeId;
     #[Column(type: 'smallint', options: ['unsigned' => true], nullable: true)]
-    private int $season;
+    private ?int $season;
     #[Column(options: ['unsigned' => true], nullable: true)]
-    private int $number;
+    private ?int $number;
     #[Column(type: 'datetimetz', nullable: true)]
-    private DateTime $airstamp;
+    private ?DateTime $airstamp;
     #[Column(type: 'string', nullable: true)]
-    private string $type;
+    private ?string $type;
     #[Column(name: 'tv_maze_show_id')]
     private int $tvMazeShowId;
 
@@ -80,7 +80,7 @@ class Episode
     /**
      * Get the value of season
      */
-    public function getSeason(): int
+    public function getSeason(): ?int
     {
         return $this->season;
     }
@@ -102,7 +102,7 @@ class Episode
     /**
      * Get the value of number
      */
-    public function getNumber(): int
+    public function getNumber(): ?int
     {
         return $this->number;
     }
@@ -124,7 +124,7 @@ class Episode
     /**
      * Get the value of airstamp
      */
-    public function getAirstamp(): DateTime
+    public function getAirstamp(): ?DateTime
     {
         return $this->airstamp;
     }
@@ -146,7 +146,7 @@ class Episode
     /**
      * Get the value of type
      */
-    public function getType(): string
+    public function getType(): ?string
     {
         return $this->type;
     }

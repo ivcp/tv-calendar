@@ -22,6 +22,9 @@ module.exports = {
         7: "7",
       },
     },
+    fontFamily: {
+      sans: ["Rubik", "system-ui", "sans-serif"],
+    },
   },
   plugins: [require("daisyui")],
 

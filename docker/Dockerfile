@@ -21,12 +21,17 @@ RUN apt-get update && apt-get install -y \
     unzip \
     vim \
     libicu-dev \
-    libpq-dev 
+    libpq-dev \
+    zlib1g-dev \
+    libpng-dev \
+    libwebp-dev \ 
+    libjpeg62-turbo-dev 
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql 
-RUN docker-php-ext-install pdo pdo_pgsql pgsql 
+RUN docker-php-ext-configure gd --with-jpeg --with-webp
+RUN docker-php-ext-install pdo pdo_pgsql pgsql gd
 
 RUN pecl install xdebug \
     && docker-php-ext-enable xdebug 

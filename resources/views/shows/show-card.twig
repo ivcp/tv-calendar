@@ -1,0 +1,26 @@
+<article class="flex flex-col items-center lg:h-80 group">
+  <a
+    class="card bg-base-100 image-full w-max rounded-lg before:hidden"
+    href="/shows/{{ show.id }}"
+  >
+    <figure class="w-[210px] h-[295px] skeleton rounded-lg">
+      <img
+        src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
+        alt="{{ show.name }}"
+        loading="lazy"
+        decoding="async"
+        onload="this.classList.add('bg-base-200')"
+        class="rounded-lg {{show.imageMedium ?: 'border-2 border-base-200'}}"
+      />
+    </figure>
+    {% if current_url() is same as('/discover') %} {% include
+    'shows/add-remove-btn.twig' with {'show': show, 'userShows': userShows }%}
+    {% else %} {% include 'shows/remove-show-btn.twig' with {'show': show } %}
+    {% endif %}
+  </a>
+  <p
+    class="mt-1 text-center font-bold break-words max-w-[22ch] max-h-12 text-ellipsis overflow-clip"
+  >
+    {{ show.name }}
+  </p>
+</article>

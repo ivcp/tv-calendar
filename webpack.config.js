@@ -21,6 +21,9 @@ Encore
    */
   .addEntry("app", "./resources/js/app.js")
   .addEntry("calendar", "./resources/js/calendar.js")
+  .addEntry("addRemoveShow", "./resources/js/addRemoveShow.js")
+  .addEntry("showlist", "./resources/js/showlist.js")
+  .addEntry("show", "./resources/js/show.js")
 
   // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
   .splitEntryChunks()
@@ -56,7 +59,7 @@ Encore
   .copyFiles({
     from: "./resources/images",
     to: "images/[path][name].[hash:8].[ext]",
-    pattern: /\.(png|jpg|jpeg|gif)$/,
+    pattern: /\.(png|jpg|jpeg|gif|svg)$/,
   })
 
   .enablePostCssLoader((options) => {

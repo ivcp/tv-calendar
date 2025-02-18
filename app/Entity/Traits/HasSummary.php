@@ -9,12 +9,12 @@ use Doctrine\ORM\Mapping\Column;
 trait HasSummary
 {
     #[Column(type: 'text', nullable: true)]
-    private string $summary;
+    private ?string $summary;
 
     /**
      * Get the value of summary
      */
-    public function getSummary(): string
+    public function getSummary(): ?string
     {
         return $this->summary;
     }

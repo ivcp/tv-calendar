@@ -10,8 +10,7 @@ use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Symfony\Component\Console\Application;
 
-$app = require __DIR__ . '/../bootstrap.php';
-$container = $app->getContainer();
+$container = require __DIR__ . '/../bootstrap.php';
 $config    = $container->get(Config::class);
 
 $entityManager = $container->get(EntityManager::class);
@@ -29,6 +28,6 @@ $cliApp = new Application($config->get('app_name'), $config->get('app_version'))
 ConsoleRunner::addCommands($cliApp, new SingleManagerProvider($entityManager));
 
 $cliApp->addCommands($migrationCommands($dependencyFactory));
-$cliApp->addCommands(array_map(fn($command) => $container->get($command), $customCommands));
+$cliApp->addCommands(array_map(fn ($command) => $container->get($command), $customCommands));
 
 $cliApp->run();

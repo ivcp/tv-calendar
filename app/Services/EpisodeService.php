@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Config;
 use App\DataObjects\EpisodeData;
 use App\Entity\Episode;
 use App\Entity\Show;
+use App\Entity\User;
+use App\Entity\UserShows;
 use App\Services\Traits\ParamsTypesCases;
 use DateTime;
 use Doctrine\DBAL\ArrayParameterType;
@@ -21,24 +24,38 @@ class EpisodeService
 
     public function __construct(
         private readonly EntityManager $entityManager,
+        private readonly Config $config
     ) {
     }
 
-    public function getEpisodesForMonth(DateTime $month): array
+    public function getEpisodesForMonth(DateTime $month, ?User $user = null): array
     {
-        return $this->entityManager->getRepository(Episode::class)
-            ->createQueryBuilder('e')
-            ->select('e.id, s.name as showName, e.name as episodeName, 
-             e.season, e.number, e.summary, e.type, e.airstamp')
-            ->where('e.airstamp BETWEEN :first AND :last')
-            ->andWhere('s.weight = 100')
+        $qb = $this->entityManager->getRepository(Episode::class)
+            ->createQueryBuilder('e');
+
+        $query = $qb->select('e.id, s.name as showName, e.name as episodeName, 
+             e.season, e.number, e.summary, e.type, e.airstamp, 
+             e.imageMedium as image, s.id as showId, s.networkName, s.webChannelName')
+            ->where('e.airstamp BETWEEN :first AND :last');
+
+        if (!$user) {
+            $query->andWhere('s.weight >= :weight')
+                ->setParameter('weight', $this->config->get('popular_weight'))
+                ->innerJoin('e.show', 's');
+        } else {
+            $query->andWhere('us.user = :user')
             ->innerJoin('e.show', 's')
-            ->addOrderBy('e.airstamp')
+            ->innerJoin(UserShows::class, 'us', 'WITH', 'us.show = s')
+            ->setParameter('user', $user);
+        }
+
+        $query->addOrderBy('e.airstamp')
             ->addOrderBy('e.id')
             ->setParameter('first', $month->format('Y-m-1'))
-            ->setParameter('last', $month->format("Y-m-t"))
-            ->getQuery()
-            ->getResult();
+            ->setParameter('last', $month->format("Y-m-t 23:59"));
+
+
+        return $query->getQuery()->getResult();
     }
 
     public function create(EpisodeData $episodeData, Show $show): Episode

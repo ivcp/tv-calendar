@@ -9,14 +9,14 @@ use Doctrine\ORM\Mapping\Column;
 trait HasImages
 {
     #[Column(type: 'text', name: 'image_medium', nullable: true)]
-    private string $imageMedium;
+    private ?string $imageMedium;
     #[Column(type: 'text', name: 'image_original', nullable: true)]
-    private string $imageOriginal;
+    private ?string $imageOriginal;
 
     /**
      * Get the value of imageMedium
      */
-    public function getImageMedium(): string
+    public function getImageMedium(): ?string
     {
         return $this->imageMedium;
     }
@@ -38,7 +38,7 @@ trait HasImages
     /**
      * Get the value of imageOriginal
      */
-    public function getImageOriginal(): string
+    public function getImageOriginal(): ?string
     {
         return $this->imageOriginal;
     }

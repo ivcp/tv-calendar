@@ -1,0 +1,27 @@
+{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{{ parent() }}
+{{ encore_entry_script_tags("addRemoveShow") }}
+{% endblock %}
+<section
+  class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
+>
+  <div class="grow flex flex-col gap-6">
+    <div
+      class="navbar justify-around gap-4 lg:justify-center lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+    >
+      <div class="">
+        {% include 'shows/sort.twig' with {'sort':
+        enum('App\\Enum\\DiscoverSort')} %}
+      </div>
+      {% include 'shows/genres.twig' %}
+    </div>
+    <div
+      class="grid gap-6 place-items-center lg:grid-flow-row lg:place-items-center lg:grid-cols-4 xl:grid-cols-5 lg:gap-y-8 lg:auto-rows-auto"
+    >
+      {% for show in shows %} {% include 'shows/show-card.twig' with {'show':
+      show} %} {% endfor %}
+    </div>
+    {% include 'shows/pagination.twig' with {'pagination': pagination} %}
+  </div>
+</section>
+{% endblock %}

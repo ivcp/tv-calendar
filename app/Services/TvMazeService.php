@@ -21,10 +21,8 @@ class TvMazeService
     }
 
 
-    //TODO: logging
-
     /**
-     * Get list of updated shows with timestamps
+     * Get list of updated shows ids
      *
      **/
     public function getUpdatedShowIDs(): array

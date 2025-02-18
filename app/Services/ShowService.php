@@ -6,8 +6,14 @@ namespace App\Services;
 
 use App\DataObjects\ShowData;
 use App\Entity\Show;
+use App\Entity\User;
+use App\Entity\UserShows;
+use App\Enum\DiscoverSort;
+use App\Enum\Genres;
+use App\Enum\ShowListSort;
 use App\Services\Traits\ParamsTypesCases;
 use ArrayObject;
+use BackedEnum;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\ParameterType;
 use Doctrine\ORM\EntityManager;
@@ -25,6 +31,17 @@ class ShowService
     public function getById(int $id): ?Show
     {
         return $this->entityManager->find(Show::class, $id);
+    }
+
+    public function getImageOriginal(int $id): ?string
+    {
+        return $this->entityManager->getRepository(Show::class)
+        ->createQueryBuilder('c')
+        ->select('c.imageOriginal')
+        ->where('c.id = :id')
+        ->setParameter('id', $id)
+        ->getQuery()
+        ->getSingleResult()['imageOriginal'];
     }
 
     public function getShowsByTvMazeId(array $ids): array
@@ -56,6 +73,96 @@ class ShowService
         return $show;
     }
 
+    public function getShowCount(BackedEnum $genre = Genres::Default, ?string $query = null): int
+    {
+        $repository = $this->entityManager->getRepository(Show::class);
+        if ($genre === Genres::Default && !$query) {
+            return $repository->count();
+        }
+
+        $qb = $repository->createQueryBuilder('c')
+        ->select('count(distinct c)');
+
+        if ($genre === Genres::Default && $query) {
+            $qb->where('lower(c.name) LIKE :query')
+            ->setParameter('query', '%' . strtolower($query) . '%');
+        }
+
+        if ($genre !== Genres::Default) {
+            $qb->where('c.genres LIKE :genre')
+            ->setParameter('genre', '%' . $genre->value . '%');
+        }
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
+
+
+    /**
+     * Get shows, paginated
+     *
+     * @return Show[]
+     **/
+    public function getPaginatedShows(
+        int $start,
+        int $length,
+        BackedEnum $sort,
+        BackedEnum $genre,
+        User $user = null,
+        ?string $query = null,
+    ): array {
+        $qb = $this->entityManager->getRepository(Show::class)
+                ->createQueryBuilder('c')
+                ->setFirstResult($start)
+                ->setMaxResults($length);
+
+        if ($user) {
+            $qb = $this->entityManager->getRepository(UserShows::class)->createQueryBuilder('c');
+            $qb->select('s')
+            ->where($qb->expr()->eq('c.user', ':userId'))
+            ->innerJoin(Show::class, 's', 'WITH', 's.id = c.show')
+            ->setFirstResult($start)
+            ->setMaxResults($length)
+            ->setParameter('userId', $user->getId());
+        }
+
+        switch ($sort) {
+            case DiscoverSort::New:
+                $qb->addOrderBy('c.tvMazeId', 'desc');
+                break;
+            case DiscoverSort::Popular:
+                $qb->addOrderBy('c.weight', 'desc');
+                break;
+            case ShowListSort::Added:
+                $qb->addOrderBy('c.createdAt', 'desc');
+                break;
+            case ShowListSort::Alphabetical:
+                $qb->addOrderBy('s.name', 'asc');
+                break;
+            case ShowListSort::Popular:
+                $qb->addOrderBy('s.weight', 'desc');
+                break;
+            case ShowListSort::New:
+                $qb->addOrderBy('s.tvMazeId', 'desc');
+                break;
+        }
+
+        if ($genre !== Genres::Default) {
+            $i = $user ? 's' : 'c';
+            $qb->andWhere("$i.genres LIKE :genre")->setParameter('genre', '%' . $genre->value . '%');
+        }
+
+        if ($query) {
+            $qb
+            ->select('c.id, c.name')
+            ->where('lower(c.name) LIKE :query')
+            ->setParameter('query', '%' . strtolower($query) . '%');
+        }
+
+        $qb->addOrderBy($user ? 's.id' : 'c.id', 'desc');
+
+
+        return $qb->getQuery()->getResult();
+    }
 
     /**
      * Bulk insert shows

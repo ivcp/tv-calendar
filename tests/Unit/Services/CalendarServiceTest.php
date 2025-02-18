@@ -23,7 +23,7 @@ class CalendarServiceTest extends TestCase
     }
 
     #[DataProvider('monthProvider')]
-    public function testGetsScheduleForCurrentMonth(
+    public function testGetsScheduleForMonth(
         string $month,
         int $date,
         string $expectedShow,
@@ -33,12 +33,16 @@ class CalendarServiceTest extends TestCase
         $episodeService = $this->createMock(EpisodeService::class);
         $episodeService->expects($this->any())->method('getEpisodesForMonth')->willReturn([[
             'id' => 1,
+            'showId' => 1,
             'showName' => $expectedShow,
             'episodeName' => 'ep name',
             'season' => 1,
             'number' => 42,
             'summary' => 'a short summary',
             'type' => 'regular',
+            'image' => null,
+            'networkName' => null,
+            'webChannelName' => null,
             'airstamp' => new DateTime($month . "-$date", new DateTimeZone('UTC'))
         ]]);
 
