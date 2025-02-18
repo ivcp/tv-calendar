@@ -46,11 +46,12 @@ export function openEpisodeModal(episode) {
   }
 
   if (episode.networkName) {
+    const formatter = Intl.DateTimeFormat(navigator.language, {
+      hour: "numeric",
+      minute: "numeric",
+    });
     const airtime = episode.airstamp
-      ? new Date(episode.airstamp).toLocaleTimeString([], {
-          timeStyle: "short",
-          hour12: false,
-        })
+      ? formatter.format(new Date(episode.airstamp))
       : "";
     networkElement.textContent = `${airtime + " "}on ${episode.networkName}`;
   }
