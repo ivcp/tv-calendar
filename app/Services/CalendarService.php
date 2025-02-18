@@ -63,7 +63,7 @@ class CalendarService
                 episodeNumber: $episode['number'],
                 episodeSummary: $episode['summary'],
                 type: $episode['type'],
-                airstamp: $episode['airstamp']->format(DATE_ATOM),
+                airstamp: $episode['airstamp']?->format(DATE_ATOM),
                 image: $episode['image'],
                 networkName: $episode['networkName'],
                 webChannelName:$episode['webChannelName']

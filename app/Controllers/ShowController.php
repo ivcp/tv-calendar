@@ -111,7 +111,7 @@ class ShowController
             episodeNumber: $episode->getNumber(),
             episodeSummary: $episode->getSummary(),
             type: $episode->getType(),
-            airstamp: $episode->getAirstamp()->format(DATE_ATOM),
+            airstamp: $episode->getAirstamp()?->format(DATE_ATOM),
             image: $episode->getImageMedium(),
             networkName: $show->getNetworkName(),
             webChannelName: $show->getWebChannelName()
