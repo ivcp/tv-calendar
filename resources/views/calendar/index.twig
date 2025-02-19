@@ -119,11 +119,11 @@
       <div
         id="calendar"
         class="mt-2 grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:gap-1.5 lg:auto-rows-auto"
-        data-schedule="{{ schedule }}"
+        data-schedule="{{ schedule ? schedule }}"
       >
-        {% set daysInMonth = month|date('t') %} {% for i in 1..daysInMonth %} {%
-        include 'calendar/date-card.twig' with {'i': i, 'month': month} %} {%
-        endfor %}
+        {% if month %} {% set daysInMonth = month|date('t') %} {% for i in
+        1..daysInMonth %} {% include 'calendar/date-card.twig' with {'i': i,
+        'month': month} %} {% endfor %} {% endif %}
       </div>
     </div>
   </div>

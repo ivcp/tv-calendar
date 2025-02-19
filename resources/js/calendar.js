@@ -1,13 +1,28 @@
 import { openEpisodeModal } from "./episodeModal";
+import { get } from "./ajax";
+import { notification } from "./notification";
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const popularShowsBtn = document.querySelector("#popular-shows");
   const userShowsBtn = document.querySelector("#user-shows");
-
   const scheduleData = document
     .querySelector("#calendar")
     .getAttribute("data-schedule");
-  const data = JSON.parse(scheduleData);
+
+  let data;
+  if (window.location.pathname === "/") {
+    const response = await get(getCurrentYearMonth());
+    if (response.error) {
+      notification(response.messages, "alert-error");
+      return;
+    }
+    data = response.body.schedule;
+  } else {
+    data = JSON.parse(scheduleData);
+  }
+
+  console.log(data);
+  return;
 
   const activeClasses = ["tab-active", "bg-primary", "text-primary-content"];
 
@@ -46,6 +61,9 @@ function populateDates(data) {
     airingTodayContainer.classList.add("hidden");
     airingTodayContainer.querySelector("#airing-today-body").replaceChildren();
   }
+
+  ///TODO:
+
   for (const [key, value] of Object.entries(data)) {
     const cardBody = document
       .querySelector(`#date-${key}`)
@@ -96,4 +114,11 @@ function fillBody(episodes, el) {
     const epBtn = el.querySelector(`#ep-${episode.id}`);
     epBtn.addEventListener("click", () => openEpisodeModal(episode));
   });
+}
+
+function getCurrentYearMonth() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
 }
