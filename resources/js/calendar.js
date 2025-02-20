@@ -5,21 +5,21 @@ import { notification } from "./notification";
 document.addEventListener("DOMContentLoaded", async () => {
   const popularShowsBtn = document.querySelector("#popular-shows");
   const userShowsBtn = document.querySelector("#user-shows");
-  const scheduleData = document
-    .querySelector("#calendar")
-    .getAttribute("data-schedule");
 
-  let data;
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  let url;
   if (window.location.pathname === "/") {
-    const response = await get(getCurrentYearMonth());
-    if (response.error) {
-      notification(response.messages, "alert-error");
-      return;
-    }
-    data = response.body.schedule;
+    url = `${getCurrentYearMonth()}?tz=${timeZone}`;
   } else {
-    data = JSON.parse(scheduleData);
+    url = `${window.location.pathname}?tz=${timeZone}`;
   }
+  const response = await get(url);
+  if (response.error) {
+    notification(response.messages, "alert-error");
+    return;
+  }
+  const data = response.body.schedule;
 
   console.log(data);
   return;
