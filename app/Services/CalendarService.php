@@ -14,19 +14,15 @@ class CalendarService
     {
     }
 
-    public function getSchedule(string $month, ?User $user = null): array
+    public function getSchedule(string $month, string $timeZone, ?User $user = null): array
     {
         $selectedMonth = new DateTime($month);
 
-        //TODO:
-
-        $episodesPopular = $this->episodeService->getEpisodesForMonth($selectedMonth, 'CET');
+        $episodesPopular = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone);
         $userEpisodes = [];
         if ($user) {
-            $userEpisodes = $this->episodeService->getEpisodesForMonth($selectedMonth, 'CET', $user);
+            $userEpisodes = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone, $user);
         }
-
-
 
         $popularSchedule = $this->getScheduleData($episodesPopular);
         $userSchedule = [];
