@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Config;
+use App\Contracts\RequestValidatorFactoryInterface;
+use App\RequestValidators\ScheduleRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CalendarService;
 use App\Services\RequestService;
@@ -20,7 +22,8 @@ class CalendarController
         private readonly CalendarService $calendarService,
         private readonly Config $config,
         private readonly RequestService $requestService,
-        private readonly ResponseFormatter $responseFormatter
+        private readonly ResponseFormatter $responseFormatter,
+        private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
     ) {
     }
 
@@ -32,13 +35,17 @@ class CalendarController
         );
     }
 
-    public function getMonth(Request $request, Response $response): Response
+    public function getMonth(Request $request, Response $response, array $args): Response
     {
         $user = $request->getAttribute('user');
         $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
-        $schedule = $this->calendarService->getSchedule($month, $user);
 
         if ($this->requestService->isXhr($request)) {
+            $args = $this->requestValidatorFactory
+            ->make(ScheduleRequestValidator::class)
+            ->validate($request->getQueryParams());
+
+            $schedule = $this->calendarService->getSchedule($month, $args['tz'], $user);
             return $this->responseFormatter->asJSON($response, 200, ['schedule' => $schedule]);
         }
 
@@ -46,7 +53,6 @@ class CalendarController
             $response,
             'calendar/index.twig',
             [
-                'schedule' => json_encode($schedule, $this->config->get('json_tags')),
                 'month' => $month
             ]
         );
