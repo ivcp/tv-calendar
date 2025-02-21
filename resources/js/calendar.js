@@ -67,11 +67,31 @@ function populateDates(episodes) {
 
   const isCurrentMonth = path === "/" || currentMonth === path.slice(1);
 
-  episodes.forEach((episode) => {
+  let currentShowId, firstEpId;
+  let sameDayEps = 1;
+  episodes.forEach((episode, i) => {
     const date = new Date(episode.airstamp).getDate();
     const cardBody = document
       .querySelector(`#date-${date}`)
       .querySelector(".card-body");
+
+    if (currentShowId === episode.showId) {
+      currentShowId = episode.showId;
+      sameDayEps++;
+      if (sameDayEps === 2) {
+        firstEpId = episodes[i - 1].id;
+      }
+
+      const prevEp = cardBody.querySelector(`#ep-${firstEpId}`);
+      if (prevEp) {
+        prevEp.querySelector(
+          "#season-number"
+        ).textContent = `${sameDayEps} eps`;
+      }
+      return;
+    }
+    sameDayEps = 1;
+    currentShowId = episode.showId;
 
     if (isCurrentMonth && date === new Date().getDate()) {
       airingTodayContainer.classList.remove("hidden");
@@ -108,7 +128,7 @@ function insertEpisode(episode, el) {
     } ${
       newSeasonStart ? newSeasonStartStyles : ""
     }  rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between overflow-hidden">
-      ${episode.showName}<span>${episode.seasonNumber}x${
+      ${episode.showName}<span id="season-number">${episode.seasonNumber}x${
       episode.episodeNumber ?? "S"
     }</span>
       </button>`
@@ -202,6 +222,3 @@ function markToday() {
     "-outline-offset-2"
   );
 }
-
-//TODO:
-//collapse similar eps
