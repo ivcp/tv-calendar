@@ -62,8 +62,7 @@ function populateDates(episodes) {
     airingTodayContainer.querySelector("#airing-today-body").replaceChildren();
   }
 
-  const isCurrentMonth =
-    path.pathname === "/" || currentMonth === path.slice(1);
+  const isCurrentMonth = path === "/" || currentMonth === path.slice(1);
 
   episodes.forEach((episode) => {
     const date = new Date(episode.airstamp).getDate();
@@ -71,7 +70,6 @@ function populateDates(episodes) {
       .querySelector(`#date-${date}`)
       .querySelector(".card-body");
 
-    //TODO: fix on '/'
     if (isCurrentMonth && date === new Date().getDate()) {
       airingTodayContainer.classList.remove("hidden");
       insertEpisode(
@@ -146,8 +144,7 @@ function dateCard(date, firstDay) {
   return `<div
     id="date-${date.getDate()}"
     class="card gap-6 bg-base-300 rounded-lg p-2 lg:p-0
-    ${date.getDate() === 1 && "lg:col-start-" + firstDay}
-    {% if i == 1 %} lg:col-start-{{ month|date('N') }}{% endif %}"
+    ${date.getDate() === 1 && "lg:col-start-" + firstDay}"
     >
     <p class="self-end px-3 py-1 text-sm lg:text-base font-semibold">
       <span class="font-normal lg:hidden">${date.toLocaleString("en-us", {
