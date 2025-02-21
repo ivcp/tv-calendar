@@ -83,6 +83,10 @@ function populateDates(episodes) {
 
     insertEpisode(episode, cardBody);
   });
+
+  document
+    .querySelectorAll(".skeleton")
+    .forEach((e) => e.classList.remove("skeleton"));
 }
 
 function insertEpisode(episode, el) {
@@ -149,9 +153,9 @@ function dateCard(date, firstDay) {
   const dateNumber = date.getDate();
   return `<div
     id="date-${dateNumber}"
-    class="card gap-6 bg-base-300 rounded-lg p-2 lg:p-0
+    class="skeleton lg:min-h-52 card gap-6 bg-base-300 rounded-lg p-2 lg:p-0
     ${dateNumber === 1 ? "lg:col-start-" + firstDay : ""}
-    ${isToday ? "outline outline-2 outline-warning -outline-offset-2" : ""}
+    ${isToday ? " outline outline-2 outline-warning -outline-offset-2" : ""}
     "
     >
     <p class="self-end px-3 py-1 text-sm lg:text-base font-semibold">
@@ -201,4 +205,3 @@ function markToday() {
 
 //TODO:
 //collapse similar eps
-//loading card skeleton
