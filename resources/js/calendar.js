@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     drawCalendar();
   } else {
     url = `${path}?tz=${timeZone}`;
+    if (currentMonth === path.slice(1)) {
+      markToday();
+    }
   }
   const response = await get(url);
   if (response.error) {
@@ -97,9 +100,9 @@ function insertEpisode(episode, el) {
     `<button id="ep-${
       episode.id
     }" class="bg-base-content/85 text-primary-content lg:hover:bg-base-content ${
-      premiere && premiereStyles
+      premiere ? premiereStyles : ""
     } ${
-      newSeasonStart && newSeasonStartStyles
+      newSeasonStart ? newSeasonStartStyles : ""
     }  rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between overflow-hidden">
       ${episode.showName}<span>${episode.seasonNumber}x${
       episode.episodeNumber ?? "S"
@@ -129,6 +132,7 @@ function drawCalendar() {
   if (firstDayInMonth === 0) {
     firstDayInMonth = 7;
   }
+
   [...Array(daysInMonth).keys()].forEach((date) => {
     calendarElement.insertAdjacentHTML(
       "beforeend",
@@ -141,17 +145,21 @@ function drawCalendar() {
 }
 
 function dateCard(date, firstDay) {
+  const isToday = sameDay(date, new Date());
+  const dateNumber = date.getDate();
   return `<div
-    id="date-${date.getDate()}"
+    id="date-${dateNumber}"
     class="card gap-6 bg-base-300 rounded-lg p-2 lg:p-0
-    ${date.getDate() === 1 && "lg:col-start-" + firstDay}"
+    ${dateNumber === 1 ? "lg:col-start-" + firstDay : ""}
+    ${isToday ? "outline outline-2 outline-warning -outline-offset-2" : ""}
+    "
     >
     <p class="self-end px-3 py-1 text-sm lg:text-base font-semibold">
       <span class="font-normal lg:hidden">${date.toLocaleString("en-us", {
         weekday: "long",
       })}, </span></span>
-      ${date.getDate()}<span class="text-xs lg:hidden">${nthNumber(
-    date.getDate()
+      ${dateNumber}<span class="text-xs lg:hidden">${nthNumber(
+    dateNumber
   )}</span>
     </p>
     <div class="card-body justify-end gap-2 lg:gap-1 p-2 text-base-300">
@@ -173,7 +181,24 @@ function nthNumber(number) {
   }
 }
 
+function sameDay(d1, d2) {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+}
+
+function markToday() {
+  const todayCard = document.querySelector(`#date-${new Date().getDate()}`);
+  todayCard.classList.add(
+    "outline",
+    "outline-2",
+    "outline-warning",
+    "-outline-offset-2"
+  );
+}
+
 //TODO:
 //collapse similar eps
-//mark today card
 //loading card skeleton
