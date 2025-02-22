@@ -27,6 +27,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   const data = response.body.schedule;
 
+  console.log(data);
+
   const activeClasses = ["tab-active", "bg-primary", "text-primary-content"];
 
   const activateUserBtn = () => {
@@ -67,7 +69,9 @@ function populateDates(episodes) {
 
   const isCurrentMonth = path === "/" || currentMonth === path.slice(1);
 
-  let currentShowId, firstEpId;
+  //TODO: fix this (if one show for whole month, not working)
+
+  let currentShowId, currentDate, firstEpId;
   let sameDayEps = 1;
   episodes.forEach((episode, i) => {
     const date = new Date(episode.airstamp).getDate();
@@ -75,23 +79,20 @@ function populateDates(episodes) {
       .querySelector(`#date-${date}`)
       .querySelector(".card-body");
 
-    if (currentShowId === episode.showId) {
-      currentShowId = episode.showId;
+    if (currentShowId === episode.showId && currentDate === date) {
       sameDayEps++;
+      currentShowId = episode.showId;
       if (sameDayEps === 2) {
         firstEpId = episodes[i - 1].id;
       }
 
       const prevEp = cardBody.querySelector(`#ep-${firstEpId}`);
-      if (prevEp) {
-        prevEp.querySelector(
-          "#season-number"
-        ).textContent = `${sameDayEps} eps`;
-      }
+      prevEp.querySelector("#season-number").textContent = `${sameDayEps} eps`;
       return;
     }
     sameDayEps = 1;
     currentShowId = episode.showId;
+    currentDate = date;
 
     if (isCurrentMonth && date === new Date().getDate()) {
       airingTodayContainer.classList.remove("hidden");
@@ -127,10 +128,12 @@ function insertEpisode(episode, el) {
       premiere ? premiereStyles : ""
     } ${
       newSeasonStart ? newSeasonStartStyles : ""
-    }  rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between overflow-hidden">
-      ${episode.showName}<span id="season-number">${episode.seasonNumber}x${
-      episode.episodeNumber ?? "S"
-    }</span>
+    }  rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between items-baseline overflow-hidden">
+      ${
+        episode.showName
+      }<span id="season-number" class="text-nowrap text-sm">S${
+      episode.seasonNumber
+    } E${episode.episodeNumber ?? "sp"}</span>
       </button>`
   );
   const epBtn = el.querySelector(`#ep-${episode.id}`);
