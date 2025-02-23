@@ -27,8 +27,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
   const data = response.body.schedule;
 
-  console.log(data);
-
   const activeClasses = ["tab-active", "bg-primary", "text-primary-content"];
 
   const activateUserBtn = () => {
