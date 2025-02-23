@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     searchDiv.classList.remove("hidden");
     searchDiv.classList.add("flex");
     searchBackdrop.classList.remove("hidden");
+    searchInput.focus();
   });
 
   searchBackdrop.addEventListener("click", () => {
