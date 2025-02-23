@@ -69,8 +69,6 @@ function populateDates(episodes) {
 
   const isCurrentMonth = path === "/" || currentMonth === path.slice(1);
 
-  //TODO: fix this (if one show for whole month, not working)
-
   let currentShowId, currentDate, firstEpId;
   let sameDayEps = 1;
   episodes.forEach((episode, i) => {
