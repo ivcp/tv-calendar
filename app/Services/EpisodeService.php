@@ -6,10 +6,7 @@ namespace App\Services;
 
 use App\Config;
 use App\DataObjects\EpisodeData;
-use App\Entity\Episode;
-use App\Entity\Show;
 use App\Entity\User;
-use App\Entity\UserShows;
 use App\Services\Traits\ParamsTypesCases;
 use DateTime;
 use Doctrine\DBAL\ArrayParameterType;
@@ -28,55 +25,37 @@ class EpisodeService
     ) {
     }
 
-    public function getEpisodesForMonth(DateTime $month, ?User $user = null): array
+    public function getEpisodesForMonth(DateTime $month, string $timeZone, ?User $user = null): array
     {
-        $qb = $this->entityManager->getRepository(Episode::class)
-            ->createQueryBuilder('e');
 
-        $query = $qb->select('e.id, s.name as showName, e.name as episodeName, 
-             e.season, e.number, e.summary, e.type, e.airstamp, 
-             e.imageMedium as image, s.id as showId, s.networkName, s.webChannelName')
-            ->where('e.airstamp BETWEEN :first AND :last');
+        $conn = $this->entityManager->getConnection();
+
+        $sql = 'SELECT e.id, s.name as "showName", e.name as "episodeName",
+                e.season, e.number, e.summary, e.type, e.airstamp,
+                e.image_medium as image, s.id as "showId", s.network_name as "networkName", 
+                s.web_channel_name as "webChannelName"
+                FROM episodes e
+                INNER JOIN shows s ON s.id = e.show_id';
+        $sql .= $user ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
+        $sql .= ' WHERE (e.airstamp AT TIME ZONE :tz BETWEEN :first AND :last)';
+        $sql .= $user ? ' AND us.user_id = :userId ' : ' AND s.weight >= :weight';
+        $sql .= ' ORDER BY e.airstamp ASC, e.id ASC';
+
+        $stmt = $conn->prepare($sql);
+
+        $stmt->bindValue('tz', $timeZone);
+        $stmt->bindValue('first', $month->format('Y-m-1'));
+        $stmt->bindValue('last', $month->format("Y-m-t 23:59"));
 
         if (!$user) {
-            $query->andWhere('s.weight >= :weight')
-                ->setParameter('weight', $this->config->get('popular_weight'))
-                ->innerJoin('e.show', 's');
+            $stmt->bindValue('weight', $this->config->get('popular_weight'), ParameterType::INTEGER);
         } else {
-            $query->andWhere('us.user = :user')
-            ->innerJoin('e.show', 's')
-            ->innerJoin(UserShows::class, 'us', 'WITH', 'us.show = s')
-            ->setParameter('user', $user);
+            $stmt->bindValue('userId', $user->getId(), ParameterType::INTEGER);
         }
 
-        $query->addOrderBy('e.airstamp')
-            ->addOrderBy('e.id')
-            ->setParameter('first', $month->format('Y-m-1'))
-            ->setParameter('last', $month->format("Y-m-t 23:59"));
-
-
-        return $query->getQuery()->getResult();
+        return $stmt->executeQuery()->fetchAllAssociative();
     }
 
-    public function create(EpisodeData $episodeData, Show $show): Episode
-    {
-        $episode = new Episode();
-        $episode->setTvMazeShowId($episodeData->tvMazeShowId);
-        $episode->setTvMazeEpisodeId($episodeData->tvMazeEpisodeId);
-        $episode->setName($episodeData->episodeName);
-        $episode->setSeason($episodeData->seasonNumber);
-        $episode->setNumber($episodeData->episodeNumber);
-        $episode->setSummary($episodeData->episodeSummary);
-        $episode->setType($episodeData->type);
-        $episode->setAirstamp($episodeData->airstamp);
-        $episode->setRuntime($episodeData->runtime);
-        $episode->setImageMedium($episodeData->imageMedium);
-        $episode->setImageOriginal($episodeData->imageOriginal);
-
-        $episode->setShow($show);
-
-        return $episode;
-    }
 
     /**
      * Bulk insert episodes

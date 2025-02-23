@@ -14,42 +14,25 @@ class CalendarService
     {
     }
 
-    public function getSchedule(string $month, ?User $user = null): array
+    public function getSchedule(string $month, string $timeZone, ?User $user = null): array
     {
         $selectedMonth = new DateTime($month);
 
-        $episodesPopular = $this->episodeService->getEpisodesForMonth($selectedMonth);
+        $episodesPopular = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone);
         $userEpisodes = [];
         if ($user) {
-            $userEpisodes = $this->episodeService->getEpisodesForMonth($selectedMonth, $user);
+            $userEpisodes = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone, $user);
         }
 
-        $popularScheduleData = $this->getScheduleData($episodesPopular);
-        $popularSchedule = $this->sortByDates((int) $selectedMonth->format('t'), $popularScheduleData);
-
+        $popularSchedule = $this->getScheduleData($episodesPopular);
         $userSchedule = [];
         if ($user) {
-            $userScheduleData = $this->getScheduleData($userEpisodes);
-            $userSchedule = $this->sortByDates((int) $selectedMonth->format('t'), $userScheduleData);
+            $userSchedule = $this->getScheduleData($userEpisodes);
         }
 
         return ['popular' => $popularSchedule, 'user_shows' => $userSchedule];
     }
 
-
-
-    private function sortByDates(int $daysInMonth, array $episodes): array
-    {
-        $sorted = [];
-
-        for ($i = 1; $i <= $daysInMonth; $i++) {
-            $sorted[$i] = array_values(array_filter(
-                $episodes,
-                fn ($show) => (new DateTime($show->airstamp))->format('j') == $i
-            ));
-        }
-        return $sorted;
-    }
 
     private function getScheduleData(array $episodes): array
     {
@@ -63,7 +46,7 @@ class CalendarService
                 episodeNumber: $episode['number'],
                 episodeSummary: $episode['summary'],
                 type: $episode['type'],
-                airstamp: $episode['airstamp']?->format(DATE_ATOM),
+                airstamp: $episode['airstamp'],
                 image: $episode['image'],
                 networkName: $episode['networkName'],
                 webChannelName:$episode['webChannelName']
