@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\RequestValidators;
 
 use App\Contracts\RequestValidatorInterface;
+use App\Exception\BadRequestException;
 use App\Exception\ValidationException;
 use Valitron\Validator;
 
@@ -17,12 +18,15 @@ class ScheduleRequestValidator implements RequestValidatorInterface
 
         $v->rules([
             'required' => [
-                ['tz']
+                ['tz'], ['schedule']
+            ],
+            'in' => [
+                ['schedule', ['user', 'popular']],
             ]
         ]);
 
         if (! $v->validate()) {
-            throw new ValidationException($v->errors());
+            throw new BadRequestException();
         }
 
         return $data;

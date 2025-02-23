@@ -45,8 +45,13 @@ class CalendarController
             ->make(ScheduleRequestValidator::class)
             ->validate($request->getQueryParams());
 
-            $schedule = $this->calendarService->getSchedule($month, $args['tz'], $user);
-            return $this->responseFormatter->asJSON($response, 200, ['schedule' => $schedule]);
+
+            $episodes = $this->calendarService->getSchedule(
+                $month,
+                $args['tz'],
+                $args['schedule'] === 'user' ? $user : null
+            );
+            return $this->responseFormatter->asJSON($response, 200, $episodes);
         }
 
         return $this->twig->render(

@@ -18,19 +18,11 @@ class CalendarService
     {
         $selectedMonth = new DateTime($month);
 
-        $episodesPopular = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone);
-        $userEpisodes = [];
-        if ($user) {
-            $userEpisodes = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone, $user);
-        }
+        $episodes = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone, $user);
 
-        $popularSchedule = $this->getScheduleData($episodesPopular);
-        $userSchedule = [];
-        if ($user) {
-            $userSchedule = $this->getScheduleData($userEpisodes);
-        }
+        $scheduleData = $this->getScheduleData($episodes);
 
-        return ['popular' => $popularSchedule, 'user_shows' => $userSchedule];
+        return ['episodes' => $scheduleData];
     }
 
 

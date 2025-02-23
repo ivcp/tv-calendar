@@ -20,12 +20,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       markToday();
     }
   }
-  const response = await get(url);
-  if (response.error) {
-    notification(response.messages, "alert-error");
-    return;
-  }
-  const data = response.body.schedule;
 
   const activeClasses = ["tab-active", "bg-primary", "text-primary-content"];
 
@@ -39,18 +33,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   if (userShowsBtn.hasAttribute("active")) {
-    populateDates(data.user_shows);
+    const episodes = await getShows(url, "user");
+    populateDates(episodes);
     activateUserBtn();
   } else {
-    populateDates(data.popular);
+    const episodes = await getShows(url, "popular");
+    populateDates(episodes);
     activatePopularBtn();
   }
-  popularShowsBtn.addEventListener("click", () => {
-    populateDates(data.popular);
+  popularShowsBtn.addEventListener("click", async () => {
+    const episodes = await getShows(url, "popular");
+    populateDates(episodes);
     activatePopularBtn();
   });
-  userShowsBtn.addEventListener("click", () => {
-    populateDates(data.user_shows);
+  userShowsBtn.addEventListener("click", async () => {
+    const episodes = await getShows(url, "user");
+    populateDates(episodes);
     activateUserBtn();
   });
 });
@@ -220,4 +218,13 @@ function markToday() {
     "outline-warning",
     "-outline-offset-2"
   );
+}
+
+async function getShows(url, schedule) {
+  const response = await get(`${url}&schedule=${schedule}`);
+  if (response.error) {
+    notification(response.messages, "alert-error");
+    return;
+  }
+  return response.body.episodes;
 }
