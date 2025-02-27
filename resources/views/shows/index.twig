@@ -4,6 +4,14 @@
 {% endblock %}
 <section
   class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
+  {%
+  if
+  user
+  %}
+  user
+  {%
+  endif
+  %}
 >
   <div class="grow flex flex-col gap-6">
     <div
@@ -22,7 +30,8 @@
       </h1>
       <div class="flex flex-col lg:flex-row gap-4">
         {% include 'shows/sort.twig' with {'sort':
-        enum('App\\Enum\\ShowListSort')} %} {% include 'shows/genres.twig' %}
+        enum('App\\Enum\\ShowListSort')} %} {% if user %}{% include
+        'shows/genres.twig' %}{% endif %}
       </div>
     </div>
     <div

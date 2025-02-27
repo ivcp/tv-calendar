@@ -11,6 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.querySelector("#search-input");
   const searchResults = document.querySelector("#search-results");
 
+  const localShowlist = window.localStorage.getItem("showlist");
+  if (!localShowlist) {
+    window.localStorage.setItem("showlist", JSON.stringify([]));
+  }
+
   const hideSearchResults = () => {
     searchResults.replaceChildren();
     searchInput.value = "";

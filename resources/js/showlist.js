@@ -1,14 +1,21 @@
 import { del, get } from "./ajax";
 import { notification } from "./notification";
 import NoImageSvg from "../images/no-img.svg";
+import { getLocalShowlist } from "./helpers";
 
-document.addEventListener("DOMContentLoaded", () => {
+const activeSortClasses = ["tab-active", "bg-primary", "text-primary-content"];
+
+document.addEventListener("DOMContentLoaded", async () => {
   let removeButtons = document.querySelectorAll(".remove-show");
   const nextPageBtn = document.querySelector("#next-page-btn");
   const showCountElement = document.querySelector("[data-show-count]");
   const showGrid = document.querySelector("#shows-grid");
   const paginationElement = document.querySelector("#pagination");
-  const event = new Event("show-deleted");
+  const event = new Event("redraw-cards");
+  const sortBtns = document.querySelectorAll("#sort a");
+
+  const user = document.querySelector("section").hasAttribute("user");
+  const localShowlist = getLocalShowlist();
 
   removeButtons.forEach((btn) =>
     btn.addEventListener("click", (e) => {
@@ -17,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })
   );
 
-  showGrid.addEventListener("show-deleted", () => {
+  showGrid.addEventListener("redraw-cards", () => {
     removeButtons = document.querySelectorAll(".remove-show");
     removeButtons.forEach((btn) =>
       btn.addEventListener("click", (e) => {
@@ -26,6 +33,41 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     );
   });
+
+  if (!user && localShowlist.length > 0) {
+    showGrid.replaceChildren();
+    let showsParam = "";
+    localShowlist.forEach((show) => (showsParam += `shows[]=${show}&`));
+    const params = new URLSearchParams(showsParam);
+    const shows = await get(`/showlist?${params.toString()}`);
+    if (shows.error) {
+      notification(shows.messages, "alert-error");
+      return;
+    }
+    shows.body.shows = [...shows.body.shows].sort(
+      (a, b) =>
+        localShowlist.indexOf(a.id.toString()) -
+        localShowlist.indexOf(b.id.toString())
+    );
+    renderShowList(
+      shows,
+      showCountElement,
+      showGrid,
+      paginationElement,
+      nextPageBtn,
+      event
+    );
+
+    sortBtns.forEach((btn) =>
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        sortBtns.forEach((b) => b.classList.remove(...activeSortClasses));
+        const cards = showGrid.querySelectorAll("article");
+
+        sortShows(btn, cards, showGrid);
+      })
+    );
+  }
 
   async function deleteShow(el) {
     if (
@@ -38,12 +80,31 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (!user) {
+      let localShowlist = getLocalShowlist();
+      try {
+        window.localStorage.setItem(
+          "showlist",
+          JSON.stringify([
+            ...localShowlist.filter((id) => id !== el.dataset.showId),
+          ])
+        );
+      } catch (error) {
+        notification([`something went wrong`], "alert-error");
+        return;
+      }
+
+      el.parentElement.parentElement.remove();
+      localShowlist = getLocalShowlist();
+      showCountElement.textContent = `| ${localShowlist.length}`;
+      return;
+    }
+
     const result = await del(el);
     if (result.error) {
       notification(result.messages, "alert-error");
       return;
     }
-
     notification(result.messages, "alert-info");
 
     const params = new URLSearchParams(document.location.search);
@@ -57,26 +118,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    showCountElement.textContent = `| ${shows.body.pagination.showCount}`;
-
-    if (shows.body.pagination.showCount === 0) {
-      const isGenre =
-        shows.body.pagination?.genre && shows.body.pagination.genre !== "All";
-
-      showGrid.innerHTML = noShowsHtml(isGenre, shows);
-      paginationElement.remove();
-      return;
-    }
-
-    const showCards = shows.body.shows.map((show) => showCardHtml(show));
-
-    showGrid.replaceChildren();
-    showGrid.innerHTML = showCards.join("");
-    showGrid.dispatchEvent(event);
-
-    if (shows.body.pagination.totalPages === shows.body.pagination.page) {
-      nextPageBtn.classList.add("btn-disabled");
-    }
+    renderShowList(
+      shows,
+      showCountElement,
+      showGrid,
+      paginationElement,
+      nextPageBtn,
+      event
+    );
   }
 });
 
@@ -116,7 +165,10 @@ const noShowsHtml = (isGenre, shows) => `
 const showCardHtml = (
   show
 ) => `<article class="flex flex-col items-center lg:h-80 group">
-          <div class="card bg-base-100 image-full w-max rounded-lg before:hidden">
+          <a 
+          class="card bg-base-100 image-full w-max rounded-lg before:hidden"  
+          href="/shows/${show.id}"
+          >
             <figure class="w-[210px] h-[295px] skeleton rounded-lg">
               <img
                 src="${show.imageMedium ?? NoImageSvg}"
@@ -151,10 +203,84 @@ const showCardHtml = (
                 </div>
                 <span class="sr-only">remove show</span>
             </button>
-          </div>
+          </a>
           <p
             class="mt-1 text-center font-bold break-words max-w-[22ch] max-h-12 text-ellipsis overflow-clip"
           >
             ${show.name}
           </p>
         </article>`;
+
+const renderShowList = (
+  shows,
+  showCountElement,
+  showGrid,
+  paginationElement,
+  nextPageBtn,
+  event
+) => {
+  showCountElement.textContent = `| ${shows.body.pagination.showCount}`;
+
+  if (shows.body.pagination.showCount === 0) {
+    const isGenre =
+      shows.body.pagination?.genre && shows.body.pagination.genre !== "All";
+
+    showGrid.innerHTML = noShowsHtml(isGenre, shows);
+    paginationElement.remove();
+    return;
+  }
+
+  const showCards = shows.body.shows.map((show) => showCardHtml(show));
+
+  showGrid.replaceChildren();
+  showGrid.innerHTML = showCards.join("");
+  showGrid.dispatchEvent(event);
+
+  if (
+    shows.body.pagination.totalPages === shows.body.pagination.page &&
+    nextPageBtn
+  ) {
+    nextPageBtn.classList.add("btn-disabled");
+  }
+};
+
+const sortShows = (btn, cards, showGrid) => {
+  let sorted;
+  switch (btn.getAttribute("id")) {
+    case "sort-alphabetical":
+      sorted = [...cards].sort((a, b) => {
+        if (
+          a.querySelector("p").textContent.trim() <
+          b.querySelector("p").textContent.trim()
+        )
+          return -1;
+        if (
+          a.querySelector("p").textContent.trim() >
+          b.querySelector("p").textContent.trim()
+        )
+          return 1;
+        return 0;
+      });
+      showGrid.replaceChildren();
+      sorted.forEach((e) => showGrid.insertAdjacentElement("beforeend", e));
+      btn.classList.add(...activeSortClasses);
+      break;
+    case "sort-added":
+      const localShowlist = getLocalShowlist();
+
+      sorted = [...cards].sort(
+        (a, b) =>
+          localShowlist.indexOf(
+            a.querySelector(".remove-show").dataset.showId
+          ) -
+          localShowlist.indexOf(b.querySelector(".remove-show").dataset.showId)
+      );
+      showGrid.replaceChildren();
+      sorted.forEach((e) => showGrid.insertAdjacentElement("beforeend", e));
+      btn.classList.add(...activeSortClasses);
+      break;
+
+    default:
+      break;
+  }
+};

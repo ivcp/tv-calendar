@@ -22,8 +22,8 @@ return function (App $app) {
     $app->get('/search', [ShowController::class, 'search']);
 
 
+    $app->get('/showlist', [ShowController::class, 'index']);
     $app->group('/showlist', function (RouteCollectorProxy $showlist) {
-        $showlist->get('', [ShowController::class, 'index']);
         $showlist->post('', [ShowController::class, 'store']);
         $showlist->delete('/{showId}', [ShowController::class, 'delete']);
     })->add(AuthMiddleware::class);

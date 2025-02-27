@@ -1,15 +1,19 @@
 <div
   role="tablist"
+  id="sort"
   class="tabs tabs-sm border border-neutral-content rounded-badge py-1.5 px-2"
 >
   {% set url = current_url(true) %} {% set active = 'tab-active bg-primary
-  text-primary-content' %} {% set default_sort = get_default_sort(sort) %} {%
-  for case in sort.cases %} {% set value = case.value %} {% set filterArr =
-  pagination | filter((v,k) => k != 'totalPages' and k != 'page' and k != 'sort'
-  and k != 'showCount') %} {% set queryStr = filterArr | map((v,k) =>
-  "#{k}=#{v}") | join('&') %}
+  text-primary-content' %} {% set default_sort = get_default_sort(sort) %} {% if
+  user %} {% set cases = sort.cases %} {% else %} {% set cases = sort.cases |
+  filter((v) => v.value != 'popular' and v.value != 'new')%} {% endif %} {% for
+  case in cases %} {% set value = case.value %} {% set filterArr = pagination |
+  filter((v,k) => k != 'totalPages' and k != 'page' and k != 'sort' and k !=
+  'showCount') %} {% set queryStr = filterArr | map((v,k) => "#{k}=#{v}") |
+  join('&') %}
   <a
     role="tab"
+    id="sort-{{ value }}"
     class="tab text-xs font-bold rounded-full capitalize {{ value in url ? active : value is same as(default_sort) and 'sort' not in url ? active }}"
     {%
     if

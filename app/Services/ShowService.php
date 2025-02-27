@@ -107,8 +107,9 @@ class ShowService
         int $length,
         BackedEnum $sort,
         BackedEnum $genre,
-        User $user = null,
-        ?string $query = null,
+        ?User $user,
+        ?string $query,
+        array $localList
     ): array {
         $qb = $this->entityManager->getRepository(Show::class)
                 ->createQueryBuilder('c')
@@ -123,6 +124,12 @@ class ShowService
             ->setFirstResult($start)
             ->setMaxResults($length)
             ->setParameter('userId', $user->getId());
+        }
+
+        if (!$user && !$query && count($localList) > 0) {
+            $qb
+            ->where('c.id IN (:list)')
+            ->setParameter('list', $localList);
         }
 
         switch ($sort) {

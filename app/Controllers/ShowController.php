@@ -49,6 +49,18 @@ class ShowController
 
 
         $user = $request->getAttribute('user');
+
+        if (!$user && !$this->requestService->isXhr($request)) {
+            return $this->twig->render(
+                $response,
+                'shows/index.twig',
+                [
+                    'shows' => [],
+                    'pagination' => ['page' => 1, 'totalPages' => 1, 'showCount' => 0],
+                ]
+            );
+        }
+
         $showList = $this->paginationService->showlist($params, $user);
 
         $shows = array_map(fn ($show) => new ShowCardData(
@@ -57,7 +69,18 @@ class ShowController
             imageMedium: $show->getImageMedium()
         ), $showList->getShows());
 
-        if ($this->requestService->isXhr($request)) {
+        if ($this->requestService->isXhr($request) && !$user) {
+            return $this->responseFormatter->asJSON(
+                $response,
+                200,
+                [
+                    'shows' => $shows,
+                    'pagination' => $showList->getPagination(),
+                ]
+            );
+        }
+
+        if ($this->requestService->isXhr($request) && $user) {
             return $this->responseFormatter->asJSON(
                 $response,
                 200,
