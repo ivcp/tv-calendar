@@ -239,7 +239,7 @@ async function getShows(url, schedule, userIsActive, localShowlist) {
   const response = await get(fullUrl);
   if (response.error) {
     notification(response.messages, "alert-error");
-    return;
+    return [];
   }
   return response.body.episodes;
 }
