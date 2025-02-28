@@ -8,16 +8,16 @@ use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
 use App\Enum\Genres;
-use App\Exception\BadRequestException;
 use App\Exception\ShowNotInListException;
 use BackedEnum;
 use Doctrine\ORM\EntityManager;
-use Exception;
 
 class UserShowsService
 {
-    public function __construct(private readonly EntityManager $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManager $entityManager,
+        private readonly ShowService $showService
+    ) {
     }
 
     public function add(Show $show, User $user): void
@@ -27,6 +27,21 @@ class UserShowsService
         $userShow->setShow($show);
 
         $this->entityManager->persist($userShow);
+        $this->entityManager->flush();
+    }
+
+    public function addMultipleShows(array $showIds, User $user): void
+    {
+        foreach ($showIds as $showId) {
+            $show = $this->showService->getById((int) $showId);
+            if (!$show) {
+                continue;
+            }
+            $userShow = new UserShows();
+            $userShow->setUser($user);
+            $userShow->setShow($show);
+            $this->entityManager->persist($userShow);
+        }
         $this->entityManager->flush();
     }
 
