@@ -1,4 +1,4 @@
-<div id="pagination" class="join self-center mt-4">
+<div id="pagination" class="join self-center mt-4 mb-6">
   {% set queryArr = pagination | filter((v,k) => k != 'totalPages' and k !=
   'showCount') %} {% set prevPage = queryArr | map((v, k) => k == 'page' ?
   "page=#{v > 1 ? v - 1}" : "#{k}=#{v}" ) | join('&') %} {% set nextPage =

@@ -36,7 +36,7 @@
     </div>
     <div
       id="shows-grid"
-      class="grid gap-6 place-items-center lg:grid-flow-row lg:place-items-center lg:grid-cols-4 xl:grid-cols-5 lg:gap-y-8 lg:auto-rows-auto"
+      class="grid gap-6 place-items-center lg:grid-flow-row lg:place-items-center lg:grid-cols-4 xl:grid-cols-5 lg:gap-y-8 lg:auto-rows-auto {{pagination.totalPages is same as (1) ? 'mb-6'}}"
     >
       {% if pagination.showCount is same as(0) %}
       <p class="text-center lg:col-start-3 text-lg mt-12 uppercase">
@@ -67,8 +67,8 @@
       {% endif %} {% for show in shows %} {% include 'shows/show-card.twig' with
       {'show': show} %} {% endfor %}
     </div>
-    {% if pagination.showCount is not same as(0) %} {% include
-    'shows/pagination.twig' with {'pagination': pagination} %} {% endif %}
+    {% if pagination.totalPages > 1 %} {% include 'shows/pagination.twig' with
+    {'pagination': pagination} %} {% endif %}
   </div>
 </section>
 {% endblock %}
