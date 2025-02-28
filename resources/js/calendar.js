@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const user = document.querySelector("section").hasAttribute("user");
   const localShowlist = getLocalShowlist();
+  if (user) {
+    window.localStorage.setItem("showlist", JSON.stringify([]));
+  }
 
   let url;
   if (path === "/") {
