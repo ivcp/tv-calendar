@@ -4,6 +4,14 @@
 {% endblock %}
 <section
   class="mt-1 mb-4 lg:mt-2 flex flex-col gap-2 lg:flex-row lg:items-start"
+  {%
+  if
+  user
+  %}
+  user
+  {%
+  endif
+  %}
 >
   {% include 'episode-modal.twig' %}
   <div class="grow flex flex-col gap-12 lg:gap-0">

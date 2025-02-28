@@ -1,6 +1,7 @@
 import { openEpisodeModal } from "./episodeModal";
 import { get } from "./ajax";
 import { notification } from "./notification";
+import { getLocalShowlist } from "./helpers";
 
 const currentMonth = getCurrentYearMonth();
 const path = window.location.pathname;
@@ -9,6 +10,9 @@ const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 document.addEventListener("DOMContentLoaded", async () => {
   const popularShowsBtn = document.querySelector("#popular-shows");
   const userShowsBtn = document.querySelector("#user-shows");
+
+  const user = document.querySelector("section").hasAttribute("user");
+  const localShowlist = getLocalShowlist();
 
   let url;
   if (path === "/") {
@@ -33,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   if (userShowsBtn.hasAttribute("active")) {
-    const episodes = await getShows(url, "user");
+    const episodes = await getShows(url, "user", user, localShowlist);
     populateDates(episodes);
     activateUserBtn();
   } else {
@@ -47,7 +51,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     activatePopularBtn();
   });
   userShowsBtn.addEventListener("click", async () => {
-    const episodes = await getShows(url, "user");
+    const episodes = await getShows(url, "user", user, localShowlist);
     populateDates(episodes);
     activateUserBtn();
   });
@@ -220,8 +224,16 @@ function markToday() {
   );
 }
 
-async function getShows(url, schedule) {
-  const response = await get(`${url}&schedule=${schedule}`);
+async function getShows(url, schedule, userIsActive, localShowlist) {
+  let fullUrl = `${url}&schedule=${schedule}`;
+  if (!userIsActive && schedule === "user") {
+    let showsParam = "";
+    localShowlist.forEach((show) => (showsParam += `shows[]=${show}&`));
+    const params = new URLSearchParams(showsParam);
+    fullUrl += `&${params.toString()}`;
+  }
+
+  const response = await get(fullUrl);
   if (response.error) {
     notification(response.messages, "alert-error");
     return;

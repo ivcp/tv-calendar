@@ -18,6 +18,10 @@ class CalendarService
     {
         $selectedMonth = new DateTime($month);
 
+        if (count($localList) > 0) {
+            $localList = array_filter($localList, "is_numeric");
+        }
+
         $episodes = $this->episodeService->getEpisodesForMonth(
             $selectedMonth,
             $timeZone,
