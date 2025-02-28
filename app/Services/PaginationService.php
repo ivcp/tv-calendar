@@ -91,6 +91,9 @@ class PaginationService
         $this->setGenre($params);
 
         $localList = $user ? [] : array_filter($params['shows'], "is_numeric");
+        if (count($localList) > 10) {
+            $localList = array_slice($localList, 0, 10);
+        }
 
         $count = $user ? $this->userShowsService->getShowCount($user, $this->genre) : count($localList);
         if ($count) {

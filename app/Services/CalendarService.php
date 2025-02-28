@@ -21,6 +21,9 @@ class CalendarService
         if (count($localList) > 0) {
             $localList = array_filter($localList, "is_numeric");
         }
+        if (count($localList) > 10) {
+            $localList = array_slice($localList, 0, 10);
+        }
 
         $episodes = $this->episodeService->getEpisodesForMonth(
             $selectedMonth,

@@ -26,6 +26,13 @@ document.addEventListener("DOMContentLoaded", () => {
           notification(result.messages, "alert-success");
         } else {
           const localShowlist = getLocalShowlist();
+          if (localShowlist.length >= 10) {
+            notification(
+              [`Maximum of 10 shows reached. Create an account to add more`],
+              "alert-error"
+            );
+            return;
+          }
           try {
             window.localStorage.setItem(
               "showlist",
