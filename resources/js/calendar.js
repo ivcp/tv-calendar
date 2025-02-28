@@ -229,6 +229,7 @@ function markToday() {
 async function getShows(url, schedule, userIsActive, localShowlist) {
   let fullUrl = `${url}&schedule=${schedule}`;
   if (!userIsActive && schedule === "user") {
+    if (localShowlist.length === 0) return [];
     let showsParam = "";
     localShowlist.forEach((show) => (showsParam += `shows[]=${show}&`));
     const params = new URLSearchParams(showsParam);
