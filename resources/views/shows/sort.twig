@@ -5,12 +5,13 @@
 >
   {% set url = current_url(true) %} {% set active = 'tab-active bg-primary
   text-primary-content' %} {% set default_sort = get_default_sort(sort) %} {% if
-  user %} {% set cases = sort.cases %} {% else %} {% set cases = sort.cases |
-  filter((v) => v.value != 'popular' and v.value != 'new')%} {% endif %} {% for
-  case in cases %} {% set value = case.value %} {% set filterArr = pagination |
-  filter((v,k) => k != 'totalPages' and k != 'page' and k != 'sort' and k !=
-  'showCount') %} {% set queryStr = filterArr | map((v,k) => "#{k}=#{v}") |
-  join('&') %}
+  not user and 'showlist' in url %} {% set cases = sort.cases | filter((v) =>
+  v.value != 'popular' and v.value != 'new')%} {% else %} {% set cases =
+  sort.cases %} {% endif %} {% for case in cases %} {% set value = case.value %}
+  {% set filterArr = pagination | filter((v,k) => k != 'totalPages' and k !=
+  'page' and k != 'sort' and k != 'showCount') %} {% set queryStr = filterArr |
+  map((v,k) => "#{k}=#{v}") | join('&') %}
+
   <a
     role="tab"
     id="sort-{{ value }}"
