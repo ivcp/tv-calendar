@@ -36,7 +36,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     popularShowsBtn.classList.add(...activeClasses);
   };
 
-  if (userShowsBtn.hasAttribute("active")) {
+  const guestWithSavedShows = !user && localShowlist.length > 0;
+
+  if (userShowsBtn.hasAttribute("active") || guestWithSavedShows) {
     const episodes = await getShows(url, "user", user, localShowlist);
     populateDates(episodes);
     activateUserBtn();
