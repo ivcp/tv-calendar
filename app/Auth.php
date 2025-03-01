@@ -41,15 +41,15 @@ class Auth implements AuthInterface
         return $this->user;
     }
 
-    public function attemptLogin(array $credentials): bool
+    public function attemptLogin(array $credentials): ?UserInterface
     {
         $user = $this->userProvider->getByCredentials($credentials);
         if (!$user || ! $this->checkCredentials($user, $credentials)) {
-            return false;
+            return null;
         }
 
         $this->login($user);
-        return true;
+        return $user;
     }
 
     public function checkCredentials(UserInterface $user, array $credentials): bool

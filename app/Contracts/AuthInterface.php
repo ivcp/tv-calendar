@@ -9,7 +9,7 @@ use App\DataObjects\RegisterUserData;
 interface AuthInterface
 {
     public function user(): ?UserInterface;
-    public function attemptLogin(array $data): bool;
+    public function attemptLogin(array $data): ?UserInterface;
     public function checkCredentials(UserInterface $user, array $credentials): bool;
     public function logout(): void;
     public function register(RegisterUserData $data): UserInterface;
