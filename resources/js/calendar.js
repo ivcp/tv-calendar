@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const user = document.querySelector("section").hasAttribute("user");
   const localShowlist = getLocalShowlist();
-  if (user) {
+  if (user && localShowlist.length > 0) {
     window.localStorage.setItem("showlist", JSON.stringify([]));
   }
 
