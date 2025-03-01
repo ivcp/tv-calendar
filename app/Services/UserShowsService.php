@@ -32,11 +32,22 @@ class UserShowsService
 
     public function addMultipleShows(array $showIds, User $user): void
     {
+        if (!$showIds) {
+            return;
+        }
+
         foreach ($showIds as $showId) {
             $show = $this->showService->getById((int) $showId);
             if (!$show) {
                 continue;
             }
+            $showAlreadySaved = $this->entityManager
+            ->getRepository(UserShows::class)
+            ->findOneBy(['user' => $user, 'show' => $show]);
+            if ($showAlreadySaved) {
+                continue;
+            }
+
             $userShow = new UserShows();
             $userShow->setUser($user);
             $userShow->setShow($show);
