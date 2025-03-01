@@ -51,12 +51,10 @@ class AuthController
             )
         );
 
-        $localList = array_filter($data['shows'], "is_numeric");
-        if (count($localList) > 10) {
-            $localList = array_slice($localList, 0, 10);
+        if (isset($data['shows'])) {
+            $this->importLocalShows($data['shows'], $user);
         }
 
-        $this->userShowsService->addMultipleShows($localList, $user);
         return $response->withHeader('Location', '/')->withStatus(302);
 
     }
@@ -68,15 +66,30 @@ class AuthController
             ->validate($request->getParsedBody());
 
 
-        if (! $this->auth->attemptLogin($data)) {
+        $user = $this->auth->attemptLogin($data);
+        if (! $user) {
             throw new ValidationException(['password' => ['Invalid email or password']]);
+        }
+
+        if (isset($data['shows'])) {
+            $this->importLocalShows($data['shows'], $user);
         }
 
         return $response->withHeader('Location', '/')->withStatus(302);
     }
+
     public function logout(Request $request, Response $response): Response
     {
         $this->auth->logout();
         return $response->withHeader('Location', '/')->withStatus(302);
+    }
+
+    private function importLocalShows(array $showIds, $user)
+    {
+        $localList = array_filter($showIds, "is_numeric");
+        if (count($localList) > 10) {
+            $localList = array_slice($localList, 0, 10);
+        }
+        $this->userShowsService->addMultipleShows($localList, $user);
     }
 }
