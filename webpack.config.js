@@ -24,7 +24,7 @@ Encore
   .addEntry("addRemoveShow", "./resources/js/addRemoveShow.js")
   .addEntry("showlist", "./resources/js/showlist.js")
   .addEntry("show", "./resources/js/show.js")
-  .addEntry("register", "./resources/js/register.js")
+  .addEntry("importLocalShows", "./resources/js/importLocalShows.js")
 
   // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
   .splitEntryChunks()

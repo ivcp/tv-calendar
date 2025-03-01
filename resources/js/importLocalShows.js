@@ -1,7 +1,9 @@
 import { getLocalShowlist } from "./helpers";
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.querySelector("form[action='/register']");
+  const form =
+    document.querySelector("form[action='/register']") ||
+    document.querySelector("form[action='/login']");
   const localList = getLocalShowlist();
   let inputs = "";
   localList.forEach(

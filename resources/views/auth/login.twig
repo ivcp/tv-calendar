@@ -1,4 +1,7 @@
-{% extends 'layout.twig' %} {% block content %}
+{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{{ parent() }}
+{{ encore_entry_script_tags("importLocalShows") }}
+{% endblock %}
 <section
   class="mt-8 lg:mt-10 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
 >
