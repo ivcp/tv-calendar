@@ -267,7 +267,7 @@ class ShowController
         return $response->withHeader('Content-Type', 'image/webp');
     }
 
-    public function search(Request $request, Response $response, array $args): Response
+    public function search(Request $request, Response $response): Response
     {
 
         $params = $this->requestValidatorFactory
