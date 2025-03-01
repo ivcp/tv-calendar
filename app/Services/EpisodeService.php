@@ -41,7 +41,7 @@ class EpisodeService
                 s.web_channel_name as "webChannelName"
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id';
-        $sql .= $user ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
+        $sql .= $user && $type === 'user' ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
         $sql .= ' WHERE (e.airstamp AT TIME ZONE ? BETWEEN ? AND ?)';
         switch ($type) {
             case 'popular':
