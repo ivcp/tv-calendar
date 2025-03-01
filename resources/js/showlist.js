@@ -1,7 +1,12 @@
 import { del, get } from "./ajax";
 import { notification } from "./notification";
 import NoImageSvg from "../images/no-img.svg";
-import { getLocalShowlist } from "./helpers";
+import {
+  getLocalShowlist,
+  makeAccountSeen,
+  setLocalShowList,
+  setMakeAccountSeen,
+} from "./localStorageHelpers";
 
 const activeSortClasses = ["tab-active", "bg-primary", "text-primary-content"];
 
@@ -67,6 +72,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         sortShows(btn, cards, showGrid);
       })
     );
+
+    if (!makeAccountSeen() && localShowlist.length > 0) {
+      showCreateAccountPrompt();
+    }
   }
 
   async function deleteShow(el) {
@@ -83,12 +92,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!user) {
       let localShowlist = getLocalShowlist();
       try {
-        window.localStorage.setItem(
-          "showlist",
-          JSON.stringify([
-            ...localShowlist.filter((id) => id !== el.dataset.showId),
-          ])
-        );
+        setLocalShowList([
+          ...localShowlist.filter((id) => id !== el.dataset.showId),
+        ]);
       } catch (error) {
         notification([`something went wrong`], "alert-error");
         return;
@@ -283,4 +289,49 @@ const sortShows = (btn, cards, showGrid) => {
     default:
       break;
   }
+};
+
+const showCreateAccountPrompt = () => {
+  const propmtElement = document.createElement("div");
+  propmtElement.classList.add(
+    "absolute",
+    "top-32",
+    "lg:top-48",
+    "lg:right-0",
+    "mx-2",
+    "card",
+    "shadow",
+    "rounded-lg",
+    "bg-base-300",
+    "lg:w-96"
+  );
+
+  document
+    .querySelector("body")
+    .insertAdjacentElement("beforeend", propmtElement);
+
+  propmtElement.insertAdjacentHTML(
+    "beforeend",
+    `<div class="card-body items-center text-center">
+      <h2 class="card-title">Hey there!</h2>
+      <p>
+        Your shows are currently saved in this browser only. You don't need an
+        account to use the app, but by signing up, you can store your shows
+        permanently and access your account from any browser or device.
+      </p>
+      <div class="card-actions justify-end">
+        <button id="register-btn" class="btn btn-primary btn-outline">Register</button>
+        <button id="dismiss-btn" class="btn btn-outline">Cool</button>
+      </div>
+    </div>`
+  );
+
+  document.querySelector("#register-btn").addEventListener("click", () => {
+    setMakeAccountSeen(true);
+    window.location.href = "/register";
+  });
+  document.querySelector("#dismiss-btn").addEventListener("click", () => {
+    setMakeAccountSeen(true);
+    propmtElement.classList.add("hidden");
+  });
 };
