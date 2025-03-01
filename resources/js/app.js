@@ -2,7 +2,11 @@ import "../css/app.css";
 import { get } from "./ajax";
 import { notification } from "./notification";
 import debounce from "./debounce";
-import { getLocalShowlist } from "./helpers";
+import {
+  getLocalShowlist,
+  setLocalShowList,
+  setMakeAccountSeen,
+} from "./localStorageHelpers";
 
 document.addEventListener("DOMContentLoaded", () => {
   const dropdowns = document.querySelectorAll(".dropdown");
@@ -14,14 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const hasLocalShowlist = window.localStorage.getItem("showlist");
   if (!hasLocalShowlist) {
-    window.localStorage.setItem("showlist", JSON.stringify([]));
+    setLocalShowList([]);
+    setMakeAccountSeen(false);
   }
   const localList = hasLocalShowlist ? getLocalShowlist() : [];
   if (hasLocalShowlist && localList.length > 10) {
-    window.localStorage.setItem(
-      "showlist",
-      JSON.stringify([...localList].slice(0, 10))
-    );
+    setLocalShowList([...localList].slice(0, 10));
   }
 
   const hideSearchResults = () => {

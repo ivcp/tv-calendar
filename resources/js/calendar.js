@@ -1,7 +1,7 @@
 import { openEpisodeModal } from "./episodeModal";
 import { get } from "./ajax";
 import { notification } from "./notification";
-import { getLocalShowlist } from "./helpers";
+import { getLocalShowlist, setLocalShowList } from "./localStorageHelpers";
 
 const currentMonth = getCurrentYearMonth();
 const path = window.location.pathname;
@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const user = document.querySelector("section").hasAttribute("user");
   const localShowlist = getLocalShowlist();
   if (user && localShowlist.length > 0) {
-    window.localStorage.setItem("showlist", JSON.stringify([]));
+    setLocalShowList([]);
   }
 
   let url;

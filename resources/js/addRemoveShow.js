@@ -1,6 +1,6 @@
 import { post, del } from "./ajax";
 import { notification } from "./notification";
-import { getLocalShowlist } from "./helpers";
+import { getLocalShowlist, setLocalShowList } from "./localStorageHelpers";
 
 document.addEventListener("DOMContentLoaded", () => {
   const addButtons = document.querySelectorAll(".add-show");
@@ -34,10 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
           try {
-            window.localStorage.setItem(
-              "showlist",
-              JSON.stringify([showId, ...localShowlist])
-            );
+            setLocalShowList([showId, ...localShowlist]);
             const title = window.location.pathname.includes("/discover")
               ? btn.parentElement.parentElement
                   .querySelector("p")
@@ -72,10 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const localShowlist = getLocalShowlist();
         if (!localShowlist.includes(showId)) return;
         try {
-          window.localStorage.setItem(
-            "showlist",
-            JSON.stringify([...localShowlist.filter((id) => id !== showId)])
-          );
+          setLocalShowList([...localShowlist.filter((id) => id !== showId)]);
           const title = window.location.pathname.includes("/discover")
             ? btn.parentElement.parentElement
                 .querySelector("p")

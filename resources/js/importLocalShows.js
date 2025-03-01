@@ -1,4 +1,4 @@
-import { getLocalShowlist } from "./helpers";
+import { getLocalShowlist } from "./localStorageHelpers";
 
 document.addEventListener("DOMContentLoaded", () => {
   const form =
