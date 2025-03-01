@@ -83,7 +83,7 @@ class PaginationService
         return $this;
     }
 
-    public function showList(array $params, User $user = null): self
+    public function showList(array $params, ?User $user): self
     {
 
         $this->setStartAndPage($params);
