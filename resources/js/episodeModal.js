@@ -58,10 +58,11 @@ export function openEpisodeModal(episode) {
     const airtime = episode.airstamp
       ? formatter.format(new Date(episode.airstamp))
       : "";
-    networkElement.textContent = `${airtime + " "}on ${episode.networkName}`;
+    networkElement.textContent = `${airtime + " "} ${episode.networkName}`;
   }
+
   if (episode.webChannelName) {
-    webChannelElement.textContent = `streaming on ${episode.webChannelName}`;
+    webChannelElement.textContent = `${episode.webChannelName}`;
   }
 
   modalElement.showModal();
