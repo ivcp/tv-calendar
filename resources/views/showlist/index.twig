@@ -29,9 +29,9 @@
         >
       </h1>
       <div class="flex flex-col lg:flex-row gap-4">
-        {% include 'shows/sort.twig' with {'sort':
+        {% include 'components/sort.twig' with {'sort':
         enum('App\\Enum\\ShowListSort')} %} {% if user %}{% include
-        'shows/genres.twig' %}{% endif %}
+        'components/genres.twig' %}{% endif %}
       </div>
     </div>
     <div
@@ -64,11 +64,11 @@
         {{pagination.genre and pagination.genre is not same as('All') ? '' : 'shows'
         }}</a
       >
-      {% endif %} {% for show in shows %} {% include 'shows/show-card.twig' with
-      {'show': show} %} {% endfor %}
+      {% endif %} {% for show in shows %} {% include 'components/show-card.twig'
+      with {'show': show} %} {% endfor %}
     </div>
-    {% if pagination.totalPages > 1 %} {% include 'shows/pagination.twig' with
-    {'pagination': pagination} %} {% endif %}
+    {% if pagination.totalPages > 1 %} {% include 'components/pagination.twig'
+    with {'pagination': pagination} %} {% endif %}
   </div>
 </section>
 {% endblock %}

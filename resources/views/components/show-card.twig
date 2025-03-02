@@ -14,8 +14,8 @@
       />
     </figure>
     {% if current_url() is same as('/discover') %} {% include
-    'shows/add-remove-btn.twig' with {'show': show, 'userShows': userShows }%}
-    {% else %} {% include 'shows/remove-show-btn.twig' with {'show': show } %}
+    'components/add-remove-btn.twig' with {'show': show, 'userShows': userShows }%}
+    {% else %} {% include 'components/remove-show-btn.twig' with {'show': show } %}
     {% endif %}
   </a>
   <p

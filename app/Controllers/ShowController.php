@@ -53,7 +53,7 @@ class ShowController
         if (!$user && !$this->requestService->isXhr($request)) {
             return $this->twig->render(
                 $response,
-                'shows/index.twig',
+                'showlist/index.twig',
                 [
                     'shows' => [],
                     'pagination' => ['page' => 1, 'totalPages' => 1, 'showCount' => 0],
@@ -93,7 +93,7 @@ class ShowController
 
         return $this->twig->render(
             $response,
-            'shows/index.twig',
+            'showlist/index.twig',
             [
                 'shows' => $shows,
                 'pagination' => $showList->getPagination(),
@@ -142,7 +142,7 @@ class ShowController
 
         return $this->twig->render(
             $response,
-            'shows/show.twig',
+            'show/index.twig',
             [
                 'show' =>   $show,
                 'userShows' => $userShows,
@@ -175,7 +175,7 @@ class ShowController
 
         return $this->twig->render(
             $response,
-            'shows/discover.twig',
+            'discover/index.twig',
             [
                 'shows' =>   $shows,
                 'pagination' => $discover->getPagination(),
