@@ -12,7 +12,10 @@ use Slim\Routing\RouteCollectorProxy;
 
 return function (App $app) {
     $app->get('/', [CalendarController::class, 'index']);
-    $app->get('/{year:\b[0-9]{4}\b}-{month:\b0[1-9]|1[0-2]\b}', [CalendarController::class, 'getMonth']);
+    $app->get(
+        '/{year:\b19[2-9]\d|20[0-4]\d|2050\b}-{month:\b0[1-9]|1[0-2]\b}',
+        [CalendarController::class, 'getMonth']
+    );
 
     $app->get('/discover', [ShowController::class, 'discover']);
 
