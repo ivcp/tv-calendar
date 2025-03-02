@@ -18,6 +18,7 @@ export function openEpisodeModal(episode) {
   showTitleElement.textContent = "";
   summaryElement.textContent = "No episode summary available.";
   seasonElement.textContent = "-";
+  episodeElement.classList.add("stat-value");
   episodeElement.textContent = "-";
   networkElement.textContent = "";
   webChannelElement.textContent = "";
@@ -43,6 +44,10 @@ export function openEpisodeModal(episode) {
   }
   if (episode.episodeNumber) {
     episodeElement.textContent = episode.episodeNumber;
+  }
+  if (episode.type.includes("special")) {
+    episodeElement.classList.remove("stat-value");
+    episodeElement.textContent = "SPECIAL";
   }
 
   if (episode.networkName) {
