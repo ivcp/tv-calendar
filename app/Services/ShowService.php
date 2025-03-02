@@ -49,30 +49,6 @@ class ShowService
         return $this->entityManager->getRepository(Show::class)->findBy(['tvMazeId' => $ids]);
     }
 
-    public function create(ShowData $showData): Show
-    {
-        $show = new Show();
-        $show->setTvMazeId($showData->tvMazeId)
-            ->setName($showData->name)
-            ->setStatus($showData->status)
-            ->setWeight($showData->weight)
-            ->setImdbId($showData->imdbId)
-            ->setGenres($showData->genres)
-            ->setPremiered($showData->premiered)
-            ->setEnded($showData->ended)
-            ->setOfficialSite($showData->officialSite)
-            ->setNetworkName($showData->networkName)
-            ->setNetworkCountry($showData->networkCountry)
-            ->setWebChannelName($showData->webChannelName)
-            ->setWebChannelCountry($showData->webChannelCountry)
-            ->setSummary($showData->summary)
-            ->setRuntime($showData->runtime)
-            ->setImageMedium($showData->imageMedium)
-            ->setImageOriginal($showData->imageOriginal);
-
-        return $show;
-    }
-
     public function getShowCount(BackedEnum $genre = Genres::Default, ?string $query = null): int
     {
         $repository = $this->entityManager->getRepository(Show::class);
