@@ -49,6 +49,18 @@ class ShowController
 
 
         $user = $request->getAttribute('user');
+
+        if (!$user && !$this->requestService->isXhr($request)) {
+            return $this->twig->render(
+                $response,
+                'showlist/index.twig',
+                [
+                    'shows' => [],
+                    'pagination' => ['page' => 1, 'totalPages' => 1, 'showCount' => 0],
+                ]
+            );
+        }
+
         $showList = $this->paginationService->showlist($params, $user);
 
         $shows = array_map(fn ($show) => new ShowCardData(
@@ -57,7 +69,18 @@ class ShowController
             imageMedium: $show->getImageMedium()
         ), $showList->getShows());
 
-        if ($this->requestService->isXhr($request)) {
+        if ($this->requestService->isXhr($request) && !$user) {
+            return $this->responseFormatter->asJSON(
+                $response,
+                200,
+                [
+                    'shows' => $shows,
+                    'pagination' => $showList->getPagination(),
+                ]
+            );
+        }
+
+        if ($this->requestService->isXhr($request) && $user) {
             return $this->responseFormatter->asJSON(
                 $response,
                 200,
@@ -70,7 +93,7 @@ class ShowController
 
         return $this->twig->render(
             $response,
-            'shows/index.twig',
+            'showlist/index.twig',
             [
                 'shows' => $shows,
                 'pagination' => $showList->getPagination(),
@@ -119,7 +142,7 @@ class ShowController
 
         return $this->twig->render(
             $response,
-            'shows/show.twig',
+            'show/index.twig',
             [
                 'show' =>   $show,
                 'userShows' => $userShows,
@@ -152,7 +175,7 @@ class ShowController
 
         return $this->twig->render(
             $response,
-            'shows/discover.twig',
+            'discover/index.twig',
             [
                 'shows' =>   $shows,
                 'pagination' => $discover->getPagination(),
@@ -244,7 +267,7 @@ class ShowController
         return $response->withHeader('Content-Type', 'image/webp');
     }
 
-    public function search(Request $request, Response $response, array $args): Response
+    public function search(Request $request, Response $response): Response
     {
 
         $params = $this->requestValidatorFactory

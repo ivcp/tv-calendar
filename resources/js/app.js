@@ -2,6 +2,11 @@ import "../css/app.css";
 import { get } from "./ajax";
 import { notification } from "./notification";
 import debounce from "./debounce";
+import {
+  getLocalShowlist,
+  setLocalShowList,
+  setMakeAccountSeen,
+} from "./localStorageHelpers";
 
 document.addEventListener("DOMContentLoaded", () => {
   const dropdowns = document.querySelectorAll(".dropdown");
@@ -10,6 +15,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBackdrop = document.querySelector("#search-backdrop");
   const searchInput = document.querySelector("#search-input");
   const searchResults = document.querySelector("#search-results");
+
+  const hasLocalShowlist = window.localStorage.getItem("showlist");
+  if (!hasLocalShowlist) {
+    setLocalShowList([]);
+    setMakeAccountSeen(false);
+  }
+  const localList = hasLocalShowlist ? getLocalShowlist() : [];
+  if (hasLocalShowlist && localList.length > 10) {
+    setLocalShowList([...localList].slice(0, 10));
+  }
 
   const hideSearchResults = () => {
     searchResults.replaceChildren();

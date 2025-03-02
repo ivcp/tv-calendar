@@ -19,10 +19,14 @@ class ShowListRequestValidator implements RequestValidatorInterface
 
         $v->rules([
             'optional' => [
-                ['page', 'sort', 'genre']
+                ['page', 'sort', 'genre', 'shows']
             ],
             'numeric' => [
                 ['page']
+            ],
+            'array' =>
+            [
+                ['shows']
             ],
             'min' => [
                 ['page', 1]

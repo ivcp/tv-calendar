@@ -5,8 +5,16 @@
 {% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
+  {%
+  if
+  user
+  %}
+  user
+  {%
+  endif
+  %}
 >
-  {% include 'episode-modal.twig' %}
+  {% include 'components/episode-modal.twig' %}
 
   <div class="grow flex flex-col gap-10">
     <div
@@ -17,6 +25,7 @@
       >
         {{ show.name }}
         {{ show.premiered ? '(' ~ show.premiered | date('Y')
+
 
 
 
@@ -281,10 +290,10 @@
                       <div class="tooltip text-xs" data-tip="special">SP</div>
                     </th>
                     <td>
-                      <a
-                        href="#"
-                        class="hover:text-primary transition-colors"
-                        >{{ ep.episodeName }}</a
+                      <button
+                        data-episode-info="{{ ep | json_encode }}"
+                        class="hover:text-primary text-left transition-colors pointer"
+                        >{{ ep.episodeName }}</
                       >
                     </td>
                     <td class="">

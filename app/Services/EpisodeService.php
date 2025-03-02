@@ -25,8 +25,13 @@ class EpisodeService
     ) {
     }
 
-    public function getEpisodesForMonth(DateTime $month, string $timeZone, ?User $user = null): array
-    {
+    public function getEpisodesForMonth(
+        DateTime $month,
+        string $timeZone,
+        string $type,
+        ?User $user,
+        array $localList
+    ): array {
 
         $conn = $this->entityManager->getConnection();
 
@@ -36,24 +41,47 @@ class EpisodeService
                 s.web_channel_name as "webChannelName"
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id';
-        $sql .= $user ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
-        $sql .= ' WHERE (e.airstamp AT TIME ZONE :tz BETWEEN :first AND :last)';
-        $sql .= $user ? ' AND us.user_id = :userId ' : ' AND s.weight >= :weight';
+        $sql .= $user && $type === 'user' ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
+        $sql .= ' WHERE (e.airstamp AT TIME ZONE ? BETWEEN ? AND ?)';
+        switch ($type) {
+            case 'popular':
+                $sql .= ' AND s.weight >= ?';
+                break;
+            case 'user':
+                $sql .= $user ? ' AND us.user_id = ? ' : ' AND e.show_id IN (?)';
+                break;
+        }
         $sql .= ' ORDER BY e.airstamp ASC, e.id ASC';
 
-        $stmt = $conn->prepare($sql);
+        $parameters = [
+            $timeZone,
+            $month->format('Y-m-1'),
+            $month->format("Y-m-t 23:59")
+        ];
 
-        $stmt->bindValue('tz', $timeZone);
-        $stmt->bindValue('first', $month->format('Y-m-1'));
-        $stmt->bindValue('last', $month->format("Y-m-t 23:59"));
+        $types = [
+            ParameterType::STRING,
+            ParameterType::STRING,
+            ParameterType::STRING,
+        ];
 
-        if (!$user) {
-            $stmt->bindValue('weight', $this->config->get('popular_weight'), ParameterType::INTEGER);
-        } else {
-            $stmt->bindValue('userId', $user->getId(), ParameterType::INTEGER);
+        switch ($type) {
+            case 'popular':
+                $parameters[] = $this->config->get('popular_weight');
+                $types[] = ParameterType::INTEGER;
+                break;
+            case 'user':
+                if (!$user) {
+                    $parameters[] = $localList;
+                    $types[] = ArrayParameterType::INTEGER;
+                } else {
+                    $parameters[] = $user->getId();
+                    $types[] = ParameterType::INTEGER;
+                }
+                break;
         }
 
-        return $stmt->executeQuery()->fetchAllAssociative();
+        return $conn->executeQuery($sql, $parameters, $types)->fetchAllAssociative();
     }
 
 

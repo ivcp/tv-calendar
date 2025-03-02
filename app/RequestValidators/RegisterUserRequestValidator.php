@@ -16,10 +16,13 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
     {
     }
 
+    //TODO: set min pass
     public function validate(array $data): array
     {
         $v = new Validator($data);
         $v->rule('required', ['email', 'password', 'confirm_password']);
+        $v->rule('optional', 'shows');
+        $v->rule('array', 'shows');
         $v->rule('email', 'email');
         $v->rule('equals', 'password', 'confirm_password')
             ->message("Password and Confirm password must match.");
@@ -28,6 +31,8 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
                 !$this->entityManager->getRepository(User::class)->count(['email' => $value]),
             'email'
         )->message("Account with that email already exists.");
+        $v->rule('lengthMin', 'password', 8);
+        $v->rule('lengthMin', 'confirm_password', 8);
 
         if (! $v->validate()) {
             throw new ValidationException($v->errors());

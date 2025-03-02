@@ -45,11 +45,12 @@ class CalendarController
             ->make(ScheduleRequestValidator::class)
             ->validate($request->getQueryParams());
 
-
             $episodes = $this->calendarService->getSchedule(
                 $month,
                 $args['tz'],
-                $args['schedule'] === 'user' ? $user : null
+                $args['schedule'],
+                $user,
+                isset($args['shows']) ? $args['shows'] : []
             );
             return $this->responseFormatter->asJSON($response, 200, $episodes);
         }

@@ -23,6 +23,8 @@ class PaginationService
     private array $params;
     private ?User $user = null;
     private ?string $query = null;
+    private array $localList = [];
+
 
     public function __construct(
         private readonly ShowService $showService,
@@ -38,7 +40,8 @@ class PaginationService
             $this->sort,
             $this->genre,
             $this->user,
-            $this->query
+            $this->query,
+            $this->localList
         );
     }
 
@@ -80,18 +83,26 @@ class PaginationService
         return $this;
     }
 
-    public function showList(array $params, User $user): self
+    public function showList(array $params, ?User $user): self
     {
 
         $this->setStartAndPage($params);
         $this->setSort(ShowListSort::class, $params);
         $this->setGenre($params);
 
+        $localList = $user ? [] : array_filter($params['shows'], "is_numeric");
+        if (count($localList) > 10) {
+            $localList = array_slice($localList, 0, 10);
+        }
 
-        $count = $this->userShowsService->getShowCount($user, $this->genre);
+        $count = $user ? $this->userShowsService->getShowCount($user, $this->genre) : count($localList);
         if ($count) {
             $this->totalPages = (int) ceil($count / $this->length);
             $this->showCount = $count;
+        }
+
+        if (!$user) {
+            $this->localList = $localList;
         }
 
         if ($this->page > $this->totalPages) {

@@ -18,6 +18,7 @@ export function openEpisodeModal(episode) {
   showTitleElement.textContent = "";
   summaryElement.textContent = "No episode summary available.";
   seasonElement.textContent = "-";
+  episodeElement.classList.add("stat-value");
   episodeElement.textContent = "-";
   networkElement.textContent = "";
   webChannelElement.textContent = "";
@@ -44,6 +45,10 @@ export function openEpisodeModal(episode) {
   if (episode.episodeNumber) {
     episodeElement.textContent = episode.episodeNumber;
   }
+  if (episode.type.includes("special")) {
+    episodeElement.classList.remove("stat-value");
+    episodeElement.textContent = "SPECIAL";
+  }
 
   if (episode.networkName) {
     const formatter = Intl.DateTimeFormat(navigator.language, {
@@ -53,10 +58,11 @@ export function openEpisodeModal(episode) {
     const airtime = episode.airstamp
       ? formatter.format(new Date(episode.airstamp))
       : "";
-    networkElement.textContent = `${airtime + " "}on ${episode.networkName}`;
+    networkElement.textContent = `${airtime + " "} ${episode.networkName}`;
   }
+
   if (episode.webChannelName) {
-    webChannelElement.textContent = `streaming on ${episode.webChannelName}`;
+    webChannelElement.textContent = `${episode.webChannelName}`;
   }
 
   modalElement.showModal();

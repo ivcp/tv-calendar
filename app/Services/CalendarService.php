@@ -14,11 +14,24 @@ class CalendarService
     {
     }
 
-    public function getSchedule(string $month, string $timeZone, ?User $user = null): array
+    public function getSchedule(string $month, string $timeZone, string $type, ?User $user, array $localList): array
     {
         $selectedMonth = new DateTime($month);
 
-        $episodes = $this->episodeService->getEpisodesForMonth($selectedMonth, $timeZone, $user);
+        if (count($localList) > 0) {
+            $localList = array_filter($localList, "is_numeric");
+        }
+        if (count($localList) > 10) {
+            $localList = array_slice($localList, 0, 10);
+        }
+
+        $episodes = $this->episodeService->getEpisodesForMonth(
+            $selectedMonth,
+            $timeZone,
+            $type,
+            $user,
+            $localList
+        );
 
         $scheduleData = $this->getScheduleData($episodes);
 
