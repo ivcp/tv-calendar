@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Contracts\AuthInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
 use App\Exception\ValidationException;
 use App\RequestValidators\LoginUserRequestValidator;
@@ -13,6 +14,7 @@ use App\RequestValidators\RegisterUserRequestValidator;
 use App\Services\UserShowsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use RuntimeException;
 use Slim\Views\Twig;
 
 class AuthController
@@ -21,7 +23,8 @@ class AuthController
         private readonly Twig $twig,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly AuthInterface $auth,
-        private readonly UserShowsService $userShowsService
+        private readonly UserShowsService $userShowsService,
+        private readonly UserProviderServiceInterface $userProviderService,
     ) {
     }
 
@@ -80,6 +83,23 @@ class AuthController
     public function logout(Request $request, Response $response): Response
     {
         $this->auth->logout();
+        return $response->withHeader('Location', '/')->withStatus(302);
+    }
+
+    public function verify(Request $request, Response $response, array $args): Response
+    {
+        $user = $request->getAttribute('user');
+
+        if (
+            ! hash_equals((string) $user->getId(), $args['id']) ||
+            ! hash_equals(sha1($user->getEmail()), $args['hash'])) {
+            throw new RuntimeException('Verification falied');
+        }
+
+        if (! $user->getVerifiedAt()) {
+            $this->userProviderService->verifyUser($user);
+        }
+
         return $response->withHeader('Location', '/')->withStatus(302);
     }
 

@@ -7,6 +7,7 @@ use App\Controllers\CalendarController;
 use App\Controllers\ShowController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
+use App\Middleware\ValidateSignatureMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -37,5 +38,10 @@ return function (App $app) {
         $guest->post('/login', [AuthController::class, 'login']);
         $guest->post('/register', [AuthController::class, 'register']);
     })->add(GuestMiddleware::class);
+
+    $app->get('/verify/{id}/{hash}', [AuthController::class, 'verify'])
+        ->setName('verify')
+        ->add(ValidateSignatureMiddleware::class);
+
     $app->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
 };

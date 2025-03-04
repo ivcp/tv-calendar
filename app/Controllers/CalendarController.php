@@ -10,7 +10,6 @@ use App\RequestValidators\ScheduleRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CalendarService;
 use App\Services\RequestService;
-use DateTime;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;

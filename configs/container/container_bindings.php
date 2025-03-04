@@ -22,6 +22,7 @@ use App\TwigDefaultSort;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Query\Expr\Func;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\CurlHandler;
@@ -34,11 +35,18 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\App;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
+use Slim\Interfaces\RouteParserInterface;
+use Slim\Routing\RouteParser;
 use Slim\Views\Twig;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
+use Symfony\Bridge\Twig\Mime\BodyRenderer;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\Packages;
 use Symfony\Component\Asset\VersionStrategy\JsonManifestVersionStrategy;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mime\BodyRendererInterface;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookup;
 use Symfony\WebpackEncoreBundle\Asset\EntrypointLookupCollection;
 use Symfony\WebpackEncoreBundle\Asset\TagRenderer;
@@ -146,4 +154,12 @@ return [
     RequestValidatorFactoryInterface::class =>
         fn (ContainerInterface $container) => $container->get(RequestValidatorFactory::class),
     'csrf' => fn (ResponseFactoryInterface $responseFactory) => new Guard($responseFactory, persistentTokenMode:true),
+    MailerInterface::class => function (Config $config) {
+        $transport = Transport::fromDsn($config->get('mailer.dsn'));
+        return new Mailer($transport);
+    },
+    BodyRendererInterface::class => function (Twig $twig) {
+        return new BodyRenderer($twig->getEnvironment());
+    },
+    RouteParserInterface::class => fn (App $app) => $app->getRouteCollector()->getRouteParser()
 ];

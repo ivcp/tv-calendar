@@ -33,7 +33,8 @@
     "symfony/webpack-encore-bundle": "^2.2",
     "guzzlehttp/guzzle": "^7.0",
     "vlucas/valitron": "^1.4",
-    "slim/csrf": "^1.5"
+    "slim/csrf": "^1.5",
+    "symfony/mailer": "^7.2"
   },
   "require-dev": {
     "phpunit/phpunit": "^11",

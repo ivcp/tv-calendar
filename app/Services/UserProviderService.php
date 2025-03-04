@@ -8,6 +8,7 @@ use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
 use App\Entity\User;
+use DateTime;
 use Doctrine\ORM\EntityManager;
 
 class UserProviderService implements UserProviderServiceInterface
@@ -36,5 +37,12 @@ class UserProviderService implements UserProviderServiceInterface
         $this->entityManager->flush();
 
         return $user;
+    }
+
+    public function verifyUser(UserInterface $user): void
+    {
+        $user->setVerifiedAt(new DateTime());
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
     }
 }

@@ -9,6 +9,8 @@ $appName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME']));
 
 return [
     'app_name'              => $_ENV['APP_NAME'],
+    'app_url'              => $_ENV['APP_URL'],
+    'app_key'              => $_ENV['APP_KEY'] ?? '',
     'app_version'           => $_ENV['APP_VERSION'] ?? '1.0',
     'app_environment'       => $appEnv,
     'display_error_details' => (bool) ($_ENV['APP_DEBUG'] ?? 0),
@@ -39,5 +41,10 @@ return [
         'samesite' => 'lax',
     ],
     'json_tags' => JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS | JSON_THROW_ON_ERROR,
-    'popular_weight' => 99
+    'popular_weight' => 99,
+    'mailer' => [
+        'dsn' => $_ENV['MAILER_DSN'],
+        'from' => $_ENV['MAILER_FROM']
+    ]
+
 ];
