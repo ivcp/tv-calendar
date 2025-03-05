@@ -39,9 +39,12 @@ return function (App $app) {
         $guest->post('/register', [AuthController::class, 'register']);
     })->add(GuestMiddleware::class);
 
-    $app->get('/verify/{id}/{hash}', [AuthController::class, 'verify'])
+    $app->group('', function (RouteCollectorProxy $user) {
+        $user->get('/verify/{id}/{hash}', [AuthController::class, 'verify'])
         ->setName('verify')
         ->add(ValidateSignatureMiddleware::class);
+        $user->post('/verify', [AuthController::class, 'resendEmail']);
 
-    $app->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
+        $user->post('/logout', [AuthController::class, 'logout']);
+    })->add(AuthMiddleware::class);
 };
