@@ -27,6 +27,14 @@ async function del(el) {
   }
 }
 
+async function resendEmail() {
+  try {
+    return await getResult(`/verify`, "POST");
+  } catch (error) {
+    return result(true, ["something went wrong"]);
+  }
+}
+
 function result(error, messages, body = null) {
   return {
     error: error,
@@ -42,12 +50,13 @@ async function getResult(url, method, body = null) {
       "Content-Type": "application/json",
       "X-Requested-With": "XMLHttpRequest",
     },
-    body: body
-      ? JSON.stringify({
-          ...body,
-          ...getCsrfFields(),
-        })
-      : null,
+    body:
+      body || url === "/verify"
+        ? JSON.stringify({
+            ...body,
+            ...getCsrfFields(),
+          })
+        : null,
   });
   if (!response.ok) {
     if ([400, 403, 404, 422].includes(response.status)) {
@@ -81,4 +90,4 @@ function getCsrfFields() {
   };
 }
 
-export { post, del, get };
+export { post, del, get, resendEmail };
