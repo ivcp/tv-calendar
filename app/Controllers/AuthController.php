@@ -9,8 +9,10 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
 use App\Exception\ValidationException;
+use App\Mail\VerificatonEmail;
 use App\RequestValidators\LoginUserRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
+use App\ResponseFormatter;
 use App\Services\UserShowsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -25,6 +27,8 @@ class AuthController
         private readonly AuthInterface $auth,
         private readonly UserShowsService $userShowsService,
         private readonly UserProviderServiceInterface $userProviderService,
+        private readonly ResponseFormatter $responseFormatter,
+        private readonly VerificatonEmail $verificatonEmail
     ) {
     }
 
@@ -93,14 +97,24 @@ class AuthController
         if (
             ! hash_equals((string) $user->getId(), $args['id']) ||
             ! hash_equals(sha1($user->getEmail()), $args['hash'])) {
-            throw new RuntimeException('Verification falied');
+            return $this->twig->render($response, 'auth/verify.twig', ['verified' => false]);
         }
 
         if (! $user->getVerifiedAt()) {
             $this->userProviderService->verifyUser($user);
         }
 
-        return $response->withHeader('Location', '/')->withStatus(302);
+        return $this->twig->render($response, 'auth/verify.twig', ['verified' => true]);
+    }
+
+    public function resendEmail(Request $request, Response $response): Response
+    {
+        $user = $request->getAttribute('user');
+        if (! $user) {
+            return $this->responseFormatter->asJSONMessage($response, 403, 'unauthorized');
+        }
+        $this->verificatonEmail->send($user);
+        return $this->responseFormatter->asJSONMessage($response, 200, 'new verification email sent');
     }
 
     private function importLocalShows(array $showIds, $user)
