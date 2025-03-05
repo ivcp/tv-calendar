@@ -252,12 +252,12 @@
             <summary tabindex="0" role="button" class="btn btn-ghost px-0">
               <div class="w-14 h-full flex justify-center items-center">
                 <div class="indicator">
-                  {% if user and user.verifiedAt is same as(null) %}
+                  {% if user and user.verifiedAt is same as(null) and not
+                  verified %}
                   <span
                     class="indicator-item badge px-0 w-2 h-2 badge-warning text-xs"
                   ></span>
                   {% endif %}
-                  <!-- TODO: -->
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -283,7 +283,23 @@
               <li>
                 <form action="/logout" method="post">
                   {{ csrf.fields | raw }}
-                  <button type="submit">Log Out</button>
+                  <button type="submit" class="flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
+                      />
+                    </svg>
+                    <span>Log Out</span>
+                  </button>
                 </form>
               </li>
               {% else %}
@@ -400,6 +416,21 @@
                   </label>
                 </button>
               </li>
+              {% if user and user.verifiedAt is same as(null) and not verified
+              %}
+              <div class="border border-warning rounded-lg p-2">
+                <p class="text-sm w-full pb-2">
+                  Please, check your email to activate your account.
+                </p>
+                <p class="text-sm pb-2">Didn't receive the email?</p>
+                <button
+                  id="email-resend"
+                  class="btn btn-outline btn-sm mx-auto"
+                >
+                  Resend
+                </button>
+              </div>
+              {% endif %}
             </ul>
           </details>
         </div>
