@@ -5,16 +5,19 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Config;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RuntimeException;
+use Slim\Views\Twig;
 
 class ValidateSignatureMiddleware implements MiddlewareInterface
 {
     public function __construct(
-        private readonly Config $config
+        private readonly Config $config,
+        private readonly ResponseFactoryInterface $responseFactory,
+        private readonly Twig $twig
     ) {
     }
 
@@ -30,7 +33,8 @@ class ValidateSignatureMiddleware implements MiddlewareInterface
         $signature = hash_hmac('sha256', $url, $this->config->get('app_key'));
 
         if ($expiration <= time() || !hash_equals($signature, $originalSignature)) {
-            throw new RuntimeException('Failed to verify signature');
+            $response = $this->responseFactory->createResponse();
+            return $this->twig->render($response, 'auth/verify.twig', ['verified' => false]);
         };
 
         return $handler->handle($request);
