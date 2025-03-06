@@ -31,7 +31,7 @@ class UserProviderService implements UserProviderServiceInterface
     {
         $user = new User();
         $user->setEmail($data->email);
-        $user->setPassword(password_hash($data->password, PASSWORD_DEFAULT, ['cost' => 12]));
+        $user->setPassword($this->hashPassword($data->password));
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -44,5 +44,16 @@ class UserProviderService implements UserProviderServiceInterface
         $user->setVerifiedAt(new DateTime());
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+    }
+    public function updatePassword(UserInterface $user, string $password): void
+    {
+        $user->setPassword($this->hashPassword($password));
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    private function hashPassword($password)
+    {
+        return password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
     }
 }

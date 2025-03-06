@@ -16,7 +16,6 @@ use App\ResponseFormatter;
 use App\Services\UserShowsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use RuntimeException;
 use Slim\Views\Twig;
 
 class AuthController

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\CalendarController;
+use App\Controllers\PasswordResetController;
 use App\Controllers\ShowController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
@@ -47,4 +48,11 @@ return function (App $app) {
 
         $user->post('/logout', [AuthController::class, 'logout']);
     })->add(AuthMiddleware::class);
+
+    $app->get('/forgot-password', [PasswordResetController::class, 'forgotPasswordView']);
+    $app->post('/forgot-password', [PasswordResetController::class, 'handleForgotPassword']);
+    $app->get('/reset-password/{token}', [PasswordResetController::class, 'resetPasswordView'])
+        ->setName('password-reset')
+        ->add(ValidateSignatureMiddleware::class);
+    $app->post('/reset-password/{token}', [PasswordResetController::class, 'resetPassword']);
 };
