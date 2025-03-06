@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Contracts\AuthInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\Exception\ValidationException;
 use App\Mail\ForgotPasswordEmail;
 use App\RequestValidators\ForgotPasswordRequestValidator;
 use App\RequestValidators\ResetPasswordRequestValidator;
+use App\RequestValidators\UpdatePasswordRequestValidator;
 use App\Services\PasswordResetService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -22,7 +24,8 @@ class PasswordResetController
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
         private readonly UserProviderServiceInterface $userProviderService,
         private readonly PasswordResetService $passwordResetService,
-        private readonly ForgotPasswordEmail $forgotPasswordEmail
+        private readonly ForgotPasswordEmail $forgotPasswordEmail,
+        private readonly AuthInterface $auth,
     ) {
     }
     public function forgotPasswordView(Request $request, Response $response): Response
@@ -38,6 +41,11 @@ class PasswordResetController
             return $response->withHeader('Location', '/')->withStatus(302);
         }
         return $this->twig->render($response, 'auth/reset-password.twig', ['token' => $token]);
+    }
+
+    public function updatePasswordView(Request $request, Response $response, array $args): Response
+    {
+        return $this->twig->render($response, 'auth/update-password.twig');
     }
 
     public function handleForgotPassword(Request $request, Response $response): Response
@@ -76,6 +84,22 @@ class PasswordResetController
         $this->passwordResetService->updatePassword($user, $data['password']);
 
         return $this->twig->render($response, 'auth/reset-password.twig', ['passwordReset' => true]);
+    }
+
+    public function updatePassword(Request $request, Response $response): Response
+    {
+        $data = $this->requestValidatorFactory->make(UpdatePasswordRequestValidator::class)->validate(
+            $request->getParsedBody()
+        );
+        $user = $request->getAttribute('user');
+
+        if (! $this->auth->checkCredentials($user, $data)) {
+            throw new ValidationException(['password' => ['Invalid password']]);
+        }
+
+        $this->passwordResetService->updatePassword($user, $data['new_password']);
+
+        return $this->twig->render($response, 'auth/update-password.twig', ['passwordReset' => true]);
     }
 
 }
