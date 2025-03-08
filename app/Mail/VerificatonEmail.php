@@ -36,7 +36,7 @@ class VerificatonEmail
         $message = (new TemplatedEmail())
         ->from($this->config->get('mailer.from'))
         ->to($email)
-        ->subject('Welcome to TV Calendar')
+        ->subject('Welcome to ' . $this->config->get('app_name'))
         ->htmlTemplate('emails/register.html.twig')
         ->context([
             'activationLink' => $activationLink,

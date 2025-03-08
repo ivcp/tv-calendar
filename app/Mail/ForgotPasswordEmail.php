@@ -35,7 +35,7 @@ class ForgotPasswordEmail
         $message = (new TemplatedEmail())
         ->from($this->config->get('mailer.from'))
         ->to($email)
-        ->subject('TV Calendar - password reset')
+        ->subject($this->config->get('app_name') . ' - password reset')
         ->htmlTemplate('emails/password-reset.html.twig')
         ->context([
             'resetLink' => $resetLink
