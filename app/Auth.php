@@ -10,6 +10,7 @@ use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
 use App\Mail\VerificatonEmail;
+use App\Mail\WelcomeEmail;
 
 class Auth implements AuthInterface
 {
@@ -19,6 +20,7 @@ class Auth implements AuthInterface
         private readonly UserProviderServiceInterface $userProvider,
         private readonly SessionInterface $session,
         private readonly VerificatonEmail $verificatonEmail,
+        private readonly WelcomeEmail $welcomeEmail
     ) {
     }
 
@@ -78,6 +80,8 @@ class Auth implements AuthInterface
         $this->login($user);
         if (! $data->verified) {
             $this->verificatonEmail->send($user);
+        } else {
+            $this->welcomeEmail->send($user);
         }
         return $user;
     }
