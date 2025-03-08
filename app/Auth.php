@@ -56,6 +56,9 @@ class Auth implements AuthInterface
 
     public function checkCredentials(UserInterface $user, array $credentials): bool
     {
+        if (!$user->getPassword()) {
+            return false;
+        }
         return password_verify($credentials['password'], $user->getPassword());
     }
 
@@ -73,7 +76,9 @@ class Auth implements AuthInterface
         $user = $this->userProvider->createUser($data);
 
         $this->login($user);
-        $this->verificatonEmail->send($user);
+        if (! $data->verified) {
+            $this->verificatonEmail->send($user);
+        }
         return $user;
     }
 

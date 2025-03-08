@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Config;
 use App\Contracts\AuthInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\UserProviderServiceInterface;
@@ -14,6 +15,7 @@ use App\RequestValidators\LoginUserRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
 use App\ResponseFormatter;
 use App\Services\UserShowsService;
+use GuzzleHttp\Client;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
@@ -27,7 +29,9 @@ class AuthController
         private readonly UserShowsService $userShowsService,
         private readonly UserProviderServiceInterface $userProviderService,
         private readonly ResponseFormatter $responseFormatter,
-        private readonly VerificatonEmail $verificatonEmail
+        private readonly VerificatonEmail $verificatonEmail,
+        private readonly Config $config,
+        private readonly Client $client
     ) {
     }
 
@@ -124,4 +128,81 @@ class AuthController
         }
         $this->userShowsService->addMultipleShows($localList, $user);
     }
+
+    public function googleOauth(Request $request, Response $response): Response
+    {
+
+        $clientId = $this->config->get('oauth.google.client_id');
+        $redirectUri = $this->config->get('oauth.google.redirect_uri');
+        $clientSecret = $this->config->get('oauth.google.client_secret');
+
+        $params = $request->getQueryParams();
+        if (isset($params['code']) && !empty($params['code'])) {
+            $params = [
+                'code' => $params['code'],
+                'client_id' => $clientId,
+                'client_secret' =>  $clientSecret,
+                'redirect_uri' => $redirectUri,
+                'grant_type' => 'authorization_code'
+            ];
+            $googleResponse = $this->client->post(
+                'https://accounts.google.com/o/oauth2/token',
+                ['query' => $params, 'http_errors' => false]
+            );
+            if ($googleResponse->getStatusCode() !== 200) {
+                return $response->withHeader('Location', '/login')
+                    ->withStatus($googleResponse->getStatusCode());
+            };
+            $body = json_decode((string)$googleResponse->getBody());
+            if (isset($body->access_token) && !empty($body->access_token)) {
+                $googleResponse = $this->client->get(
+                    'https://www.googleapis.com/oauth2/v3/userinfo',
+                    [
+                        'http_errors' => false,
+                        'headers' => [
+                            'Authorization' => 'Bearer ' . $body->access_token
+                            ]
+                    ]
+                );
+                if ($googleResponse->getStatusCode() !== 200) {
+                    return $response->withHeader('Location', '/login')
+                        ->withStatus($googleResponse->getStatusCode());
+                };
+
+                $body = json_decode((string)$googleResponse->getBody());
+                $user = $this->userProviderService->getByCredentials(['email' => $body->email]);
+                if (! $user) {
+                    $user = $this->auth->register(
+                        new RegisterUserData(
+                            email: $body->email,
+                            verified: true
+                        )
+                    );
+                }
+
+                if (! $user->getVerifiedAt()) {
+                    $this->userProviderService->verifyUser($user);
+                }
+                $user = $this->auth->login($user);
+            }
+
+            return $response->withHeader('Location', '/')->withStatus(302);
+
+        } else {
+            $params = [
+                'response_type' => 'code',
+                'client_id' => $clientId,
+                'redirect_uri' => $redirectUri,
+                'scope' => 'https://www.googleapis.com/auth/userinfo.email',
+                'access_type' => 'offline',
+                'prompt' => 'consent'
+            ];
+
+            return $response->withHeader(
+                'Location',
+                'https://accounts.google.com/o/oauth2/auth?'. http_build_query($params)
+            );
+        }
+    }
+
 }

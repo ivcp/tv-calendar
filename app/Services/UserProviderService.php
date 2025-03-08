@@ -31,7 +31,12 @@ class UserProviderService implements UserProviderServiceInterface
     {
         $user = new User();
         $user->setEmail($data->email);
-        $user->setPassword($this->hashPassword($data->password));
+        if ($data->password) {
+            $user->setPassword($this->hashPassword($data->password));
+        }
+        if ($data->verified) {
+            $user->setVerifiedAt(new DateTime());
+        }
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();

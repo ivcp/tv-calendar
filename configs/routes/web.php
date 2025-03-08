@@ -62,4 +62,6 @@ return function (App $app) {
 
     $app->get('/settings', [SettingsController::class, 'index']);
 
+    $app->get('/google-oauth', [AuthController::class, 'googleOauth']);
+
 };
