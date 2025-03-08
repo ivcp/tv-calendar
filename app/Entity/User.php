@@ -29,8 +29,8 @@ class User implements UserInterface
     #[Column(type:'string', unique:true)]
     private string $email;
 
-    #[Column(type:'string')]
-    private string $password;
+    #[Column(type:'string', nullable: true)]
+    private ?string $password;
 
     #[Column(name: 'verified_at', nullable: true)]
     private ?DateTime $verifiedAt;
@@ -92,9 +92,9 @@ class User implements UserInterface
     /**
      * Get the value of password
      */
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
-        return $this->password;
+        return $this->password ?: null;
     }
 
     /**
@@ -102,7 +102,7 @@ class User implements UserInterface
      *
      * @return  self
      */
-    public function setPassword($password): User
+    public function setPassword(?string $password): User
     {
         $this->password = $password;
 
