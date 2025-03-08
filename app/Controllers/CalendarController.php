@@ -34,7 +34,7 @@ class CalendarController
         );
     }
 
-    public function getMonth(Request $request, Response $response, array $args): Response
+    public function getMonth(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
         $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');
