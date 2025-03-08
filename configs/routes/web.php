@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Controllers\AuthController;
 use App\Controllers\CalendarController;
 use App\Controllers\PasswordResetController;
-use App\Controllers\SettingsController;
+use App\Controllers\ProfileController;
 use App\Controllers\ShowController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
@@ -50,6 +50,7 @@ return function (App $app) {
         $user->post('/logout', [AuthController::class, 'logout']);
         $user->get('/update-password', [PasswordResetController::class, 'updatePasswordView']);
         $user->post('/update-password', [PasswordResetController::class, 'updatePassword']);
+        $user->get('/profile', [ProfileController::class, 'index']);
     })->add(AuthMiddleware::class);
 
     $app->get('/forgot-password', [PasswordResetController::class, 'forgotPasswordView']);
@@ -60,7 +61,6 @@ return function (App $app) {
     $app->post('/reset-password/{token}', [PasswordResetController::class, 'resetPassword']);
 
 
-    $app->get('/settings', [SettingsController::class, 'index']);
 
     $app->get('/google-oauth', [AuthController::class, 'googleOauth']);
 

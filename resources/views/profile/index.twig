@@ -1,14 +1,6 @@
 {% extends 'layout.twig' %} {% block content %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
-  {%
-  if
-  user
-  %}
-  user
-  {%
-  endif
-  %}
 >
   <div class="grow flex flex-col gap-10">
     <div
@@ -17,7 +9,7 @@
       <h1
         class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
       >
-        Settings
+        Profile Settings
       </h1>
       <div>
         <div class="flex gap-2 items-center">
@@ -44,9 +36,13 @@
       </div>
     </div>
     <div class="mx-auto flex flex-col gap-4">
-      <a href="/update-password" class="btn btn-primary self-center"
+      {% if passwordSet %}
+      <a
+        href="/update-password"
+        class="btn btn-outline btn-primary rounded-lg self-center"
         >Update password</a
       >
+      {% endif %}
     </div>
   </div>
 </section>

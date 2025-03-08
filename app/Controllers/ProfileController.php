@@ -8,7 +8,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
 
-class SettingsController
+class ProfileController
 {
     public function __construct(
         private readonly Twig $twig
@@ -19,10 +19,11 @@ class SettingsController
         $user = $request->getAttribute('user');
         return $this->twig->render(
             $response,
-            'settings/index.twig',
+            'profile/index.twig',
             [
-                'email' => $user ? $user->getEmail() : null,
-                'verified' => $user ? $user->getVerifiedAt() : null
+                'email' => $user->getEmail(),
+                'verified' => $user->getVerifiedAt(),
+                'passwordSet' => $user->getPassword() !== null
             ]
         );
     }
