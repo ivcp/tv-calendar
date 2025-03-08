@@ -22,7 +22,6 @@ use App\TwigDefaultSort;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
-use Doctrine\ORM\Query\Expr\Func;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\CurlHandler;
@@ -36,7 +35,6 @@ use Slim\App;
 use Slim\Csrf\Guard;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteParserInterface;
-use Slim\Routing\RouteParser;
 use Slim\Views\Twig;
 use Symfony\Bridge\Twig\Extension\AssetExtension;
 use Symfony\Bridge\Twig\Mime\BodyRenderer;
@@ -102,12 +100,12 @@ return [
                 return false;
             }
             if ($e instanceof ConnectException) {
-                echo "Unable to connect to " .
-                    $request->getUri() .
-                    ". Retrying (" . ($retries + 1) .
-                    "/" .
-                    $config->get('client.retries', 3) .
-                    ")...\n";
+                // echo "Unable to connect to " .
+                //     $request->getUri() .
+                //     ". Retrying (" . ($retries + 1) .
+                //     "/" .
+                //     $config->get('client.retries', 3) .
+                //     ")...\n";
                 return true;
             }
             return false;
