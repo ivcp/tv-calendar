@@ -40,5 +40,4 @@ class ProfileController
         $this->userProviderService->deleteUser($user);
         return $this->responseFormatter->asJSONMessage($response, 200, 'profile deleted');
     }
-
 }

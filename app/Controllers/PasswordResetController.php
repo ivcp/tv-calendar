@@ -101,5 +101,4 @@ class PasswordResetController
 
         return $this->twig->render($response, 'auth/update-password.twig', ['passwordReset' => true]);
     }
-
 }

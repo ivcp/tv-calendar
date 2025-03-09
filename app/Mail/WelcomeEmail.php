@@ -41,6 +41,4 @@ class WelcomeEmail
             error_log($e->getMessage());
         }
     }
-
-
 }

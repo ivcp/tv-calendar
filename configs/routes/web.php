@@ -64,5 +64,4 @@ return function (App $app) {
 
 
     $app->get('/google-oauth', [AuthController::class, 'googleOauth']);
-
 };

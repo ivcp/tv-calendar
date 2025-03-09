@@ -63,7 +63,7 @@ class PasswordResetService
                     new Parameter('token', $token),
                     new Parameter('active', true),
                     new Parameter('now', new DateTime()),
-                )
+                    )
                 )
             )
             ->getQuery()

@@ -99,7 +99,8 @@ class AuthController
 
         if (
             ! hash_equals((string) $user->getId(), $args['id']) ||
-            ! hash_equals(sha1($user->getEmail()), $args['hash'])) {
+            ! hash_equals(sha1($user->getEmail()), $args['hash'])
+        ) {
             return $this->twig->render($response, 'auth/verify.twig', ['verified' => false]);
         }
 
@@ -187,7 +188,6 @@ class AuthController
             }
 
             return $response->withHeader('Location', '/')->withStatus(302);
-
         } else {
             $params = [
                 'response_type' => 'code',
@@ -200,9 +200,8 @@ class AuthController
 
             return $response->withHeader(
                 'Location',
-                'https://accounts.google.com/o/oauth2/auth?'. http_build_query($params)
+                'https://accounts.google.com/o/oauth2/auth?' . http_build_query($params)
             );
         }
     }
-
 }
