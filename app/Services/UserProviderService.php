@@ -50,10 +50,17 @@ class UserProviderService implements UserProviderServiceInterface
         $this->entityManager->persist($user);
         $this->entityManager->flush();
     }
+
     public function updatePassword(UserInterface $user, string $password): void
     {
         $user->setPassword($this->hashPassword($password));
         $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    public function deleteUser(UserInterface $user): void
+    {
+        $this->entityManager->remove($user);
         $this->entityManager->flush();
     }
 

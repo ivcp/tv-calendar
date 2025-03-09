@@ -34,6 +34,15 @@ async function resendEmail() {
     return result(true, ["something went wrong"]);
   }
 }
+async function deleteProfile() {
+  try {
+    return await getResult(`/profile`, "DELETE", {
+      _METHOD: "DELETE",
+    });
+  } catch (error) {
+    return result(true, ["something went wrong"]);
+  }
+}
 
 function result(error, messages, body = null) {
   return {
@@ -90,4 +99,4 @@ function getCsrfFields() {
   };
 }
 
-export { post, del, get, resendEmail };
+export { post, del, get, resendEmail, deleteProfile };

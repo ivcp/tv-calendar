@@ -51,6 +51,7 @@ return function (App $app) {
         $user->get('/update-password', [PasswordResetController::class, 'updatePasswordView']);
         $user->post('/update-password', [PasswordResetController::class, 'updatePassword']);
         $user->get('/profile', [ProfileController::class, 'index']);
+        $user->delete('/profile', [ProfileController::class, 'delete']);
     })->add(AuthMiddleware::class);
 
     $app->get('/forgot-password', [PasswordResetController::class, 'forgotPasswordView']);

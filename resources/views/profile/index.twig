@@ -1,4 +1,7 @@
-{% extends 'layout.twig' %} {% block content %}
+{% extends 'layout.twig' %} {% block content %}{% block javascripts %}
+{{ parent() }}
+{{ encore_entry_script_tags("profile") }}
+{% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
 >
@@ -43,6 +46,12 @@
         >Update password</a
       >
       {% endif %}
+      <button
+        id="delete-account"
+        class="btn btn-outline btn-secondary rounded-lg self-center"
+      >
+        Delete account
+      </button>
     </div>
   </div>
 </section>
