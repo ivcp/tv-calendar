@@ -8,6 +8,7 @@ use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
 use App\Entity\User;
+use DateTime;
 use Doctrine\ORM\EntityManager;
 
 class UserProviderService implements UserProviderServiceInterface
@@ -30,11 +31,41 @@ class UserProviderService implements UserProviderServiceInterface
     {
         $user = new User();
         $user->setEmail($data->email);
-        $user->setPassword(password_hash($data->password, PASSWORD_DEFAULT, ['cost' => 12]));
+        if ($data->password) {
+            $user->setPassword($this->hashPassword($data->password));
+        }
+        if ($data->verified) {
+            $user->setVerifiedAt(new DateTime());
+        }
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $user;
+    }
+
+    public function verifyUser(UserInterface $user): void
+    {
+        $user->setVerifiedAt(new DateTime());
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    public function updatePassword(UserInterface $user, string $password): void
+    {
+        $user->setPassword($this->hashPassword($password));
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+    }
+
+    public function deleteUser(UserInterface $user): void
+    {
+        $this->entityManager->remove($user);
+        $this->entityManager->flush();
+    }
+
+    private function hashPassword($password)
+    {
+        return password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
     }
 }

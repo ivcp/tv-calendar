@@ -10,7 +10,6 @@ use App\RequestValidators\ScheduleRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CalendarService;
 use App\Services\RequestService;
-use DateTime;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
@@ -35,7 +34,7 @@ class CalendarController
         );
     }
 
-    public function getMonth(Request $request, Response $response, array $args): Response
+    public function getMonth(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
         $month = $request->getAttribute('year') . '-' . $request->getAttribute('month');

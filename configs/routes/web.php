@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 use App\Controllers\AuthController;
 use App\Controllers\CalendarController;
+use App\Controllers\PasswordResetController;
+use App\Controllers\ProfileController;
 use App\Controllers\ShowController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
+use App\Middleware\ValidateSignatureMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -37,5 +40,28 @@ return function (App $app) {
         $guest->post('/login', [AuthController::class, 'login']);
         $guest->post('/register', [AuthController::class, 'register']);
     })->add(GuestMiddleware::class);
-    $app->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
+
+    $app->group('', function (RouteCollectorProxy $user) {
+        $user->get('/verify/{id}/{hash}', [AuthController::class, 'verify'])
+        ->setName('verify')
+        ->add(ValidateSignatureMiddleware::class);
+        $user->post('/verify', [AuthController::class, 'resendEmail']);
+
+        $user->post('/logout', [AuthController::class, 'logout']);
+        $user->get('/update-password', [PasswordResetController::class, 'updatePasswordView']);
+        $user->post('/update-password', [PasswordResetController::class, 'updatePassword']);
+        $user->get('/profile', [ProfileController::class, 'index']);
+        $user->delete('/profile', [ProfileController::class, 'delete']);
+    })->add(AuthMiddleware::class);
+
+    $app->get('/forgot-password', [PasswordResetController::class, 'forgotPasswordView']);
+    $app->post('/forgot-password', [PasswordResetController::class, 'handleForgotPassword']);
+    $app->get('/reset-password/{token}', [PasswordResetController::class, 'resetPasswordView'])
+    ->setName('password-reset')
+    ->add(ValidateSignatureMiddleware::class);
+    $app->post('/reset-password/{token}', [PasswordResetController::class, 'resetPassword']);
+
+
+
+    $app->get('/google-oauth', [AuthController::class, 'googleOauth']);
 };

@@ -9,6 +9,8 @@ use App\Contracts\SessionInterface;
 use App\Contracts\UserInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
+use App\Mail\VerificatonEmail;
+use App\Mail\WelcomeEmail;
 
 class Auth implements AuthInterface
 {
@@ -16,7 +18,9 @@ class Auth implements AuthInterface
 
     public function __construct(
         private readonly UserProviderServiceInterface $userProvider,
-        private readonly SessionInterface $session
+        private readonly SessionInterface $session,
+        private readonly VerificatonEmail $verificatonEmail,
+        private readonly WelcomeEmail $welcomeEmail
     ) {
     }
 
@@ -54,6 +58,9 @@ class Auth implements AuthInterface
 
     public function checkCredentials(UserInterface $user, array $credentials): bool
     {
+        if (!$user->getPassword()) {
+            return false;
+        }
         return password_verify($credentials['password'], $user->getPassword());
     }
 
@@ -71,7 +78,11 @@ class Auth implements AuthInterface
         $user = $this->userProvider->createUser($data);
 
         $this->login($user);
-
+        if (! $data->verified) {
+            $this->verificatonEmail->send($user);
+        } else {
+            $this->welcomeEmail->send($user);
+        }
         return $user;
     }
 

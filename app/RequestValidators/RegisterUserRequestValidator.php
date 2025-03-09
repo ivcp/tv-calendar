@@ -16,7 +16,6 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
     {
     }
 
-    //TODO: set min pass
     public function validate(array $data): array
     {
         $v = new Validator($data);

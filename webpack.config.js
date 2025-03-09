@@ -25,6 +25,7 @@ Encore
   .addEntry("showlist", "./resources/js/showlist.js")
   .addEntry("show", "./resources/js/show.js")
   .addEntry("importLocalShows", "./resources/js/importLocalShows.js")
+  .addEntry("profile", "./resources/js/profile.js")
 
   // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
   .splitEntryChunks()

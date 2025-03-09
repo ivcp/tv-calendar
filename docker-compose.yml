@@ -76,5 +76,14 @@ services:
       - .:/var/www
       - ./docker/cron/local.ini:/usr/local/etc/php/conf.d/local.ini
 
+  mailhog:
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: "none"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
 volumes:
   tv-calendar-db-data:

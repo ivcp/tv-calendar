@@ -1,5 +1,5 @@
 import "../css/app.css";
-import { get } from "./ajax";
+import { get, resendEmail } from "./ajax";
 import { notification } from "./notification";
 import debounce from "./debounce";
 import {
@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBackdrop = document.querySelector("#search-backdrop");
   const searchInput = document.querySelector("#search-input");
   const searchResults = document.querySelector("#search-results");
+  const resendEmailBtn = document.querySelector("#email-resend");
 
   const hasLocalShowlist = window.localStorage.getItem("showlist");
   if (!hasLocalShowlist) {
@@ -24,6 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const localList = hasLocalShowlist ? getLocalShowlist() : [];
   if (hasLocalShowlist && localList.length > 10) {
     setLocalShowList([...localList].slice(0, 10));
+  }
+
+  if (resendEmailBtn) {
+    resendEmailBtn.addEventListener("click", async () => {
+      const response = await resendEmail();
+      if (response.error) {
+        notification(response.messages, "alert-error");
+        return;
+      }
+      notification(response.messages, "alert-success");
+    });
   }
 
   const hideSearchResults = () => {

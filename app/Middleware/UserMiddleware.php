@@ -22,7 +22,13 @@ class UserMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         if ($user = $this->auth->user()) {
-            $this->twig->getEnvironment()->addGlobal('user', ['id' => $user->getId()]);
+            $this->twig->getEnvironment()->addGlobal(
+                'user',
+                [
+                'id' => $user->getId(),
+                'verifiedAt' => $user->getVerifiedAt()
+                ]
+            );
             return $handler->handle($request->withAttribute('user', $user));
         }
 
