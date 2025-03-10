@@ -12,7 +12,7 @@
       <h1
         class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
       >
-        Profile Settings
+        Profile/Settings
       </h1>
       <div>
         <div class="flex gap-2 items-center">
@@ -39,19 +39,36 @@
       </div>
     </div>
     <div class="mx-auto flex flex-col gap-4">
-      {% if passwordSet %}
-      <a
-        href="/update-password"
-        class="btn btn-outline btn-primary rounded-lg self-center"
-        >Update password</a
-      >
+      {% if not verified %}
+      <div class="flex items-center justify-end gap-4 pb-4 border-b">
+        <p class="">Didn't receive the verification email?</p>
+        <button
+          id="email-resend"
+          data-email="{{ email }}"
+          class="btn btn-outline rounded-lg"
+        >
+          Resend
+        </button>
+      </div>
+      {% endif %} {% if passwordSet %}
+      <div class="flex items-center justify-end gap-4 pb-4 border-b">
+        <p class="">Change your password</p>
+        <a
+          href="/update-password"
+          class="btn btn-outline btn-primary rounded-lg self-center"
+          >Update password</a
+        >
+      </div>
       {% endif %}
-      <button
-        id="delete-account"
-        class="btn btn-outline btn-secondary rounded-lg self-center"
-      >
-        Delete account
-      </button>
+      <div class="flex items-center justify-end gap-4">
+        <p class="">Delete account</p>
+        <button
+          id="delete-account"
+          class="btn btn-outline btn-secondary rounded-lg self-center"
+        >
+          Delete account
+        </button>
+      </div>
     </div>
   </div>
 </section>
