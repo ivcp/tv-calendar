@@ -152,15 +152,25 @@ function getCurrentYearMonth() {
 
 function drawCalendar() {
   const calendarElement = document.querySelector("#calendar");
+  const sundayStart = document
+    .querySelector("#days")
+    .hasAttribute("sunday-start");
+
   const now = new Date();
   const daysInMonth = new Date(
     now.getFullYear(),
     now.getMonth() + 1,
     0
   ).getDate();
+
   let firstDayInMonth = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
-  if (firstDayInMonth === 0) {
-    firstDayInMonth = 7;
+
+  if (!sundayStart) {
+    if (firstDayInMonth === 0) {
+      firstDayInMonth = 7;
+    }
+  } else {
+    firstDayInMonth++;
   }
 
   [...Array(daysInMonth).keys()].forEach((date) => {

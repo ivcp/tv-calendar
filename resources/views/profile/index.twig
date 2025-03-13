@@ -39,32 +39,52 @@
       </div>
     </div>
     <div class="mx-auto flex flex-col gap-4">
+      <h2 class="hidden lg:block text-lg font-bold">Calendar</h2>
+      <div
+        class="hidden lg:flex items-center justify-between gap-4 pb-4 border-b"
+      >
+        <p class="">Start week with Sunday</p>
+        <input
+          type="checkbox"
+          id="weekstart"
+          class="checkbox"
+          {%
+          if
+          user.startOfWeekSunday
+          %}
+          checked
+          {%
+          endif
+          %}
+        />
+      </div>
+      <h2 class="text-lg font-bold mt-12">Profile</h2>
       {% if not verified %}
-      <div class="flex items-center justify-end gap-4 pb-4 border-b">
+      <div class="flex items-center justify-between gap-4 pb-4 border-b">
         <p class="">Didn't receive the verification email?</p>
         <button
           id="email-resend"
           data-email="{{ email }}"
-          class="btn btn-outline rounded-lg"
+          class="btn btn-outline btn-sm rounded-lg"
         >
           Resend
         </button>
       </div>
       {% endif %} {% if passwordSet %}
-      <div class="flex items-center justify-end gap-4 pb-4 border-b">
+      <div class="flex items-center justify-between gap-4 pb-4 border-b">
         <p class="">Change your password</p>
         <a
           href="/update-password"
-          class="btn btn-outline btn-primary rounded-lg self-center"
+          class="btn btn-outline btn-primary btn-sm rounded-lg self-center"
           >Update password</a
         >
       </div>
       {% endif %}
-      <div class="flex items-center justify-end gap-4">
+      <div class="flex items-center justify-between gap-4">
         <p class="">Delete account</p>
         <button
           id="delete-account"
-          class="btn btn-outline btn-secondary rounded-lg self-center"
+          class="btn btn-outline btn-secondary btn-sm rounded-lg self-center"
         >
           Delete account
         </button>

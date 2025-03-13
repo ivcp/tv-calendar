@@ -35,6 +35,9 @@ class User implements UserInterface
     #[Column(name: 'verified_at', nullable: true)]
     private ?DateTime $verifiedAt;
 
+    #[Column(name: 'start_of_week_sunday', options: ['default' => false])]
+    private bool $startOfWeekSunday;
+
     #[OneToMany(targetEntity: UserShows::class, mappedBy:'user', cascade:['persist'])]
     private Collection $userShows;
 
@@ -128,6 +131,26 @@ class User implements UserInterface
     public function setVerifiedAt(DateTime $date): self
     {
         $this->verifiedAt = $date;
+        return $this;
+    }
+
+    /**
+     * Get the value of startOfWeekSunday
+     */
+    public function getStartOfWeekSunday(): bool
+    {
+        return $this->startOfWeekSunday;
+    }
+
+    /**
+     * Set the value of startOfWeekSunday
+     *
+     * @return  self
+     */
+    public function setStartOfWeekSunday(bool $startOfWeekSunday): self
+    {
+        $this->startOfWeekSunday = $startOfWeekSunday;
+
         return $this;
     }
 }

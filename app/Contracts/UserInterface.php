@@ -14,4 +14,5 @@ interface UserInterface
     public function getEmail(): string;
     public function getVerifiedAt(): ?DateTime;
     public function setVerifiedAt(DateTime $date): self;
+    public function getStartOfWeekSunday(): bool;
 }

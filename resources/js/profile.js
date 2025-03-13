@@ -1,9 +1,10 @@
-import { deleteProfile, resendEmail } from "./ajax";
+import { deleteProfile, resendEmail, setStartOfWeekSunday } from "./ajax";
 import { notification } from "./notification";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const deleteProfileBtn = document.querySelector("#delete-account");
   const resendEmailBtn = document.querySelector("#email-resend");
+  const weekStartCheckbox = document.querySelector("#weekstart");
 
   deleteProfileBtn.addEventListener("click", async () => {
     if (!confirm("Are you sure you want to delete your profile?")) {
@@ -32,4 +33,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       notification(response.messages, "alert-success");
     });
   }
+
+  weekStartCheckbox.addEventListener("change", async (e) => {
+    const response = await setStartOfWeekSunday(e.target.checked);
+    if (response.error) {
+      notification(response.messages, "alert-error");
+      return;
+    }
+    notification(response.messages, "alert-success");
+  });
 });

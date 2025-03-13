@@ -43,6 +43,16 @@ async function deleteProfile() {
     return result(true, ["something went wrong"]);
   }
 }
+async function setStartOfWeekSunday(start) {
+  try {
+    return await getResult(`/profile`, "PATCH", {
+      _METHOD: "PATCH",
+      startOfWeekSunday: start,
+    });
+  } catch (error) {
+    return result(true, ["something went wrong"]);
+  }
+}
 
 function result(error, messages, body = null) {
   return {
@@ -99,4 +109,4 @@ function getCsrfFields() {
   };
 }
 
-export { post, del, get, resendEmail, deleteProfile };
+export { post, del, get, resendEmail, deleteProfile, setStartOfWeekSunday };
