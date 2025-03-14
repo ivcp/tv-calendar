@@ -61,7 +61,7 @@ Encore
   .copyFiles({
     from: "./resources/images",
     to: "images/[path][name].[hash:8].[ext]",
-    pattern: /\.(png|jpg|jpeg|gif|svg)$/,
+    pattern: /\.(png|jpg|jpeg|gif|svg|ico)$/,
   })
 
   .enablePostCssLoader((options) => {
