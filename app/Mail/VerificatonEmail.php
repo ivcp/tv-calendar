@@ -32,15 +32,17 @@ class VerificatonEmail
             $email,
             $expirationDate
         );
+        $appName = $this->config->get('app_name');
 
         $message = (new TemplatedEmail())
         ->from($this->config->get('mailer.from'))
         ->to($email)
-        ->subject('Welcome to ' . $this->config->get('app_name'))
+        ->subject('Welcome to ' . $appName)
         ->htmlTemplate('emails/register.html.twig')
         ->context([
             'activationLink' => $activationLink,
-            'expirationDate' => $expirationDate
+            'expirationDate' => $expirationDate,
+            'appName' => $appName
         ]);
         $this->bodyRenderer->render($message);
 

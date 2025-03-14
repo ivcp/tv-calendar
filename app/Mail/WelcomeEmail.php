@@ -23,14 +23,16 @@ class WelcomeEmail
     public function send(User $user): void
     {
         $email = $user->getEmail();
+        $appName = $this->config->get('app_name');
 
         $message = (new TemplatedEmail())
         ->from($this->config->get('mailer.from'))
         ->to($email)
-        ->subject('Welcome to ' . $this->config->get('app_name'))
+        ->subject('Welcome to ' . $appName)
         ->htmlTemplate('emails/welcome.html.twig')
         ->context([
-            'website' => $this->config->get('app_url')
+            'website' => $this->config->get('app_url'),
+            'appName' => $appName
         ]);
 
         $this->bodyRenderer->render($message);
