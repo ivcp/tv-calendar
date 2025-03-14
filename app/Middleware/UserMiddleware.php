@@ -26,7 +26,8 @@ class UserMiddleware implements MiddlewareInterface
                 'user',
                 [
                 'id' => $user->getId(),
-                'verifiedAt' => $user->getVerifiedAt()
+                'verifiedAt' => $user->getVerifiedAt(),
+                'startOfWeekSunday' => $user->getStartOfWeekSunday()
                 ]
             );
             return $handler->handle($request->withAttribute('user', $user));

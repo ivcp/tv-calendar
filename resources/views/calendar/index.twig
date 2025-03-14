@@ -107,15 +107,29 @@
     </div>
     <div class="mt-2 bg-base-100 px-2 lg:px-0">
       <div
+        id="days"
         class="hidden font-bold py-3 lg:grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:justify-items-center"
+        {%
+        if
+        user.startOfWeekSunday
+        %}
+        sunday-start
+        {%
+        endif
+        %}
       >
+        {% if user.startOfWeekSunday %}
+        <span>Sunday</span>
+        {% endif %}
         <span>Monday</span>
         <span>Tuesday</span>
         <span>Wednesday</span>
         <span>Thursday</span>
         <span>Friday</span>
         <span>Saturday</span>
+        {% if not user.startOfWeekSunday %}
         <span>Sunday</span>
+        {% endif %}
       </div>
       <div
         id="calendar"

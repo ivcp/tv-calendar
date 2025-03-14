@@ -31,6 +31,7 @@ class UserProviderService implements UserProviderServiceInterface
     {
         $user = new User();
         $user->setEmail($data->email);
+        $user->setStartOfWeekSunday($data->startOfWeekSunday);
         if ($data->password) {
             $user->setPassword($this->hashPassword($data->password));
         }
@@ -47,6 +48,7 @@ class UserProviderService implements UserProviderServiceInterface
     public function verifyUser(UserInterface $user): void
     {
         $user->setVerifiedAt(new DateTime());
+        $user->setUpdatedAt(new DateTime());
         $this->entityManager->persist($user);
         $this->entityManager->flush();
     }
@@ -54,6 +56,7 @@ class UserProviderService implements UserProviderServiceInterface
     public function updatePassword(UserInterface $user, string $password): void
     {
         $user->setPassword($this->hashPassword($password));
+        $user->setUpdatedAt(new DateTime());
         $this->entityManager->persist($user);
         $this->entityManager->flush();
     }

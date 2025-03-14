@@ -414,16 +414,9 @@
               {% if user and user.verifiedAt is same as(null) and not verified
               %}
               <div class="border border-warning rounded-lg p-2">
-                <p class="text-sm w-full pb-2">
+                <p class="text-sm w-full">
                   Please, check your email to activate your account.
                 </p>
-                <p class="text-sm pb-2">Didn't receive the email?</p>
-                <button
-                  id="email-resend"
-                  class="btn btn-outline btn-sm mx-auto"
-                >
-                  Resend
-                </button>
               </div>
               {% endif %}
             </ul>
