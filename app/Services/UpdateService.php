@@ -40,10 +40,10 @@ class UpdateService
 
         $showsInDB = $this->showService->getShowsByTvMazeId($updatedShowIDs);
 
-        $showsInDBIds = $showsInDB ? array_map(fn($show) => $show->getTvMazeId(), $showsInDB) : [];
+        $showsInDBIds = $showsInDB ? array_map(fn ($show) => $show->getTvMazeId(), $showsInDB) : [];
 
         $showsToInsert = array_values(
-            array_filter($updatedShowsData, fn($show) => !in_array($show->tvMazeId, $showsInDBIds))
+            array_filter($updatedShowsData, fn ($show) => !in_array($show->tvMazeId, $showsInDBIds))
         );
 
 
@@ -100,8 +100,6 @@ class UpdateService
         try {
             $insertedShows = $this->showService->insertShows($showsToInsert);
         } catch (\Throwable $e) {
-            //log
-            //abort
             error_log('ERROR insertShows: ' . $e->getMessage());
             return;
         }
@@ -115,7 +113,6 @@ class UpdateService
                 $insertedEpisodes = $this->episodeService->insertEpisodes($episodes);
                 $epInsertCount += $insertedEpisodes;
             } catch (\Throwable $e) {
-                //log it
                 error_log("ERROR insert episodes for $show->tvMazeId: " . $e->getMessage());
             }
         }
@@ -136,7 +133,6 @@ class UpdateService
             $updatedShows = $this->showService->updateShows($showsToUpdate);
             $showUpdatedCount += $updatedShows;
         } catch (\Throwable $e) {
-            //log
             error_log('ERROR update shows: ' . $e->getMessage());
             return;
         }
@@ -148,10 +144,10 @@ class UpdateService
             $episodesInDb = $this->showService->getById($showId)->getEpisodes();
 
             $episodesToUpdate = [];
-            $episodesInDbTvMazeIds = array_map(fn($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
-            $episodesInDbIds =  array_map(fn($e) => $e->getId(), $episodesInDb->toArray());
+            $episodesInDbTvMazeIds = array_map(fn ($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
+            $episodesInDbIds =  array_map(fn ($e) => $e->getId(), $episodesInDb->toArray());
             foreach ($episodes as $episode) {
-                $ep = $episodesInDb->findFirst(fn($k, $v) => $v->getTvMazeEpisodeId() === $episode->tvMazeEpisodeId);
+                $ep = $episodesInDb->findFirst(fn ($k, $v) => $v->getTvMazeEpisodeId() === $episode->tvMazeEpisodeId);
                 if ($ep) {
                     $episodesToUpdate[$ep->getId()] = $episode;
                 }
@@ -161,20 +157,19 @@ class UpdateService
             if ($episodesToUpdate) {
                 $epsToUpdateFiltered = array_filter(
                     $episodesToUpdate,
-                    fn($e) => $e->airstamp > new DateTime('7 days ago')
+                    fn ($e) => $e->airstamp > new DateTime('7 days ago')
                 );
                 try {
                     $updatedEpisodesNumber = $this->episodeService->updateEpisodes($epsToUpdateFiltered, $showId);
                     $epUpdatedCount += $updatedEpisodesNumber;
                 } catch (\Throwable $e) {
-                    //log
                     error_log("ERROR updateEpisodes for $show->tvMazeId: " . $e->getMessage());
                     return;
                 }
             }
             $episodesToInsert = array_filter(
                 $episodes,
-                fn($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
+                fn ($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
             );
 
             if ($episodesToInsert) {
@@ -188,7 +183,7 @@ class UpdateService
                 }
             }
 
-            $episodesToRemove = array_filter($episodesInDbIds, fn($e) => !in_array($e, array_keys($episodesToUpdate)));
+            $episodesToRemove = array_filter($episodesInDbIds, fn ($e) => !in_array($e, array_keys($episodesToUpdate)));
             if ($episodesToRemove) {
                 try {
                     $removedEpisodes = $this->episodeService->removeEpisodes($episodesToRemove);
