@@ -128,7 +128,7 @@ class User implements UserInterface
         return $this->verifiedAt;
     }
 
-    public function setVerifiedAt(DateTime $date): self
+    public function setVerifiedAt(?DateTime $date): self
     {
         $this->verifiedAt = $date;
         return $this;
