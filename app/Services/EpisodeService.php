@@ -51,7 +51,7 @@ class EpisodeService
                 $sql .= $user ? ' AND us.user_id = ? ' : ' AND e.show_id IN (?)';
                 break;
         }
-        $sql .= ' ORDER BY e.airstamp ASC, e.id ASC';
+        $sql .= ' ORDER BY e.show_id ASC, e.id ASC';
 
         $parameters = [
             $timeZone,

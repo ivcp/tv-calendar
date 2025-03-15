@@ -31,14 +31,16 @@ class ForgotPasswordEmail
             $passwordReset->getToken(),
             $passwordReset->getExpiration()
         );
+        $appName = $this->config->get('app_name');
 
         $message = (new TemplatedEmail())
         ->from($this->config->get('mailer.from'))
         ->to($email)
-        ->subject($this->config->get('app_name') . ' - password reset')
+        ->subject($appName . ' - password reset')
         ->htmlTemplate('emails/password-reset.html.twig')
         ->context([
-            'resetLink' => $resetLink
+            'resetLink' => $resetLink,
+            'appName' => $appName
         ]);
         $this->bodyRenderer->render($message);
 
