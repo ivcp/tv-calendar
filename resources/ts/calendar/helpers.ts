@@ -11,7 +11,7 @@ function getCurrentYearMonth(): string {
 }
 
 function markToday(): void {
-  const todayCard = document.getElementById(`#date-${new Date().getDate()}`);
+  const todayCard = document.getElementById(`date-${new Date().getDate()}`);
   assertHtmlElement(todayCard);
   todayCard.classList.add(
     'outline',
