@@ -1,7 +1,7 @@
 {% extends 'layout.twig' %} {% block content %} {% block javascripts %}
 {{ parent() }}
-{{ encore_entry_script_tags("addRemoveShow") }}
-{{ encore_entry_script_tags("show") }}
+{{ encore_entry_script_tags('addRemoveShow') }}
+{{ encore_entry_script_tags('show') }}
 {% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
@@ -25,6 +25,9 @@
       >
         {{ show.name }}
         {{ show.premiered ? '(' ~ show.premiered | date('Y')
+
+
+
 
 
 
@@ -187,7 +190,9 @@
               </svg>
               {% endif %}
             </div>
-            <div class="stat-desc tracking-tight text-center">{{ show.status }}</div>
+            <div class="stat-desc tracking-tight text-center">
+              {{ show.status }}
+            </div>
           </div>
 
           <div class="stat min-w-28 max-w-32 overflow-x-hidden w-max gap-2">
@@ -214,7 +219,7 @@
               </a>
             </div>
             <div class="stat-desc tracking-tight text-center">
-              {{ show.networkName ?? show.webChannelName ?? "-" }}
+              {{ show.networkName ?? show.webChannelName ?? '-' }}
             </div>
           </div>
         </div>
@@ -231,7 +236,7 @@
           <div class="stat py-0">
             <div class="stat-title">Seasons</div>
             <div class="stat-value place-self-center">
-              {{ episodes ? max(seasons) : "-" }}
+              {{ episodes ? max(seasons) : '-' }}
             </div>
           </div>
           <div class="stat py-0">
@@ -293,8 +298,9 @@
                       <button
                         data-episode-info="{{ ep | json_encode }}"
                         class="hover:text-primary text-left transition-colors pointer"
-                        >{{ ep.episodeName }}</
                       >
+                        {{ ep.episodeName }}
+                      </button>
                     </td>
                     <td class="">
                       {{ ep.airstamp | date('M j, Y') }}
