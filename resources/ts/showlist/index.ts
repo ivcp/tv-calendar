@@ -88,14 +88,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const deleteShow = async (el: Element) => {
     const showId = el.getAttribute('data-show-id');
+    const title = el.parentElement?.parentElement
+      ?.querySelector('p')
+      ?.textContent?.trim();
     if (showId) {
-      if (
-        !confirm(
-          `Remove "${el.parentElement?.parentElement
-            ?.querySelector('p')
-            ?.textContent?.trim()}" from your list?`
-        )
-      ) {
+      if (!confirm(`Remove "${title}" from your list?`)) {
         return;
       }
 
@@ -111,6 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         el.parentElement?.parentElement?.remove();
         localShowlist = getLocalShowlist();
         showCountElement.textContent = `| ${localShowlist.length}`;
+        notification([`${title} removed from your list`], 'alert-info');
         return;
       }
 

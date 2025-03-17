@@ -5,8 +5,10 @@ import {
 } from '../utils/assertElement';
 import {
   getLocalShowlist,
+  getSavedTheme,
   setLocalShowList,
   setMakeAccountSeen,
+  setTheme,
 } from '../utils/localStorageHelpers';
 import { assertIsNode, debounce, renderResults } from './helpers';
 
@@ -22,6 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
   assertHtmlInputElement(searchInput);
   const searchResults = document.getElementById('search-results');
   assertHtmlElement(searchResults);
+  const themeToggle = document.getElementById('theme-toggle');
+  assertHtmlInputElement(themeToggle);
+
+  const theme = getSavedTheme();
+  if (theme !== null) {
+    themeToggle.checked = theme;
+  }
 
   const hasLocalShowlist = window.localStorage.getItem('showlist');
   if (!hasLocalShowlist) {
@@ -88,5 +97,10 @@ document.addEventListener('DOMContentLoaded', () => {
   searchInput.addEventListener('input', async ({ target }) => {
     const input = target as HTMLInputElement;
     debouncedSearch(input.value);
+  });
+
+  themeToggle.addEventListener('change', () => {
+    const isLight = themeToggle.checked;
+    setTheme(isLight);
   });
 });

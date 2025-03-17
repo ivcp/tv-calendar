@@ -23,9 +23,22 @@ const makeAccountSeen = (): boolean => {
   return JSON.parse(seen) as boolean;
 };
 
+const getSavedTheme = (): boolean | null => {
+  const savedTheme = localStorage.getItem('theme-light');
+  if (!savedTheme) {
+    return null;
+  }
+  return JSON.parse(savedTheme) as boolean;
+};
+
+const setTheme = (isLight: boolean) =>
+  localStorage.setItem('theme-light', JSON.stringify(isLight));
+
 export {
   getLocalShowlist,
   setLocalShowList,
   setMakeAccountSeen,
   makeAccountSeen,
+  getSavedTheme,
+  setTheme,
 };

@@ -72,7 +72,7 @@ function insertEpisode(episode: Episode, el: Element) {
     'beforeend',
     `<button id="ep-${
       episode.id
-    }" class="bg-base-content/85 text-primary-content lg:hover:bg-base-content ${
+    }" class="bg-base-content/85 lg:hover:bg-base-content ${
       premiere ? premiereStyles : ''
     } ${
       newSeasonStart ? newSeasonStartStyles : ''
