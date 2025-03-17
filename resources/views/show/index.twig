@@ -33,6 +33,54 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }}{{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
       </h1>
       <div
@@ -62,7 +110,11 @@
       class="flex gap-6 lg:gap-12 flex-col items-center lg:items-start lg:justify-center lg:flex-row"
     >
       <picture
-        class="w-[210px] h-[295px] lg:w-[340px] lg:h-[500px] skeleton rounded-lg"
+        class="w-[210px] h-[295px] lg:w-[340px] lg:h-[500px] rounded-lg lg:bg-[image:var(--bgLoading)] lg:bg-cover lg:bg-no-repeat"
+        {%if
+        show.imageMedium%}
+        style="--bgLoading: url('{{ show.imageMedium }}')"
+        {%endif%}
       >
         <source
           media="(max-width:1024px)"
@@ -72,7 +124,6 @@
         <img
           src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
           alt="{{ show.name }}"
-          decoding="async"
           onload="this.classList.add('bg-base-200')"
           class="block w-max object-cover mx-auto rounded-lg"
         />
