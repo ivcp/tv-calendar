@@ -1,7 +1,7 @@
 {% extends 'layout.twig' %} {% block content %} {% block javascripts %}
 {{ parent() }}
-{{ encore_entry_script_tags("addRemoveShow") }}
-{{ encore_entry_script_tags("show") }}
+{{ encore_entry_script_tags('addRemoveShow') }}
+{{ encore_entry_script_tags('show') }}
 {% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
@@ -25,6 +25,59 @@
       >
         {{ show.name }}
         {{ show.premiered ? '(' ~ show.premiered | date('Y')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -59,7 +112,11 @@
       class="flex gap-6 lg:gap-12 flex-col items-center lg:items-start lg:justify-center lg:flex-row"
     >
       <picture
-        class="w-[210px] h-[295px] lg:w-[340px] lg:h-[500px] skeleton rounded-lg"
+        class="w-[210px] h-[295px] lg:w-[340px] lg:h-[500px] rounded-lg lg:bg-[image:var(--bgLoading)] lg:bg-cover lg:bg-no-repeat"
+        {%if
+        show.imageMedium%}
+        style="--bgLoading: url('{{ show.imageMedium }}')"
+        {%endif%}
       >
         <source
           media="(max-width:1024px)"
@@ -69,7 +126,6 @@
         <img
           src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
           alt="{{ show.name }}"
-          decoding="async"
           onload="this.classList.add('bg-base-200')"
           class="block w-max object-cover mx-auto rounded-lg"
         />
@@ -187,7 +243,9 @@
               </svg>
               {% endif %}
             </div>
-            <div class="stat-desc text-center">{{ show.status }}</div>
+            <div class="stat-desc tracking-tight text-center">
+              {{ show.status }}
+            </div>
           </div>
 
           <div class="stat min-w-28 max-w-32 overflow-x-hidden w-max gap-2">
@@ -211,10 +269,11 @@
                     />
                   </svg>
                 </div>
+                <span class="sr-only">visit website</span>
               </a>
             </div>
-            <div class="stat-desc text-center">
-              {{ show.networkName ?? show.webChannelName ?? "-" }}
+            <div class="stat-desc tracking-tight text-center">
+              {{ show.networkName ?? show.webChannelName ?? '-' }}
             </div>
           </div>
         </div>
@@ -231,7 +290,7 @@
           <div class="stat py-0">
             <div class="stat-title">Seasons</div>
             <div class="stat-value place-self-center">
-              {{ episodes ? max(seasons) : "-" }}
+              {{ episodes ? max(seasons) : '-' }}
             </div>
           </div>
           <div class="stat py-0">
@@ -247,7 +306,8 @@
         <div
           class="collapse collapse-arrow rounded-lg bg-base-300 {{ season is same as(0) ? 'order-last' }}"
         >
-          <input type="checkbox" />
+          <label class="sr-only" for="season-check">season {{ season }}</label>
+          <input id="season-check" type="checkbox" />
           <div class="collapse-title text-xl font-medium">
             {% if season > 0 %} Season {{ season }}
             {% else %} Other {% endif %}
@@ -293,8 +353,9 @@
                       <button
                         data-episode-info="{{ ep | json_encode }}"
                         class="hover:text-primary text-left transition-colors pointer"
-                        >{{ ep.episodeName }}</
                       >
+                        {{ ep.episodeName }}
+                      </button>
                     </td>
                     <td class="">
                       {{ ep.airstamp | date('M j, Y') }}

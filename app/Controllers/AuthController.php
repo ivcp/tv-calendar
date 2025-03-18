@@ -12,6 +12,7 @@ use App\DataObjects\RegisterUserData;
 use App\Exception\ValidationException;
 use App\Mail\VerificatonEmail;
 use App\RequestValidators\LoginUserRequestValidator;
+use App\RequestValidators\OauthRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
 use App\ResponseFormatter;
 use App\Services\UserShowsService;
@@ -132,6 +133,14 @@ class AuthController
 
     public function googleOauth(Request $request, Response $response): Response
     {
+        $data = $this->requestValidatorFactory
+        ->make(OauthRequestValidator::class)
+        ->validate($request->getQueryParams());
+
+        $shows = '';
+        if (isset($data['shows'])) {
+            $shows = urlencode(implode(',', $data['shows']));
+        }
 
         $clientId = $this->config->get('oauth.google.client_id');
         $redirectUri = $this->config->get('oauth.google.redirect_uri');
@@ -184,6 +193,12 @@ class AuthController
                 if (! $user->getVerifiedAt()) {
                     $this->userProviderService->verifyUser($user);
                 }
+
+                if (isset($data['state'])) {
+                    $localShows = explode(',', urldecode($data['state']));
+                    $this->importLocalShows($localShows, $user);
+                }
+
                 $user = $this->auth->login($user);
             }
 
@@ -197,6 +212,9 @@ class AuthController
                 'access_type' => 'offline',
                 'prompt' => 'consent'
             ];
+            if ($shows !== '') {
+                $params['state'] = $shows;
+            }
 
             return $response->withHeader(
                 'Location',

@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %} {% block content %} {% block javascripts %}
 {{ parent() }}
-{{ encore_entry_script_tags("importLocalShows") }}
+{{ encore_entry_script_tags('importLocalShows') }}
 {% endblock %}
 <section
   class="mt-8 lg:mt-10 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
@@ -79,13 +79,13 @@
     >
       Log In
     </button>
-    <a
-      href="/google-oauth"
+    <button
+      id="google-oauth"
       class="mt-4 flex items-center gap-4 btn self-center rounded-xl h-14"
     >
-      <img src="{{ asset("build/images/google.svg") }}" alt="google icon">
-      <span> Continue with Google</span></a
-    >
+      <img src="{{ asset('build/images/google.svg') }}" alt="google icon" />
+      <span> Continue with Google</span>
+    </button>
     <p class="text-center text-sm mt-4">
       Don't have an account?
       <a href="/register" class="text-primary font-bold">Register</a>

@@ -1,17 +1,17 @@
-const Encore = require("@symfony/webpack-encore");
+const Encore = require('@symfony/webpack-encore');
 
 // Manually configure the runtime environment if not already configured yet by the "encore" command.
 // It's useful when you use tools that rely on webpack.config.js file.
 if (!Encore.isRuntimeEnvironmentConfigured()) {
-  Encore.configureRuntimeEnvironment(process.env.NODE_ENV || "dev");
+  Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
 }
 
 Encore
   // directory where compiled assets will be stored
-  .setOutputPath("public/build/")
+  .setOutputPath('public/build/')
 
   // public path used by the web server to access the output path
-  .setPublicPath("/build")
+  .setPublicPath('/build')
 
   /*
    * ENTRY CONFIG
@@ -19,14 +19,15 @@ Encore
    * Each entry will result in one JavaScript file (e.g. app.js)
    * and one CSS file (e.g. app.css) if your JavaScript imports CSS.
    */
-  .addEntry("app", "./resources/js/app.js")
-  .addEntry("calendar", "./resources/js/calendar.js")
-  .addEntry("addRemoveShow", "./resources/js/addRemoveShow.js")
-  .addEntry("showlist", "./resources/js/showlist.js")
-  .addEntry("show", "./resources/js/show.js")
-  .addEntry("importLocalShows", "./resources/js/importLocalShows.js")
-  .addEntry("profile", "./resources/js/profile.js")
+  .addEntry('app', './resources/ts/app')
+  .addEntry('calendar', './resources/ts/calendar')
+  .addEntry('addRemoveShow', './resources/ts/addRemoveShow')
+  .addEntry('showlist', './resources/ts/showlist')
+  .addEntry('show', './resources/ts/show')
+  .addEntry('importLocalShows', './resources/ts/importLocalShows')
+  .addEntry('profile', './resources/ts/profile')
 
+  .enableTypeScriptLoader()
   // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
   .splitEntryChunks()
 
@@ -48,25 +49,25 @@ Encore
   // enables hashed filenames (e.g. app.abc123.css)
   .enableVersioning()
 
-  .configureBabel((config) => {
-    config.plugins.push("@babel/plugin-proposal-class-properties");
+  .configureBabel(config => {
+    config.plugins.push('@babel/plugin-proposal-class-properties');
   })
 
   // enables @babel/preset-env polyfills
-  .configureBabelPresetEnv((config) => {
-    config.useBuiltIns = "usage";
-    config.corejs = 3;
+  .configureBabelPresetEnv(config => {
+    config.useBuiltIns = 'usage';
+    config.corejs = '3.41';
   })
 
   .copyFiles({
-    from: "./resources/images",
-    to: "images/[path][name].[hash:8].[ext]",
+    from: './resources/images',
+    to: 'images/[path][name].[hash:8].[ext]',
     pattern: /\.(png|jpg|jpeg|gif|svg|ico)$/,
   })
 
-  .enablePostCssLoader((options) => {
+  .enablePostCssLoader(options => {
     options.postcssOptions = {
-      config: "./postcss.config.js",
+      config: './postcss.config.js',
     };
   });
 

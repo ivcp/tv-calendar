@@ -1,6 +1,8 @@
  {% set url = current_url(true) %}
  <form action="{{current_url()}}">
+    <label class="sr-only" for="genre-select">select a genre</label>
     <select
+        id="genre-select"
         class="select select-bordered rounded-badge h-10 min-h-10 max-w-xs"
         name="genre"
         onchange="this.form.submit()"
