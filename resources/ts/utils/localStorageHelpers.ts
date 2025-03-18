@@ -15,7 +15,7 @@ const setMakeAccountSeen = (isSeen: boolean) =>
     JSON.stringify(isSeen)
   );
 
-const makeAccountSeen = (): boolean => {
+const isMakeAccountSeen = (): boolean => {
   const seen = window.localStorage.getItem('make-account-prompt-seen');
   if (!seen) {
     return false;
@@ -38,7 +38,7 @@ export {
   getLocalShowlist,
   setLocalShowList,
   setMakeAccountSeen,
-  makeAccountSeen,
+  isMakeAccountSeen,
   getSavedTheme,
   setTheme,
 };

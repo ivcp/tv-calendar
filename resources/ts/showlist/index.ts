@@ -2,7 +2,7 @@ import { removeShow, get } from '../utils/ajax';
 import { notification } from '../utils/notification';
 import {
   getLocalShowlist,
-  makeAccountSeen,
+  isMakeAccountSeen,
   setLocalShowList,
 } from '../utils/localStorageHelpers';
 import { showCreateAccountPrompt, sortShows } from './helpers';
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         })
       );
 
-      if (!makeAccountSeen() && localShowlist.length > 0) {
+      if (!isMakeAccountSeen() && localShowlist.length > 0) {
         showCreateAccountPrompt();
       }
     }
