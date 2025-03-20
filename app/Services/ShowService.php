@@ -110,7 +110,8 @@ class ShowService
 
         switch ($sort) {
             case DiscoverSort::New:
-                $qb->addOrderBy('c.tvMazeId', 'desc');
+                $qb->andWhere('c.premiered IS NOT NULL');
+                $qb->addOrderBy('c.premiered', 'desc');
                 break;
             case DiscoverSort::Popular:
                 $qb->addOrderBy('c.weight', 'desc');
@@ -125,7 +126,8 @@ class ShowService
                 $qb->addOrderBy('s.weight', 'desc');
                 break;
             case ShowListSort::New:
-                $qb->addOrderBy('s.tvMazeId', 'desc');
+                $qb->andWhere('s.premiered IS NOT NULL');
+                $qb->addOrderBy('s.premiered', 'desc');
                 break;
         }
 
