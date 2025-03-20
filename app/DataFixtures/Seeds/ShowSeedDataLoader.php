@@ -14,7 +14,7 @@ class ShowSeedDataLoader implements FixtureInterface
     {
 
         try {
-            /** @disregard P1009 Undefined type */
+            /** @disregard P1013 Undefined method */
             $conn = $manager->getConnection();
             $stmt = $conn->prepare('CREATE TABLE temp (data jsonb);');
             $stmt->executeStatement($stmt);
