@@ -16,7 +16,7 @@ services:
     volumes:
       - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
       - ./docker/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
-      - .env:.
+      - .env:/var/www/
 
   nginx:
     image: nginx:1.19-alpine
