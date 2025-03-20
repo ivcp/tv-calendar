@@ -143,7 +143,7 @@ class AuthController
         }
 
         $clientId = $this->config->get('oauth.google.client_id');
-        $redirectUri = $this->config->get('oauth.google.redirect_uri');
+        $redirectUri = $this->config->get('app_url') . $this->config->get('oauth.google.redirect_uri');
         $clientSecret = $this->config->get('oauth.google.client_secret');
 
         $params = $request->getQueryParams();
