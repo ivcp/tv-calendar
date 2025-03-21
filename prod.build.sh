@@ -19,6 +19,8 @@ msg "Building containers"
 sudo docker compose -f prod.compose.yml up -d  app nginx db cron --build
 sudo docker cp tv-calendar-app:var/www/vendor .
 sudo docker cp tv-calendar-app:var/www/public/build ./public/
+sudo docker exec -t tv-calendar-app bash -c './bin/doctrine orm:generate-proxies'
+sudo chmod 1777 /tmp
 
 msg "Removing stale images"
 
