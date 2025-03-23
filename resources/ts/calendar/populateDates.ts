@@ -36,6 +36,18 @@ function populateDates(episodes: Episode[]) {
         const sn = prevEp.querySelector('#season-number');
         if (sn) sn.textContent = `${sameDayEps} eps`;
       }
+
+      if (
+        isCurrentMonth &&
+        date === new Date().getDate() &&
+        airingTodayContainer
+      ) {
+        const body = airingTodayContainer.querySelector('#airing-today-body');
+        const prevAiringTodayEp = body?.querySelector(`#ep-${firstEpId}`);
+        const tsn = prevAiringTodayEp?.querySelector('#season-number');
+        if (tsn) tsn.textContent = `${sameDayEps} eps`;
+      }
+
       return;
     }
     sameDayEps = 1;
