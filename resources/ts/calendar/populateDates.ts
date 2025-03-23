@@ -1,16 +1,16 @@
 import { Episode } from '../types';
+import { assertHtmlElement } from '../utils/assertElement';
 import { openEpisodeModal } from '../utils/episodeModal';
 import { getCurrentYearMonth } from './helpers';
 
 function populateDates(episodes: Episode[]) {
   const airingTodayContainer = document.getElementById(
-    '#airing-today-container'
+    'airing-today-container'
   );
+  assertHtmlElement(airingTodayContainer);
   document.querySelectorAll('.card-body').forEach(e => e.replaceChildren());
-  if (airingTodayContainer) {
-    airingTodayContainer.classList.add('hidden');
-    airingTodayContainer.querySelector('#airing-today-body')?.replaceChildren();
-  }
+  airingTodayContainer.classList.add('hidden');
+  airingTodayContainer.querySelector('#airing-today-body')?.replaceChildren();
   const path = window.location.pathname;
   const currentMonth = getCurrentYearMonth();
   const isCurrentMonth = path === '/' || currentMonth === path.slice(1);
@@ -20,8 +20,9 @@ function populateDates(episodes: Episode[]) {
   episodes.forEach((episode, i) => {
     const date = new Date(episode.airstamp).getDate();
     const cardBody = document
-      .querySelector(`#date-${date}`)
+      .getElementById(`date-${date}`)
       ?.querySelector('.card-body');
+    assertHtmlElement(cardBody);
 
     if (currentShowId === episode.showId && currentDate === date) {
       sameDayEps++;
@@ -30,11 +31,23 @@ function populateDates(episodes: Episode[]) {
         firstEpId = episodes[i - 1].id;
       }
 
-      const prevEp = cardBody?.querySelector(`#ep-${firstEpId}`);
+      const prevEp = cardBody.querySelector(`#ep-${firstEpId}`);
       if (prevEp) {
         const sn = prevEp.querySelector('#season-number');
         if (sn) sn.textContent = `${sameDayEps} eps`;
       }
+
+      if (
+        isCurrentMonth &&
+        date === new Date().getDate() &&
+        airingTodayContainer
+      ) {
+        const body = airingTodayContainer.querySelector('#airing-today-body');
+        const prevAiringTodayEp = body?.querySelector(`#ep-${firstEpId}`);
+        const tsn = prevAiringTodayEp?.querySelector('#season-number');
+        if (tsn) tsn.textContent = `${sameDayEps} eps`;
+      }
+
       return;
     }
     sameDayEps = 1;
@@ -50,7 +63,7 @@ function populateDates(episodes: Episode[]) {
       const body = airingTodayContainer.querySelector('#airing-today-body');
       if (body) insertEpisode(episode, body);
     }
-    if (cardBody) insertEpisode(episode, cardBody);
+    insertEpisode(episode, cardBody);
   });
 
   document
