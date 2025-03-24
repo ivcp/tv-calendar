@@ -146,7 +146,8 @@ return [
             $config->get('session.secure', true),
             $config->get('session.httponly', true),
             $config->get('session.flash_name', 'flash'),
-            SameSite::from($config->get('session.samesite', 'lax'))
+            SameSite::from($config->get('session.samesite', 'lax')),
+            $config->get('session.lifetime', 0),
         )
     ),
     RequestValidatorFactoryInterface::class =>
