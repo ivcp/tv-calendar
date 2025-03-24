@@ -28,6 +28,7 @@ class Session implements SessionInterface
             'secure' => $this->sessionConfig->secure,
             'httponly' => $this->sessionConfig->httpOnly,
             'samesite' => $this->sessionConfig->sameSite->value,
+            'lifetime' => $this->sessionConfig->lifetime
         ]);
 
         if (! empty($this->sessionConfig->name)) {

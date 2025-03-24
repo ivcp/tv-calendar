@@ -13,7 +13,8 @@ class SessionConfig
         public readonly bool $secure,
         public readonly bool $httpOnly,
         public readonly string $flashName,
-        public readonly SameSite $sameSite
+        public readonly SameSite $sameSite,
+        public readonly int $lifetime,
     ) {
     }
 }

@@ -39,6 +39,7 @@ return [
         'secure' => AppEnvironment::isDevelopment($appEnv) ? false : true,
         'httponly' => true,
         'samesite' => 'lax',
+        'lifetime' =>  60 * 60 * 24 * 365
     ],
     'json_tags' => JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS | JSON_THROW_ON_ERROR,
     'popular_weight' => 99,
