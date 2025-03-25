@@ -6,12 +6,10 @@ if [ -z "$ORACLE_PAR" ]; then
     exit
 fi
 
-sudo docker exec -it tv-calendar-db bash -c "pg_dump -U user -h localhost tv-calendar | gzip > backup.sql.gz"
-sudo docker cp tv-calendar-db:backup.sql.gz .
-sudo docker exec -it tv-calendar-db bash -c "rm backup.sql.gz"
+/usr/bin/docker exec -t tv-calendar-db bash -c "pg_dump -U ${DB_USER} -h localhost ${DB_NAME} | gzip > backup.sql.gz"
+/usr/bin/docker cp tv-calendar-db:backup.sql.gz .
+/usr/bin/docker exec -t tv-calendar-db bash -c "rm backup.sql.gz"
 
-curl -T backup.sql.gz "${ORACLE_PAR}backup.sql.gz"
+/usr/bin/curl -T backup.sql.gz "${ORACLE_PAR}backup.sql.gz"
 
-rm backup.sql.gz
-
-
+/usr/bin/rm backup.sql.gz
