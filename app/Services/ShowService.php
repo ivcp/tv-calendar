@@ -115,6 +115,7 @@ class ShowService
                 break;
             case DiscoverSort::Popular:
                 $qb->addOrderBy('c.weight', 'desc');
+                $qb->addOrderBy('c.updatedAt', 'desc');
                 break;
             case ShowListSort::Added:
                 $qb->addOrderBy('c.createdAt', 'desc');
@@ -124,6 +125,7 @@ class ShowService
                 break;
             case ShowListSort::Popular:
                 $qb->addOrderBy('s.weight', 'desc');
+                $qb->addOrderBy('s.updatedAt', 'desc');
                 break;
             case ShowListSort::New:
                 $qb->andWhere('s.premiered IS NOT NULL');
