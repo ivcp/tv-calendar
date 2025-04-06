@@ -20,7 +20,3 @@ A web app for tracking and discovering TV shows. Users can search for shows, add
 - Postgres
 - Nginx
 - Docker
-
-## How to run locally
-
-TODO://
