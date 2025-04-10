@@ -2,12 +2,22 @@ import { assertHtmlElement } from '../utils/assertElement';
 
 function drawCalendar(): void {
   const calendarElement = document.getElementById('calendar');
+  const currentMonthElement = document.getElementById('current-month');
+  const currentYearElement = document.getElementById('current-year');
   assertHtmlElement(calendarElement);
+  assertHtmlElement(currentMonthElement);
+  assertHtmlElement(currentYearElement);
+
   const sundayStart = document
     .getElementById('days')
     ?.hasAttribute('sunday-start');
 
   const now = new Date();
+  currentMonthElement.textContent = now.toLocaleString('en-us', {
+    month: 'long',
+  });
+  currentYearElement.textContent = `| ${now.getFullYear()}`;
+
   const daysInMonth = new Date(
     now.getFullYear(),
     now.getMonth() + 1,

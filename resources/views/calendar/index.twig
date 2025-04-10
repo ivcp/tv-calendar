@@ -39,8 +39,8 @@
           <span class="sr-only">previous month</span>
         </a>
         <h1 class="text-xl font-bold uppercase">
-          {{ month|date('F') }}
-          <span class="font-normal">| {{month|date('Y')}}</span>
+          <span id="current-month">{{ month|date('F') }}</span>
+          <span id="current-year" class="font-normal">| {{month|date('Y')}}</span>
         </h1>
         <a
           href="/{{ month|date_modify('+1 month')|date('Y-m') }}"
