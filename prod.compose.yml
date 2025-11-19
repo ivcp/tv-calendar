@@ -34,7 +34,7 @@ services:
 
   db:
     container_name: tv-calendar-db
-    image: postgres
+    image: postgres:17-bookworm
     volumes:
       - ./storage:/storage
       - tv-calendar-db-data:/var/lib/postgresql/data
