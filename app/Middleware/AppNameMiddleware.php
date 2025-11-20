@@ -26,6 +26,11 @@ class AppNameMiddleware implements MiddlewareInterface
             $this->config->get('app_name')
         );
 
+        $this->twig->getEnvironment()->addGlobal(
+            'app_email',
+            $this->config->get('mailer.from')
+        );
+
         return $handler->handle($request);
     }
 }
