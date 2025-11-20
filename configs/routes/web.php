@@ -66,5 +66,6 @@ return function (App $app) {
 
     $app->get('/google-oauth', [AuthController::class, 'googleOauth']);
 
-    $app->get('/about', [AboutController::class, 'index']);
+    $app->get('/about', [AboutController::class, 'about']);
+    $app->get('/privacy-policy', [AboutController::class, 'privacy']);
 };
