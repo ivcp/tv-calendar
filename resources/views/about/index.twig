@@ -1,0 +1,40 @@
+{% extends 'layout.twig' %} {% block content %}
+
+<section
+  class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
+>
+  <h1 class="text-center font-semibold tracking-tight lg:text-xl">
+    About {{ app_name }}
+  </h1>
+
+  <div class="max-w-3xl text-lg space-y-6">
+    <p>
+      {{ app_name }} makes it easy to keep track of the shows you love. Whether
+      you follow dozens of series or just a few favorites, our website helps you
+      stay organized so you never miss an episode.
+    </p>
+    <p>With {{ app_name }}, you can:</p>
+    <ul class="list-disc list-inside">
+      <li class="">
+        Create your personal
+        <a href="/showlist" class="text-primary font-bold">watchlist</a>.
+      </li>
+      <li>
+        See upcoming episodes on the
+        <a href="/" class="text-primary font-bold">calendar</a>.
+      </li>
+      <li>
+        <a href="/discover" class="text-primary font-bold">Discover</a>
+        new shows.
+      </li>
+    </ul>
+    <p>
+      You can use this website without creating an account, and your show list
+      will be stored locally in your browser. This works well if you're
+      following only a few shows. However, by creating an account you can store
+      your shows permanently in our database and access your list from any
+      browser or device.
+    </p>
+  </div>
+</section>
+{% endblock %}

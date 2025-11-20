@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AboutController;
 use App\Controllers\AuthController;
 use App\Controllers\CalendarController;
 use App\Controllers\PasswordResetController;
@@ -63,6 +64,7 @@ return function (App $app) {
     $app->post('/reset-password/{token}', [PasswordResetController::class, 'resetPassword']);
 
 
-
     $app->get('/google-oauth', [AuthController::class, 'googleOauth']);
+
+    $app->get('/about', [AboutController::class, 'index']);
 };
