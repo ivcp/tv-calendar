@@ -99,6 +99,25 @@
         errors.confirm_password | first
       }}</span>
     </div>
+    <label class="self-center flex items-center gap-4">
+      <span>
+        I agree with the
+        <a href="/terms" class="hover:underline">Terms of Use</a></span
+      >
+      <input
+        name="terms_check"
+        type="checkbox"
+        class="checkbox"
+        required
+        oninvalid="this.setCustomValidity('You must agree to the Terms of Use to create an account')"
+        oninput="this.setCustomValidity('')"
+      />
+    </label>
+    <div class="label -mt-4 self-center">
+      <span class="label-text-alt h-2 text-error">{{
+        errors.terms_check | first
+      }}</span>
+    </div>
     <button
       type="submit"
       class="btn btn-primary self-center font-bold mt-4 lg:text-base"

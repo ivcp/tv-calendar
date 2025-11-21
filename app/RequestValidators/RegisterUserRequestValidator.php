@@ -20,6 +20,7 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
     {
         $v = new Validator($data);
         $v->rule('required', ['email', 'password', 'confirm_password']);
+        $v->rule('required', 'terms_check')->message("You must agree to the Terms of use.");
         $v->rule('optional', 'shows');
         $v->rule('array', 'shows');
         $v->rule('email', 'email');
