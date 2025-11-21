@@ -24,4 +24,9 @@ class AboutController
     {
         return $this->twig->render($response, 'about/privacy.twig');
     }
+
+    public function terms(Request $request, Response $response): Response
+    {
+        return $this->twig->render($response, 'about/terms.twig');
+    }
 }

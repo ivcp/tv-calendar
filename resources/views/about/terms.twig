@@ -1,0 +1,155 @@
+{% extends 'layout.twig' %} {% block content %}
+
+<section
+  class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
+>
+  <h1 class="text-center font-semibold tracking-tight lg:text-xl">
+    Terms of Use
+  </h1>
+
+  <div class="max-w-3xl text-lg space-y-6 [&>h2]:font-bold">
+    <p class="text-sm">Last updated: 2025-11-20</p>
+    <h2>1. About {{ app_name }}</h2>
+    <p>
+      {{ app_name }} is a website that helps users track their favorite TV
+      shows, see upcoming episodes on a calendar, and discover series. You may
+      use the Service with or without an account. If you create an account, your
+      show list and related data will be stored on our servers so you can access
+      them from any device.
+    </p>
+
+    <h2>2. Eligibility</h2>
+    <p>
+      You must be at least 16 years old to use the Service, or have permission
+      from a parent or legal guardian if younger.
+    </p>
+
+    <h2>3. Accounts and Authentication</h2>
+    <p>
+      You may create an account using Google Sign-In or a username and password.
+    </p>
+    <p>
+      You are responsible for keeping your login credentials secure and for any
+      activity performed under your account. If you believe your account has
+      been compromised, contact us immediately.
+    </p>
+
+    <h2>4. Acceptable Use</h2>
+    <p>You agree <strong>not</strong> to:</p>
+    <ul class="list-disc list-inside">
+      <li>Use the Service for unlawful purposes</li>
+      <li>Attempt to access accounts or data belonging to others</li>
+      <li>Interfere with or disrupt the Website or its infrastructure</li>
+      <li>Abuse, scrape, or overload our servers</li>
+    </ul>
+    <p>We may suspend or terminate accounts that violate these Terms.</p>
+
+    <h2>5. Content and Intellectual Property</h2>
+    <p>
+      {{ app_name }} does not host videos or episodes. We only display
+      scheduling information and metadata for informational purposes.
+    </p>
+    <p>
+      Our website uses TV data provided by the
+      <a href="https://www.tvmaze.com">TVmaze API</a>.
+    </p>
+    <p>
+      All trademarks, show names, and images belong to their respective owners.
+      The Website’s code, layout, features, and design belong to the Service
+      owner.
+    </p>
+    <p>
+      You may not copy, distribute, or reuse significant parts of the Website
+      without permission.
+    </p>
+
+    <h2>6. Privacy and Data Protection</h2>
+    <p>
+      Your use of the Service is also governed by our
+      <strong>Privacy Policy</strong>, which explains what data we collect, how
+      we use it, and how your rights under GDPR are protected.
+    </p>
+
+    <h2>7. Third-Party Services</h2>
+    <p>
+      The Website uses third-party providers such as Google (for optional
+      login), Cloudflare Web Analytics, and hosting/infrastructure providers.
+      These providers may process limited personal data as described in the
+      Privacy Policy.
+    </p>
+    <p>
+      We are not responsible for the content, practices, or availability of
+      external websites or services.
+    </p>
+
+    <h2>8. Availability and Changes</h2>
+    <p>
+      The Service is provided “as is” and “as available.” We do not guarantee
+      uninterrupted uptime, permanent data storage, or complete accuracy of TV
+      scheduling data.
+    </p>
+    <p>
+      We may update, change, or discontinue any part of the Service at any time
+      without notice.
+    </p>
+
+    <h2>9. Data Storage and Backups</h2>
+    <p>
+      Show lists saved without an account are stored locally in your browser and
+      may be lost if you clear your browser's local storage.
+    </p>
+    <p>
+      Accounts created with Google or username/password store data in our
+      database. We make reasonable efforts to keep your data safe, but we cannot
+      guarantee against all possible loss or unauthorized access.
+    </p>
+    <p>
+      Users who use the Service without creating an account may store up to 10
+      shows in their browser’s local storage. Creating an account removes this
+      limit and stores your show list securely on our servers. During account
+      creation any existing show list will be automatically backed up in our
+      database.
+    </p>
+
+    <h2>10. Limitation of Liability</h2>
+    <p>
+      To the fullest extent permitted by law, {{ app_name }} and its owner are
+      not liable for lost data, inaccurate scheduling information, outages,
+      downtime, or any indirect, incidental, or consequential damages arising
+      from your use of the Service.
+    </p>
+    <p>Your use of the Website is at your own risk.</p>
+
+    <h2>11. Termination</h2>
+    <p>
+      We may suspend or terminate access to the Service at any time, with or
+      without reason, including for violations of these Terms.
+    </p>
+    <p>
+      You may delete your account at any time. Account deletion removes your
+      stored data from our database.
+    </p>
+
+    <h2>12. Governing Law</h2>
+    <p>
+      These Terms are governed by the laws of the country where the data
+      controller of {{ app_name }} is located, unless local laws require
+      otherwise.
+    </p>
+
+    <h2>13. Changes to These Terms</h2>
+    <p>
+      We may update these Terms occasionally. When changes are significant, we
+      will update the “Last updated” date at the top of this page. Your
+      continued use of the Service after updates means you accept the revised
+      Terms.
+    </p>
+
+    <h2>14. Contact</h2>
+    <p>
+      If you have questions, concerns, or requests, contact:<br />
+      <strong>Email:</strong> {{ app_email }}
+    </p>
+  </div>
+</section>
+{% endblock %}
