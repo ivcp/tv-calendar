@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App;
 
 use App\Contracts\SortInterface;
-use BackedEnum;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 

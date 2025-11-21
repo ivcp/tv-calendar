@@ -54,7 +54,6 @@ class AuthController
             ->make(RegisterUserRequestValidator::class)
             ->validate($request->getParsedBody());
 
-
         $user = $this->auth->register(
             new RegisterUserData(
                 email: $data['email'],

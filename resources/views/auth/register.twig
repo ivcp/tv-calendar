@@ -3,7 +3,7 @@
 {{ encore_entry_script_tags('importLocalShows') }}
 {% endblock %}
 <section
-  class="mt-8 lg:mt-10 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
+  class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
 >
   <h1 class="text-center font-semibold tracking-tight lg:text-xl">
     Create an account
@@ -97,6 +97,25 @@
     <div class="label -mt-4">
       <span class="label-text-alt h-2 text-error">{{
         errors.confirm_password | first
+      }}</span>
+    </div>
+    <label class="self-center flex items-center gap-4">
+      <span>
+        I agree with the
+        <a href="/terms" class="hover:underline">Terms of Use</a></span
+      >
+      <input
+        name="terms_check"
+        type="checkbox"
+        class="checkbox"
+        required
+        oninvalid="this.setCustomValidity('You must agree to the Terms of Use to create an account')"
+        oninput="this.setCustomValidity('')"
+      />
+    </label>
+    <div class="label -mt-4 self-center">
+      <span class="label-text-alt h-2 text-error">{{
+        errors.terms_check | first
       }}</span>
     </div>
     <button

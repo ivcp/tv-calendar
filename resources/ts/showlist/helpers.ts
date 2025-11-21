@@ -73,7 +73,7 @@ const showCreateAccountPrompt = () => {
         <h2 class="card-title">Hey there!</h2>
         <p>
           Your shows are currently saved in this browser only. You don't need an
-          account to use the app, but by signing up, you can store your shows
+          account to use the app, but by signing up you can store your shows
           permanently and access your account from any browser or device.
         </p>
         <div class="card-actions justify-end">

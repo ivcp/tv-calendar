@@ -54,7 +54,9 @@
     {% endblock %}
     <title>{{ app_name }}</title>
   </head>
-  <body class="max-w-[100rem] mx-auto relative min-h-full lg:overflow-y-scroll">
+  <body
+    class="max-w-[100rem] mx-auto relative min-h-full flex flex-col lg:overflow-y-scroll"
+  >
     <div
       class="fixed space-y-2 transition-transform duration-200 z-50 left-0 right-0 top-10 mx-auto w-[90%] lg:w-96"
       id="alert"
@@ -270,7 +272,9 @@
           </div>
           <details class="dropdown dropdown-end">
             <summary tabindex="0" role="button" class="btn btn-ghost px-0">
-              <div class="w-14 h-full flex justify-center items-center">
+              <div
+                class="w-13 min-[365px]:w-14 h-full flex justify-center items-center"
+              >
                 <div class="indicator">
                   {% if user and user.verifiedAt is same as(null) and not
                   verified %}
@@ -445,7 +449,30 @@
         </div>
       </nav>
     </header>
-    <main>{% block content %}{% endblock %}</main>
+    <main class="flex-[1_0_auto]">{% block content %}{% endblock %}</main>
+    <footer
+      class="shrink-0 mt-4 footer gap-7 footer-center bg-base-200 text-base-content rounded-lg p-8"
+    >
+      <nav class="grid grid-flow-col gap-4">
+        <a href="/about" class="link link-hover">About</a>
+        <a href="/privacy-policy" class="link link-hover">Privacy Policy</a>
+        <a href="/terms" class="link link-hover">Terms of Use</a>
+      </nav>
+      <aside>
+        <p class="text-xs">
+          TV data provided by
+          <a
+            href="https://www.tvmaze.com"
+            class="hover:underline font-bold"
+            target="_blank"
+            >TVmaze.com</a
+          >
+        </p>
+      </aside>
+      <aside>
+        <p class="text-xs">Copyright © {{ "now"|date("Y") }} {{ app_name }}</p>
+      </aside>
+    </footer>
     <noscript>
       <div role="alert" class="alert lg:w-1/2 mx-auto">
         <svg
