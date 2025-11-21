@@ -9,7 +9,6 @@ services:
         - USER=${USER:-user}
         - GROUP=${USER:-user}
     container_name: tv-calendar-app
-    restart: always
     working_dir: /var/www/
     extra_hosts:
       - 'host.docker.internal:host-gateway'
@@ -23,7 +22,6 @@ services:
   nginx:
     image: nginx:1.19-alpine
     container_name: tv-calendar-nginx
-    restart: always
     environment:
       - SERVER_NAME=${SERVER_NAME}
     ports:
@@ -39,7 +37,6 @@ services:
     volumes:
       - ./storage:/storage
       - tv-calendar-db-data:/var/lib/postgresql/data
-    restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
@@ -53,7 +50,6 @@ services:
     image: postgres:17-bookworm
     volumes:
       - ./storage:/storage
-    restart: always
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
@@ -64,7 +60,6 @@ services:
 
   adminer:
     image: adminer
-    restart: always
     ports:
       - 8001:8080
 
@@ -76,13 +71,13 @@ services:
 
   cron:
     build: ./docker/cron
+    profiles: [withcron]
     volumes:
       - .:/var/www
       - ./docker/cron/local.ini:/usr/local/etc/php/conf.d/local.ini
 
   mailhog:
     image: mailhog/mailhog
-    restart: always
     logging:
       driver: 'none'
     ports:
