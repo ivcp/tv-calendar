@@ -249,8 +249,10 @@
         <div
           class="collapse collapse-arrow rounded-lg bg-base-300 {{ season is same as(0) ? 'order-last' }}"
         >
-          <label class="sr-only" for="season-check">season {{ season }}</label>
-          <input id="season-check" type="checkbox" />
+          <label class="sr-only" for="season-check{{ season }}"
+            >season {{ season }}</label
+          >
+          <input id="season-check{{ season }}" type="checkbox" />
           <div class="collapse-title text-xl font-medium">
             {% if season > 0 %} Season {{ season }}
             {% else %} Other {% endif %}
