@@ -9,10 +9,14 @@ msg () {
 
 source .env
 
+msg "Update Cloudflare IPs"
+
+source get_cloudflare_ips.sh
 
 msg "Stopping containers"
 
 sudo docker compose down --remove-orphans
+
 
 msg "Building containers"
 
