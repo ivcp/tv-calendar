@@ -16,7 +16,7 @@
 >
   {% include 'components/episode-modal.twig' %}
 
-  <div class="grow flex flex-col gap-10">
+  <div class="grow flex flex-col gap-6 lg:gap-10">
     <div
       class="navbar gap-4 flex-col lg:flex-row lg:justify-between lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
     >
@@ -24,69 +24,12 @@
         class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
       >
         {{ show.name }}
-        {{ show.premiered ? '(' ~ show.premiered | date('Y')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        }}{{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
+        {{ show.premiered ? '(' ~ show.premiered | date('Y')}}
+        &#8203;
+        {{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
       </h1>
       <div
-        class="tooltip"
+        class="tooltip mt-2 lg:mt-0"
         data-tip="{{ show.id in userShows ? 'Remove from my shows' : 'Add to my shows' }}"
       >
         <button
@@ -284,7 +227,7 @@
       {% set seasons = episodes | map(e => e.seasonNumber) %}
 
       <div
-        class="navbar gap-4 flex-col lg:flex-row lg:justify-around lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
+        class="navbar gap-4 flex-col lg:flex-row lg:justify-around lg:py-4 lg:px-20 lg:h-20 lg:rounded-lg"
       >
         <div class="stats overflow-y-clip bg-inherit">
           <div class="stat py-0">
