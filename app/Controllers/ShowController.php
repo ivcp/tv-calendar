@@ -15,7 +15,6 @@ use App\RequestValidators\SearchShowRequestValidator;
 use App\RequestValidators\ShowListRequestValidator;
 use App\RequestValidators\ShowRequestValidator;
 use App\ResponseFormatter;
-use App\Services\ImageService;
 use App\Services\PaginationService;
 use App\Services\RequestService;
 use App\Services\ShowService;
@@ -36,7 +35,6 @@ class ShowController
         private readonly ResponseFormatter $responseFormatter,
         private readonly UserShowsService $userShowsService,
         private readonly RequestService $requestService,
-        private readonly ImageService $imageService
     ) {
     }
 
@@ -237,34 +235,6 @@ class ShowController
         }
 
         return $this->responseFormatter->asJSONMessage($response, 200, $show->getName() . ' removed from your list');
-    }
-
-    public function serveOptimizedShowImage(Request $request, Response $response, array $args): Response
-    {
-
-        $params = $this->requestValidatorFactory
-        ->make(GetShowRequestValidator::class)
-        ->validate($args);
-
-        $showId = (int) $params['showId'];
-
-        try {
-            $img = $this->showService->getImageOriginal($showId);
-        } catch (DriverException $e) {
-            $img = $this->imageService->getPlaceholder();
-            $response->getBody()->write($img);
-            return $response->withHeader('Content-Type', 'image/svg+xml');
-        }
-        if (! $img) {
-            $img = $this->imageService->getPlaceholder();
-            $response->getBody()->write($img);
-            return $response->withHeader('Content-Type', 'image/svg+xml');
-        }
-
-
-        $img = $this->imageService->getWebp($img, 340, 500, 100);
-        $response->getBody()->write($img);
-        return $response->withHeader('Content-Type', 'image/webp');
     }
 
     public function search(Request $request, Response $response): Response
