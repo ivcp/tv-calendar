@@ -47,10 +47,12 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
             throw new ValidationException(['turnstile' => ['Failed bot verification']]);
         }
 
-        if (!$this->validateTurnstile(
-            $data['cf-turnstile-response'],
-            $this->config->get('turnstile.secret_key')
-        )) {
+        if (
+            !$this->validateTurnstile(
+                $data['cf-turnstile-response'],
+                $this->config->get('turnstile.secret_key')
+            )
+        ) {
             throw new ValidationException(['turnstile' => ['Failed bot verification']]);
         }
 
@@ -93,5 +95,4 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
 
         return true;
     }
-
 }
