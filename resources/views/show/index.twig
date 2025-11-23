@@ -55,22 +55,22 @@
       class="flex gap-6 lg:gap-12 flex-col items-center lg:items-start lg:justify-center lg:flex-row"
     >
       <picture
-        class="w-[210px] h-[295px] lg:w-[340px] lg:h-[500px] rounded-lg lg:bg-[image:var(--bgLoading)] lg:bg-cover lg:bg-no-repeat"
-        {%if
-        show.imageMedium%}
-        style="--bgLoading: url('{{ show.imageMedium }}')"
-        {%endif%}
+        class="w-[210px] h-[295px] lg:w-[340px] lg:h-auto rounded-lg skeleton"
       >
         <source
           media="(max-width:1024px)"
           srcset="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
         />
-        <source media="(min-width:1025px)" srcset="/shows/{{show.id}}/image" />
+        <source
+          media="(min-width:1025px)"
+          srcset="{{show.imageOriginal | default(asset('build/images/no-img-lg.svg'))}}"
+        />
         <img
           src="{{ show.imageMedium | default(asset('build/images/no-img.svg')) }}"
           alt="{{ show.name }}"
           onload="this.classList.add('bg-base-200')"
           class="block w-max object-cover mx-auto rounded-lg"
+          decoding="async"
         />
       </picture>
       <div
@@ -223,7 +223,7 @@
         <p class="text-lg">{{ show.summary | striptags }}</p>
       </div>
     </article>
-    <div class="w-full mx-auto flex flex-col gap-2">
+    <div class="w-full mx-auto flex flex-col gap-4">
       {% set seasons = episodes | map(e => e.seasonNumber) %}
 
       <div

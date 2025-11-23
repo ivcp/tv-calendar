@@ -451,14 +451,14 @@
     </header>
     <main class="flex-[1_0_auto]">{% block content %}{% endblock %}</main>
     <footer
-      class="shrink-0 mt-4 footer gap-7 footer-center bg-base-200 text-base-content rounded-lg p-8"
+      class="shrink-0 mt-4 footer gap-4 footer-center lg:place-items-start bg-base-200 text-base-content rounded-lg p-6 lg:p-7"
     >
-      <nav class="grid grid-flow-col gap-4">
+      <nav class="grid grid-flow-col gap-4 lg:row-start-1">
         <a href="/about" class="link link-hover">About</a>
         <a href="/privacy-policy" class="link link-hover">Privacy Policy</a>
         <a href="/terms" class="link link-hover">Terms of Use</a>
       </nav>
-      <aside>
+      <aside class="lg:row-start-1 lg:flex lg:gap-6 lg:place-self-end">
         <p class="text-xs">
           TV data provided by
           <a
@@ -468,8 +468,6 @@
             >TVmaze.com</a
           >
         </p>
-      </aside>
-      <aside>
         <p class="text-xs">Copyright © {{ "now"|date("Y") }} {{ app_name }}</p>
       </aside>
     </footer>
