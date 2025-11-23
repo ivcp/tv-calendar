@@ -11,7 +11,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Views\Twig;
 
-class AppNameMiddleware implements MiddlewareInterface
+class TwigGlobalsMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly Twig $twig,
@@ -29,6 +29,11 @@ class AppNameMiddleware implements MiddlewareInterface
         $this->twig->getEnvironment()->addGlobal(
             'app_email',
             $this->config->get('mailer.from')
+        );
+
+        $this->twig->getEnvironment()->addGlobal(
+            'app_turnstile_site_key',
+            $this->config->get('turnstile.site_key')
         );
 
         return $handler->handle($request);

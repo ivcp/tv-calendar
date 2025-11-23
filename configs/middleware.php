@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 use App\Config;
-use App\Middleware\AppNameMiddleware;
 use App\Middleware\BadRequestExceptionMiddleware;
 use App\Middleware\CsrfFieldsMiddleware;
 use App\Middleware\NotFoundExceptionMiddleware;
 use App\Middleware\OldFormDataMiddleware;
 use App\Middleware\StartSessionsMiddleware;
+use App\Middleware\TwigGlobalsMiddleware;
 use App\Middleware\UserMiddleware;
 use App\Middleware\ValidationErrorsMiddleware;
 use App\Middleware\ValidationExceptionMiddleware;
@@ -28,7 +28,7 @@ return function (App $app) {
 
     $app->add(UserMiddleware::class);
     $app->add(MethodOverrideMiddleware::class);
-    $app->add(AppNameMiddleware::class);
+    $app->add(TwigGlobalsMiddleware::class);
     $app->add(CsrfFieldsMiddleware::class);
     $app->add('csrf');
     $app->add(TwigMiddleware::create($app, $twig));
