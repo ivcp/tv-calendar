@@ -55,11 +55,7 @@
       class="flex gap-6 lg:gap-12 flex-col items-center lg:items-start lg:justify-center lg:flex-row"
     >
       <picture
-        class="w-[210px] h-[295px] lg:w-[340px] lg:h-auto rounded-lg lg:bg-[image:var(--bgLoading)] lg:bg-cover lg:bg-no-repeat"
-        {%if
-        show.imageMedium%}
-        style="--bgLoading: url('{{ show.imageMedium }}')"
-        {%endif%}
+        class="w-[210px] h-[295px] lg:w-[340px] lg:h-auto rounded-lg skeleton"
       >
         <source
           media="(max-width:1024px)"
@@ -74,6 +70,7 @@
           alt="{{ show.name }}"
           onload="this.classList.add('bg-base-200')"
           class="block w-max object-cover mx-auto rounded-lg"
+          decoding="async"
         />
       </picture>
       <div
