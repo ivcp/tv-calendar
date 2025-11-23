@@ -68,6 +68,7 @@ class AuthController
         return $response->withHeader('Location', '/')->withStatus(302);
     }
 
+
     public function login(Request $request, Response $response): Response
     {
         $data = $this->requestValidatorFactory

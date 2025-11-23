@@ -53,6 +53,9 @@ return [
             'client_secret' => $_ENV['GOOGLE_CLIENT_SECRET'],
             'redirect_uri' => $_ENV['GOOGLE_REDIRECT_URI']
         ]
+    ],
+    'turnstile' => [
+        'site_key' => $_ENV['TURNSTILE_SITE_KEY'] ?? '',
+        'secret_key' => $_ENV['TURNSTILE_SECRET_KEY'] ?? '',
     ]
-
 ];

@@ -99,6 +99,15 @@
         errors.confirm_password | first
       }}</span>
     </div>
+    <div
+      class="cf-turnstile mx-auto"
+      data-sitekey="{{ app_turnstile_site_key }}"
+    ></div>
+    <div class="label -mt-4 self-center">
+      <span class="label-text-alt h-2 text-error">{{
+        errors.turnstile | first
+      }}</span>
+    </div>
     <label class="self-center flex items-center gap-4">
       <span>
         I agree with the

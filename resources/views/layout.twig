@@ -53,6 +53,12 @@
     }}
     {% endblock %}
     <title>{{ app_name }}</title>
+    <link rel="preconnect" href="https://challenges.cloudflare.com" />
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    ></script>
   </head>
   <body
     class="max-w-[100rem] mx-auto relative min-h-full flex flex-col lg:overflow-y-scroll"
@@ -65,11 +71,11 @@
       <nav
         class="navbar justify-between items-center bg-base-200 rounded-b-lg min-h-20"
       >
-        <details class="dropdown md:hidden">
+        <details class="dropdown lg:hidden">
           <summary
             tabindex="0"
             role="button"
-            class="btn btn-ghost btn-circle md:hidden"
+            class="btn btn-ghost btn-circle lg:hidden"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
