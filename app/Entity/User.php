@@ -38,6 +38,9 @@ class User implements UserInterface
     #[Column(name: 'start_of_week_sunday', options: ['default' => false])]
     private bool $startOfWeekSunday;
 
+    #[Column(name:'ntfy_topic', type:'string', length: 10, nullable: true, unique: true)]
+    private ?string $ntfyTopic;
+
     #[OneToMany(targetEntity: UserShows::class, mappedBy:'user', cascade:['persist'])]
     private Collection $userShows;
 
@@ -150,6 +153,26 @@ class User implements UserInterface
     public function setStartOfWeekSunday(bool $startOfWeekSunday): self
     {
         $this->startOfWeekSunday = $startOfWeekSunday;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ntfyTopic
+     */
+    public function getNtfyTopic(): ?string
+    {
+        return $this->ntfyTopic;
+    }
+
+    /**
+     * Set the value of ntfyTopic
+     *
+     * @return  self
+     */
+    public function setNtfyTopic(?string $ntfyTopic): self
+    {
+        $this->ntfyTopic = $ntfyTopic;
 
         return $this;
     }
