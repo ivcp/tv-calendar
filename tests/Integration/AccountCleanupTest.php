@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\Config;
 use App\Entity\User;
 use App\Services\AccountCleanupService;
 use DateTime;
