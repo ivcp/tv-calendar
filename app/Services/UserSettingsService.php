@@ -11,7 +11,6 @@ class UserSettingsService
 {
     public function __construct(
         private readonly EntityManager $entityManager,
-        private readonly ShowService $showService
     ) {
     }
 
