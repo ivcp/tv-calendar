@@ -54,6 +54,21 @@ async function setStartOfWeekSunday(start: boolean): Promise<Result> {
   }
 }
 
+async function enableNotifications(
+  password: string,
+  confirmPassword: string
+): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      notificationsPassword: password,
+      confirmNotificationsPassword: confirmPassword,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
@@ -77,7 +92,13 @@ async function getResult(
     if ([400, 403, 404, 422].includes(response.status)) {
       const json = await response.json();
       if (response.status === 422) {
-        return { error: true, messages: json.errors.showId };
+        return {
+          error: true,
+          messages:
+            url === '/profile'
+              ? Object.values(json.errors)
+              : json.errors.showId,
+        };
       }
       return { error: true, messages: [json.msg] };
     }
@@ -118,4 +139,5 @@ export {
   resendEmail,
   deleteProfile,
   setStartOfWeekSunday,
+  enableNotifications,
 };

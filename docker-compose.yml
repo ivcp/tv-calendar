@@ -120,6 +120,29 @@ services:
     restart: unless-stopped
     init: true # needed, if healthcheck is used. Prevents zombie processes
 
+  ntfy-test:
+    image: binwiederhier/ntfy
+    container_name: tv-calendar-ntfy-test
+    command:
+      - serve
+    ports:
+      - 80
+    environment:
+      TZ: UTC
+      NTFY_AUTH_FILE: /var/lib/ntfy/auth.db
+      NTFY_AUTH_DEFAULT_ACCESS: deny-all
+      # dev password: password
+      NTFY_AUTH_USERS: 'tv-test:$$2a$$12$$V3M0aJyoMfOS.yNLOiXCn.jsGHZuMUHB9S8V.r0Yey2FTWUZxGsV6:admin' # Must escape '$' as '$$'
+      NTFY_AUTH_TOKENS: 'tv-test:tk_dzedgb2t4ejk3kmumr7tp64uvzwuq'
+      # NTFY_BEHIND_PROXY: true
+      # NTFY_ATTACHMENT_CACHE_DIR: /var/lib/ntfy/attachments
+      # NTFY_ENABLE_LOGIN: true # optional: set desired timezone
+    user: ${UID:-1000}:${GID:-1000} # optional: replace with your own user/group or uid/gid
+    volumes:
+      - ./storage/ntfy-test:/var/lib/ntfy
+      #- ./config:/etc/ntfy
+    restart: unless-stopped
+
 volumes:
   tv-calendar-db-data:
   tv-calendar-sessions:

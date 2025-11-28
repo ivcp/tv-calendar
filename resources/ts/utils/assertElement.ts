@@ -23,4 +23,18 @@ function assertDialogElement(el: unknown): asserts el is HTMLDialogElement {
       }`
     );
 }
-export { assertHtmlElement, assertHtmlInputElement, assertDialogElement };
+
+function assertFormElement(el: unknown): asserts el is HTMLFormElement {
+  if (!(el instanceof HTMLFormElement))
+    throw new Error(
+      `Expected element to be an HTMLFormElement, was ${
+        (el && el.constructor && el.constructor.name) || el
+      }`
+    );
+}
+export {
+  assertHtmlElement,
+  assertHtmlInputElement,
+  assertDialogElement,
+  assertFormElement,
+};

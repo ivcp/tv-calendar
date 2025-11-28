@@ -51,7 +51,7 @@ return function (App $app) {
         $user->get('/update-password', [PasswordResetController::class, 'updatePasswordView']);
         $user->post('/update-password', [PasswordResetController::class, 'updatePassword']);
         $user->get('/profile', [ProfileController::class, 'index']);
-        $user->patch('/profile', [ProfileController::class, 'setStartOfWeek']);
+        $user->patch('/profile', [ProfileController::class, 'updateSettings']);
         $user->delete('/profile', [ProfileController::class, 'delete']);
     })->add(AuthMiddleware::class);
 

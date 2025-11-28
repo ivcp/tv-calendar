@@ -11,6 +11,7 @@ class UserSettingsService
 {
     public function __construct(
         private readonly EntityManager $entityManager,
+        private readonly NtfyService $ntfyService
     ) {
     }
 
@@ -19,5 +20,16 @@ class UserSettingsService
         $user->setStartOfWeekSunday($startOfWeekSunday);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+    }
+
+    public function setupNotifications(User $user, string $notificationsPassword): void
+    {
+        $topic = $this->ntfyService->generateTopic();
+        $user->setNtfyTopic($topic);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        $this->ntfyService->createUser($user->getEmail(), $notificationsPassword);
+
     }
 }

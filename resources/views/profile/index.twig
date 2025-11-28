@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %} {% block content %}{% block javascripts %}
 {{ parent() }}
-{{ encore_entry_script_tags("profile") }}
+{{ encore_entry_script_tags('profile') }}
 {% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
@@ -57,6 +57,28 @@
           endif
           %}
         />
+      </div>
+      <h2 class="hidden lg:block text-lg font-bold">Notifications</h2>
+      <div class="flex flex-col justify-between gap-4 pb-4 border-b">
+        <div class="flex justify-between">
+          <p class="">Enable push notifications</p>
+          <input type="checkbox" id="notifications-toggle" class="checkbox" />
+        </div>
+        <form method="post" id="enable-notifications-form">
+          <input
+            type="password"
+            class="input input-bordered"
+            name="notificationsPassword"
+            placeholder="Password"
+          />
+          <input
+            type="password"
+            class="input input-bordered"
+            name="confirmNotificationsPassword"
+            placeholder="Confirm password"
+          />
+          <button class="btn" type="submit">Enable</button>
+        </form>
       </div>
       <h2 class="text-lg font-bold mt-12">Profile</h2>
       {% if not verified %}

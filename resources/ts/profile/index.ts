@@ -2,8 +2,9 @@ import {
   deleteProfile,
   resendEmail,
   setStartOfWeekSunday,
+  enableNotifications,
 } from '../utils/ajax';
-import { assertHtmlElement } from '../utils/assertElement';
+import { assertHtmlElement, assertFormElement } from '../utils/assertElement';
 import { notification } from '../utils/notification';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -11,6 +12,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   assertHtmlElement(deleteProfileBtn);
   const resendEmailBtn = document.getElementById('email-resend');
   const weekStartCheckbox = document.getElementById('weekstart');
+  const enableNotificationsForm = document.getElementById(
+    'enable-notifications-form'
+  );
 
   deleteProfileBtn.addEventListener('click', async () => {
     if (!confirm('Are you sure you want to delete your profile?')) {
@@ -48,6 +52,40 @@ document.addEventListener('DOMContentLoaded', async () => {
       notification(response.messages, 'alert-error');
       return;
     }
+    notification(response.messages, 'alert-success');
+  });
+
+  enableNotificationsForm?.addEventListener('submit', async e => {
+    e.preventDefault();
+    assertFormElement(enableNotificationsForm);
+    const formData = new FormData(enableNotificationsForm);
+
+    const password = formData.get('notificationsPassword');
+    const confirmPassword = formData.get('confirmNotificationsPassword');
+
+    if (
+      password === null ||
+      typeof password !== 'string' ||
+      password.trim() === ''
+    ) {
+      return;
+    }
+    if (
+      confirmPassword === null ||
+      typeof confirmPassword !== 'string' ||
+      confirmPassword.trim() === ''
+    ) {
+      return;
+    }
+
+    const response = await enableNotifications(password, confirmPassword);
+
+    if (response.error) {
+      notification(response.messages.flat(), 'alert-error');
+      return;
+    }
+
+    // not notification but update ui with token and instructions
     notification(response.messages, 'alert-success');
   });
 });

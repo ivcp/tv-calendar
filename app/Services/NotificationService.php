@@ -6,6 +6,7 @@ namespace App\Services;
 
 use Doctrine\ORM\EntityManager;
 
+//SendNotificationService
 class NotificationService
 {
     public function __construct(
@@ -19,7 +20,8 @@ class NotificationService
         $conn = $this->entityManager->getConnection();
 
         //test as separate method
-        //For individual ep notifications INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
+        //For individual ep notifications:
+        //INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
         $sql = 'SELECT e.id, s.name as "showName", 
                 e.name as "episodeName",
                 e.season, e.number, e.summary, e.type, e.airstamp,
@@ -53,6 +55,4 @@ class NotificationService
 
         print_r(($result));
     }
-
-
 }

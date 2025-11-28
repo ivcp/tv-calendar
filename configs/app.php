@@ -57,5 +57,9 @@ return [
     'turnstile' => [
         'site_key' => $_ENV['TURNSTILE_SITE_KEY'] ?? '',
         'secret_key' => $_ENV['TURNSTILE_SECRET_KEY'] ?? '',
+    ],
+    'ntfy' => [
+        'base_url' => $_ENV['NTFY_BASE_URL'],
+        'admin_token' => $_ENV['NTFY_ADMIN_TOKEN'],
     ]
 ];
