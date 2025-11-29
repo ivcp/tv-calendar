@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManager;
+use RuntimeException;
 
 class UserSettingsService
 {
@@ -29,8 +30,32 @@ class UserSettingsService
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $this->ntfyService->createUser($user->getEmail(), $notificationsPassword, $topic);
+        try {
+            $this->ntfyService->createUser($user->getEmail(), $notificationsPassword, $topic);
+        } catch (RuntimeException $e) {
+            $user->setNtfyTopic(null);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+            throw $e;
+        }
 
+    }
+
+    public function disableNotifications(User $user): void
+    {
+        $topic = $user->getNtfyTopic();
+        $user->setNtfyTopic(null);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        try {
+            $this->ntfyService->deleteUser($user->getEmail());
+        } catch (RuntimeException $e) {
+            $user->setNtfyTopic($topic);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+            throw $e;
+        }
     }
 
     private function generateAndCheckTopic(): string
