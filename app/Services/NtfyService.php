@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Config;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
 class NtfyService
@@ -30,7 +31,7 @@ class NtfyService
     }
 
 
-    public function createUser(string $username, string $password): void
+    public function createUser(string $username, string $password, string $topic): void
     {
 
         $users = $this->getAllUsers();
@@ -46,30 +47,35 @@ class NtfyService
             'username' => $username,
             'password' => $password
         ])]);
+        $this->checkStatus($response);
 
-        if ($response->getStatusCode() !== 200) {
-            $message = $response->getReasonPhrase();
-            throw new RuntimeException("Response failed with message: $message");
-        }
 
-        //TODO:
-        //create user permission for topic on ntfy
-        //custom exception
-
+        $response = $this->client->put($this->url . '/access', [
+        'headers' => $this->headers,
+        'body' => json_encode([
+           'username' => $username,
+           'topic' => $topic,
+           'permission' => 'read-only'
+        ])]);
+        $this->checkStatus($response);
 
     }
 
     public function getAllUsers(): array
     {
         $response = $this->client->get($this->url, ['headers' => $this->headers]);
-        if ($response->getStatusCode() !== 200) {
-            $message = $response->getReasonPhrase();
-            throw new RuntimeException("Response failed with message: $message");
-        }
+        $this->checkStatus($response);
 
         return json_decode((string)$response->getBody(), true);
     }
 
+    private function checkStatus(ResponseInterface $response): void
+    {
+        if ($response->getStatusCode() !== 200) {
+            $message = $response->getReasonPhrase();
+            throw new RuntimeException("Response failed with message: $message");
+        }
+    }
 
 
 }

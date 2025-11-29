@@ -33,12 +33,17 @@ final class NtfyServiceTest extends TestCase
 
     public function testCreateUser(): void
     {
-        $this->ntfyService->createUser('user@phpunit.test', 'password');
+        $this->ntfyService->createUser('user@phpunit.test', 'password', 'test-topic');
         $users = $this->ntfyService->getAllUsers();
         $this->assertCount(3, $users);
 
+        $user = array_find($users, fn ($u) => $u['username'] === 'user@phpunit.test');
+        $this->assertArrayHasKey('grants', $user);
+        $this->assertSame($user['grants'][0]['topic'], 'test-topic');
+        $this->assertSame($user['grants'][0]['permission'], 'read-only');
+
         $this->expectExceptionMessage('Username taken');
-        $this->ntfyService->createUser('user@phpunit.test', 'password');
+        $this->ntfyService->createUser('user@phpunit.test', 'password', 'test-topic');
 
     }
 
