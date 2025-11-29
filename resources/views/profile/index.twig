@@ -38,16 +38,16 @@
         </div>
       </div>
     </div>
-    <div class="mx-auto flex flex-col gap-4">
+    <div class="mx-auto flex flex-col gap-4 w-[95%] lg:w-[40rem]">
       <h2 class="hidden lg:block text-lg font-bold">Calendar</h2>
       <div
-        class="hidden lg:flex items-center justify-between gap-4 pb-4 border-b"
+        class="hidden lg:flex items-center justify-between gap-4 pb-4 my-6 border-b border-neutral-content/40"
       >
         <p class="">Start week with Sunday</p>
         <input
           type="checkbox"
           id="weekstart"
-          class="checkbox"
+          class="toggle"
           {%
           if
           user.startOfWeekSunday
@@ -58,58 +58,133 @@
           %}
         />
       </div>
-      <h2 class="hidden lg:block text-lg font-bold">Notifications</h2>
-      <div class="flex flex-col justify-between gap-4 pb-4 border-b">
+      <h2 class="text-lg font-bold lg:mt-8">Notifications</h2>
+      <div
+        class="flex flex-col justify-between gap-4 my-6 pb-4 border-b border-neutral-content/40"
+      >
         <div class="flex justify-between">
-          <p class="">Enable push notifications</p>
-          <input type="checkbox" id="notifications-toggle" class="checkbox" />
+          <p class="">Enable ntfy notifications</p>
+          <input
+            type="checkbox"
+            id="notifications-toggle"
+            data-ntfy-enabled="{{ ntfyTopic ? 'true' : 'false' }}"
+            class="toggle"
+            {%
+            if
+            ntfyTopic
+            %}
+            checked
+            {%
+            endif
+            %}
+          />
         </div>
-        <form method="post" id="enable-notifications-form">
-          <input
-            type="password"
-            class="input input-bordered"
-            name="notificationsPassword"
-            placeholder="Password"
-          />
-          <input
-            type="password"
-            class="input input-bordered"
-            name="confirmNotificationsPassword"
-            placeholder="Confirm password"
-          />
-          <button class="btn" type="submit">Enable</button>
-        </form>
+        <div
+          id="notifications-settings-content"
+          class="{{ ntfyTopic ? '' : 'hidden' }}"
+        >
+          {% if ntfyTopic %}
+          <div class="flex flex-col gap-4 my-4">
+            <div class="bg-base-200 h-20 p-2 rounded-lg grid">
+              <p class="text-xs row-start-1 col-start-1 uppercase">
+                Your topic ID
+              </p>
+              <p
+                class="text-xl place-self-center row-start-1 row-end-2 col-start-1 col-end-2"
+              >
+                {{ ntfyTopic }}
+              </p>
+            </div>
+            <a
+              href="#"
+              class="text-sm font-bold text-center cursor-pointer hover:underline"
+              >What do I do with this?</a
+            >
+          </div>
+          {% else %}
+          <div
+            class="flex flex-col lg:flex-row gap-6 bg-base-200 p-4 my-4 lg:p-6 rounded-lg"
+          >
+            <div class="space-y-4">
+              <p>
+                To enable notifications via <b>ntfy</b>, please set a password
+                for notifications. Remember it, as you will need to enter it in
+                the app later.
+              </p>
+              <p>
+                More info:
+                <a href="#" class="text-primary font-bold">Get notified</a>
+              </p>
+            </div>
+            <form
+              method="post"
+              id="enable-notifications-form"
+              class="rounded-lg flex flex-col gap-2 lg:w-1/2"
+            >
+              <input
+                type="password"
+                class="input input-bordered"
+                name="notificationsPassword"
+                placeholder="Password"
+              />
+              <input
+                type="password"
+                class="input input-bordered"
+                name="confirmNotificationsPassword"
+                placeholder="Confirm password"
+              />
+              <button
+                class="mt-2 btn btn-sm btn-outline self-center"
+                type="submit"
+              >
+                Enable
+              </button>
+            </form>
+          </div>
+
+          {% endif %}
+        </div>
       </div>
-      <h2 class="text-lg font-bold mt-12">Profile</h2>
+      <h2 class="text-lg font-bold mt-4">Profile</h2>
       {% if not verified %}
-      <div class="flex items-center justify-between gap-4 pb-4 border-b">
-        <p class="">Didn't receive the verification email?</p>
-        <button
-          id="email-resend"
-          data-email="{{ email }}"
-          class="btn btn-outline btn-sm rounded-lg"
+      <div class="flex flex-col gap-6 my-6">
+        <div
+          class="flex items-center justify-between gap-4 pb-4 border-b border-neutral-content/40"
         >
-          Resend
-        </button>
-      </div>
-      {% endif %} {% if passwordSet %}
-      <div class="flex items-center justify-between gap-4 pb-4 border-b">
-        <p class="">Change your password</p>
-        <a
-          href="/update-password"
-          class="btn btn-outline btn-primary btn-sm rounded-lg self-center"
-          >Update password</a
+          <p class="">Didn't receive the verification email?</p>
+          <button
+            id="email-resend"
+            data-email="{{ email }}"
+            class="btn btn-outline btn-sm rounded-lg"
+          >
+            Resend
+          </button>
+        </div>
+        {% endif %} {% if passwordSet %}
+        <div
+          class="flex items-center justify-between gap-4 pb-4 border-b border-neutral-content/40"
         >
-      </div>
-      {% endif %}
-      <div class="flex items-center justify-between gap-4">
-        <p class="">Delete account</p>
-        <button
-          id="delete-account"
-          class="btn btn-outline btn-secondary btn-sm rounded-lg self-center"
+          <p class="">Change your password</p>
+          <a
+            href="/update-password"
+            class="btn btn-outline btn-primary btn-sm rounded-lg self-center"
+            >Update password</a
+          >
+        </div>
+        {% endif %}
+        <div
+          class="flex items-center justify-between gap-4 {{
+            passwordSet ? '' : ' mt-6'
+          }}"
         >
-          Delete account
-        </button>
+          <p class="">Delete account</p>
+          <button
+            id="delete-account"
+            class="btn btn-outline btn-error btn-sm rounded-lg self-center"
+          >
+            Delete account
+          </button>
+        </div>
       </div>
     </div>
   </div>
