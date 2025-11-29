@@ -38,7 +38,8 @@ class ProfileController
             [
                 'email' => $user->getEmail(),
                 'verified' => $user->getVerifiedAt(),
-                'passwordSet' => $user->getPassword() !== null
+                'passwordSet' => $user->getPassword() !== null,
+                'ntfyTopic' => $user->getNtfyTopic()
             ]
         );
     }
@@ -65,7 +66,9 @@ class ProfileController
             return $this->enableNotifications($request, $response);
         };
 
-        //TODO: notification disable
+        if (array_key_exists('disableNotifications', $body)) {
+            return $this->disableNotifications($request, $response);
+        };
 
         return $this->responseFormatter->asJSONErrors($response->withStatus(400), 'bad request');
     }
@@ -88,18 +91,17 @@ class ProfileController
         );
 
         $user = $request->getAttribute('user');
-        assert($user instanceof User);
         $this->userSettingsService->setupNotifications($user, $data['notificationsPassword']);
-
-        //TODO: response
 
         return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
 
 
     }
 
-    private function disableNotifications(): void
+    private function disableNotifications(Request $request, Response $response): Response
     {
-        #TODO: code...
+        $user = $request->getAttribute('user');
+        $this->userSettingsService->disableNotifications($user);
+        return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
     }
 }
