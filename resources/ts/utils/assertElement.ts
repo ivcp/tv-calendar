@@ -32,9 +32,19 @@ function assertFormElement(el: unknown): asserts el is HTMLFormElement {
       }`
     );
 }
+
+function assertButtonElement(el: unknown): asserts el is HTMLButtonElement {
+  if (!(el instanceof HTMLButtonElement))
+    throw new Error(
+      `Expected element to be an HTMLButtonElement, was ${
+        (el && el.constructor && el.constructor.name) || el
+      }`
+    );
+}
 export {
   assertHtmlElement,
   assertHtmlInputElement,
   assertDialogElement,
   assertFormElement,
+  assertButtonElement,
 };
