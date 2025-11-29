@@ -81,7 +81,7 @@
         </div>
         <div
           id="notifications-settings-content"
-          class="{{ ntfyTopic ? '' : 'hidden' }}"
+          class="{{ ntfyTopic ? '' : 'hidden' }} flex flex-col"
         >
           {% if ntfyTopic %}
           <div class="flex flex-col gap-4 my-4">
@@ -126,16 +126,21 @@
                 class="input input-bordered"
                 name="notificationsPassword"
                 placeholder="Password"
+                required
+                minlength="8"
               />
               <input
                 type="password"
                 class="input input-bordered"
                 name="confirmNotificationsPassword"
                 placeholder="Confirm password"
+                required
+                minlength="8"
               />
               <button
                 class="mt-2 btn btn-sm btn-outline self-center"
                 type="submit"
+                id="ntfy-submit-btn"
               >
                 Enable
               </button>
