@@ -69,6 +69,17 @@ async function enableNotifications(
   }
 }
 
+async function disableNotifications(): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      disableNotifications: true,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
@@ -140,4 +151,5 @@ export {
   deleteProfile,
   setStartOfWeekSunday,
   enableNotifications,
+  disableNotifications,
 };
