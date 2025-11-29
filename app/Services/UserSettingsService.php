@@ -29,7 +29,7 @@ class UserSettingsService
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
-        $this->ntfyService->createUser($user->getEmail(), $notificationsPassword);
+        $this->ntfyService->createUser($user->getEmail(), $notificationsPassword, $topic);
 
     }
 
