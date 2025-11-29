@@ -3,6 +3,7 @@ import {
   resendEmail,
   setStartOfWeekSunday,
   enableNotifications,
+  disableNotifications,
 } from '../utils/ajax';
 import { assertHtmlElement, assertFormElement } from '../utils/assertElement';
 import { notification } from '../utils/notification';
@@ -12,8 +13,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   assertHtmlElement(deleteProfileBtn);
   const resendEmailBtn = document.getElementById('email-resend');
   const weekStartCheckbox = document.getElementById('weekstart');
+  const notificationsToggle = document.getElementById('notifications-toggle');
   const enableNotificationsForm = document.getElementById(
     'enable-notifications-form'
+  );
+  const notificationsSettingsContent = document.getElementById(
+    'notifications-settings-content'
   );
 
   deleteProfileBtn.addEventListener('click', async () => {
@@ -55,6 +60,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     notification(response.messages, 'alert-success');
   });
 
+  notificationsToggle?.addEventListener('change', async ({ target }) => {
+    const t = target as HTMLInputElement;
+    const ntfyEnabled = t.dataset.ntfyEnabled;
+    if (ntfyEnabled === undefined) {
+      return;
+    }
+    if (ntfyEnabled === 'false') {
+      t.checked
+        ? notificationsSettingsContent?.classList.remove('hidden')
+        : notificationsSettingsContent?.classList.add('hidden');
+    }
+
+    if (ntfyEnabled === 'true') {
+      if (
+        confirm(
+          `Are you sure you want to disable ntfy notifications?\n\nThis action will delete the current topic ID and notification credentials.`
+        )
+      ) {
+        ////TODO:
+        const response = await disableNotifications();
+        if (response.error) {
+          notification(response.messages, 'alert-error');
+          return;
+        }
+        notification(response.messages, 'alert-success');
+        notificationsSettingsContent?.classList.add('hidden');
+        t.checked = false;
+        return;
+      }
+      t.checked = true;
+      return;
+    }
+  });
+
   enableNotificationsForm?.addEventListener('submit', async e => {
     e.preventDefault();
     assertFormElement(enableNotificationsForm);
@@ -85,7 +124,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    // not notification but update ui with token and instructions
     notification(response.messages, 'alert-success');
+    //sleep to show success message
+    new Promise(resolve => setTimeout(resolve, 250));
+    //refresh the page
+    window.location.reload();
   });
 });
