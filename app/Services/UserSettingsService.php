@@ -24,12 +24,21 @@ class UserSettingsService
 
     public function setupNotifications(User $user, string $notificationsPassword): void
     {
-        $topic = $this->ntfyService->generateTopic();
+        $topic = $this->generateAndCheckTopic();
         $user->setNtfyTopic($topic);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         $this->ntfyService->createUser($user->getEmail(), $notificationsPassword);
 
+    }
+
+    private function generateAndCheckTopic(): string
+    {
+        $topic = $this->ntfyService->generateTopic();
+        if ($this->entityManager->getRepository(User::class)->findOneBy(['ntfyTopic' => $topic])) {
+            $topic = $this->generateAndCheckTopic();
+        }
+        return $topic;
     }
 }
