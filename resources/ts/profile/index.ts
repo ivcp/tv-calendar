@@ -5,7 +5,11 @@ import {
   enableNotifications,
   disableNotifications,
 } from '../utils/ajax';
-import { assertHtmlElement, assertFormElement } from '../utils/assertElement';
+import {
+  assertHtmlElement,
+  assertFormElement,
+  assertButtonElement,
+} from '../utils/assertElement';
 import { notification } from '../utils/notification';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -17,9 +21,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const enableNotificationsForm = document.getElementById(
     'enable-notifications-form'
   );
+  const ntfySubmitBtn = document.getElementById('ntfy-submit-btn');
+
   const notificationsSettingsContent = document.getElementById(
     'notifications-settings-content'
   );
+  const loadingBars = document.createElement('span');
+  loadingBars.classList.add('loading', 'loading-bars', 'loading-lg', 'mx-auto');
 
   deleteProfileBtn.addEventListener('click', async () => {
     if (!confirm('Are you sure you want to delete your profile?')) {
@@ -62,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   notificationsToggle?.addEventListener('change', async ({ target }) => {
     const t = target as HTMLInputElement;
+    t.disabled = true;
     const ntfyEnabled = t.dataset.ntfyEnabled;
     if (ntfyEnabled === undefined) {
       return;
@@ -78,17 +87,27 @@ document.addEventListener('DOMContentLoaded', async () => {
           `Are you sure you want to disable ntfy notifications?\n\nThis action will delete the current topic ID and notification credentials.`
         )
       ) {
-        ////TODO:
+        notificationsSettingsContent?.insertAdjacentElement(
+          'beforeend',
+          loadingBars
+        );
         const response = await disableNotifications();
         if (response.error) {
+          t.checked = true;
+          t.disabled = false;
+          notificationsSettingsContent?.removeChild(loadingBars);
           notification(response.messages, 'alert-error');
           return;
         }
+        notificationsSettingsContent?.removeChild(loadingBars);
         notification(response.messages, 'alert-success');
-        notificationsSettingsContent?.classList.add('hidden');
-        t.checked = false;
+        //sleep to show success message
+        new Promise(resolve => setTimeout(resolve, 250));
+        //refresh the page
+        window.location.reload();
         return;
       }
+      t.disabled = false;
       t.checked = true;
       return;
     }
@@ -117,12 +136,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    notificationsSettingsContent?.insertAdjacentElement(
+      'beforeend',
+      loadingBars
+    );
+    assertButtonElement(ntfySubmitBtn);
+    ntfySubmitBtn.disabled = true;
+
     const response = await enableNotifications(password, confirmPassword);
 
     if (response.error) {
+      ntfySubmitBtn.disabled = false;
+      notificationsSettingsContent?.removeChild(loadingBars);
       notification(response.messages.flat(), 'alert-error');
       return;
     }
+    notificationsSettingsContent?.removeChild(loadingBars);
 
     notification(response.messages, 'alert-success');
     //sleep to show success message
