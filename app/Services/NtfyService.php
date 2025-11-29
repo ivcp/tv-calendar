@@ -30,6 +30,14 @@ class NtfyService
         return bin2hex(random_bytes(5));
     }
 
+    public function getAllUsers(): array
+    {
+        $response = $this->client->get($this->url, ['headers' => $this->headers]);
+        $this->checkStatus($response);
+
+        return json_decode((string)$response->getBody(), true);
+    }
+
 
     public function createUser(string $username, string $password, string $topic): void
     {
@@ -61,13 +69,13 @@ class NtfyService
 
     }
 
-    public function getAllUsers(): array
+    public function deleteUser(string $username): void
     {
-        $response = $this->client->get($this->url, ['headers' => $this->headers]);
-        $this->checkStatus($response);
-
-        return json_decode((string)$response->getBody(), true);
+        #TODO: code...
+        sleep(3);
+        throw new RuntimeException();
     }
+
 
     private function checkStatus(ResponseInterface $response): void
     {
