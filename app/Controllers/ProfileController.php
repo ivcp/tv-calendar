@@ -6,7 +6,6 @@ namespace App\Controllers;
 
 use App\Contracts\AuthInterface;
 use App\Contracts\UserProviderServiceInterface;
-use App\Entity\User;
 use App\RequestValidators\EnableNotificationsRequestValidator;
 use App\RequestValidators\RequestValidatorFactory;
 use App\RequestValidators\StartOfWeekRequestValidator;
@@ -46,8 +45,8 @@ class ProfileController
     public function delete(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
-        $this->auth->logout($user);
         $this->userProviderService->deleteUser($user);
+        $this->auth->logout();
         return $this->responseFormatter->asJSONMessage($response, 200, 'profile deleted');
     }
 
