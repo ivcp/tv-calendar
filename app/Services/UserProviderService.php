@@ -13,8 +13,10 @@ use Doctrine\ORM\EntityManager;
 
 class UserProviderService implements UserProviderServiceInterface
 {
-    public function __construct(private readonly EntityManager $entityManager)
-    {
+    public function __construct(
+        private readonly EntityManager $entityManager,
+        private readonly NtfyService $ntfyService
+    ) {
     }
 
     public function getById(int $userId): ?UserInterface
@@ -63,8 +65,15 @@ class UserProviderService implements UserProviderServiceInterface
 
     public function deleteUser(UserInterface $user): void
     {
+        $ntfyTopic = $user->getNtfyTopic();
+        $email = $user->getEmail();
+        if ($ntfyTopic) {
+            $this->ntfyService->deleteUser($email);
+        }
+
         $this->entityManager->remove($user);
         $this->entityManager->flush();
+
     }
 
     private function hashPassword($password)
