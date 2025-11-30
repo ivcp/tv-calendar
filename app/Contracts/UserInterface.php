@@ -16,4 +16,6 @@ interface UserInterface
     public function setVerifiedAt(DateTime $date): self;
     public function setUpdatedAt(DateTime $date): self;
     public function getStartOfWeekSunday(): bool;
+    public function getNtfyTopic(): ?string;
+    public function setNtfyTopic(?string $ntfyTopic): self;
 }
