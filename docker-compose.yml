@@ -119,6 +119,11 @@ services:
       start_period: 40s
     restart: unless-stopped
     init: true # needed, if healthcheck is used. Prevents zombie processes
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 950M
 
   ntfy-test:
     image: binwiederhier/ntfy
@@ -141,6 +146,11 @@ services:
     volumes:
       - ./storage/ntfy-test:/var/lib/ntfy
       #- ./config:/etc/ntfy
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 950M
     restart: unless-stopped
 
 volumes:
