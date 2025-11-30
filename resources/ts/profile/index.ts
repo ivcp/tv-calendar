@@ -57,14 +57,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  //TODO: put disable while processing
   weekStartCheckbox?.addEventListener('change', async ({ target }) => {
     const t = target as HTMLInputElement;
+    t.disabled = true;
     const response = await setStartOfWeekSunday(t.checked);
     if (response.error) {
+      t.disabled = false;
       notification(response.messages, 'alert-error');
       return;
     }
+    t.disabled = false;
     notification(response.messages, 'alert-success');
   });
 
