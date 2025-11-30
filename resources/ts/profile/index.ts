@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   notificationsToggle?.addEventListener('change', async ({ target }) => {
     const t = target as HTMLInputElement;
-    t.disabled = true;
+
     const ntfyEnabled = t.dataset.ntfyEnabled;
     if (ntfyEnabled === undefined) {
       return;
@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (ntfyEnabled === 'true') {
+      t.disabled = true;
       if (
         confirm(
           `Are you sure you want to disable ntfy notifications?\n\nThis action will delete the current topic ID and notification credentials.`
