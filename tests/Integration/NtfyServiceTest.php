@@ -42,9 +42,24 @@ final class NtfyServiceTest extends TestCase
         $this->assertSame($user['grants'][0]['topic'], 'test-topic');
         $this->assertSame($user['grants'][0]['permission'], 'read-only');
 
-        $this->expectExceptionMessage('Username taken');
+        $this->expectExceptionMessage('Response failed with message: Conflict');
         $this->ntfyService->createUser('user@phpunit.test', 'password', 'test-topic');
 
+    }
+    public function testDeleteUser(): void
+    {
+        $this->ntfyService->createUser('user@phpunit.test', 'password', 'test-topic');
+        $users = $this->ntfyService->getAllUsers();
+        $this->assertCount(3, $users);
+
+        $this->ntfyService->deleteUser('user@phpunit.test');
+        $users = $this->ntfyService->getAllUsers();
+        $this->assertCount(2, $users);
+        $user = array_find($users, fn ($u) => $u['username'] === 'user@phpunit.test');
+        $this->assertNull($user);
+
+        $this->expectExceptionMessage('Response failed with message: Bad Request');
+        $this->ntfyService->deleteUser('user@phpunit.test');
     }
 
 

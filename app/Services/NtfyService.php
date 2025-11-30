@@ -42,14 +42,7 @@ class NtfyService
     public function createUser(string $username, string $password, string $topic): void
     {
 
-        $users = $this->getAllUsers();
-        foreach ($users as $user) {
-            if ($username === $user['username']) {
-                throw new RuntimeException("Username taken");
-            }
-        }
-
-        $response = $this->client->put($this->url, [
+        $response = $this->client->post($this->url, [
         'headers' => $this->headers,
         'body' => json_encode([
             'username' => $username,
@@ -71,9 +64,14 @@ class NtfyService
 
     public function deleteUser(string $username): void
     {
-        #TODO: code...
-        sleep(3);
-        throw new RuntimeException();
+
+        $response = $this->client->delete($this->url, [
+        'headers' => $this->headers,
+        'body' => json_encode([
+          'username' => $username,
+        ])]);
+        $this->checkStatus($response);
+
     }
 
 
