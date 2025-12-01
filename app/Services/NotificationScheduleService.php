@@ -17,14 +17,18 @@ class NotificationScheduleService
     public function run(): void
     {
         //TODO:
+        //get episodes
+        $episodes = $this->getEpisodes();
+
+        //foreach episode, foreach topic send notifications with scheduled time
+        //mark ep as processed??
+
     }
 
     public function getEpisodes(): array
     {
         $conn = $this->entityManager->getConnection();
 
-        //For individual ep notifications:
-        //INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
         $sql = 'SELECT e.id, s.name as "showName", 
                 e.name as "episodeName",
                 e.season, e.number, e.summary, e.type, e.airstamp,
@@ -35,7 +39,7 @@ class NotificationScheduleService
                 JSON_AGG(DISTINCT u.ntfy_topic) AS topics
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id
-                INNER JOIN users_shows us ON us.show_id = s.id 
+                INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
                 INNER JOIN users u ON us.user_id = u.id AND u.ntfy_topic IS NOT NULL
                 WHERE (e.airstamp BETWEEN now() AND now() + interval \'24 hours\')
                 GROUP BY
