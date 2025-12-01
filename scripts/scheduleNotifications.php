@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Services\NotificationService;
+use App\Services\NotificationScheduleService;
 use Dotenv\Dotenv;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -13,4 +13,4 @@ $dotenv->load();
 
 $container = require CONFIG_PATH . '/container/container.php';
 
-$container->get(NotificationService::class)->run();
+$container->get(NotificationScheduleService::class)->run();
