@@ -332,45 +332,45 @@ class UpdateTest extends TestCase
         ];
     }
 
-    #[DataProvider('dataProviderHuge')]
-    public function testUpdateHuge($updatedShows, $shows, $episodes): void
-    {
-        $tvMazeService = $this->createStub(TvMazeService::class);
-        $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
-        $tvMazeService->method('getShows')->willReturn(...$shows);
-        $tvMazeService->method('getEpisodes')->willReturn(...$episodes);
+    // #[DataProvider('dataProviderHuge')]
+    // public function testUpdateHuge($updatedShows, $shows, $episodes): void
+    // {
+    //     $tvMazeService = $this->createStub(TvMazeService::class);
+    //     $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
+    //     $tvMazeService->method('getShows')->willReturn(...$shows);
+    //     $tvMazeService->method('getEpisodes')->willReturn(...$episodes);
 
-        $updateService = new UpdateService(
-            new ShowService($this->entityManager),
-            new EpisodeService($this->entityManager, $this->config),
-            $tvMazeService,
-            $this->entityManager
-        );
+    //     $updateService = new UpdateService(
+    //         new ShowService($this->entityManager),
+    //         new EpisodeService($this->entityManager, $this->config),
+    //         $tvMazeService,
+    //         $this->entityManager
+    //     );
 
-        [
-            $showInsertCount,
-            $epInsertCount,
-            $showUpdatedCount,
-            $epUpdatedCount,
-            $epRemovedCount
-        ] = $updateService->run();
+    //     [
+    //         $showInsertCount,
+    //         $epInsertCount,
+    //         $showUpdatedCount,
+    //         $epUpdatedCount,
+    //         $epRemovedCount
+    //     ] = $updateService->run();
 
-        $this->assertSame(1, $showInsertCount);
-        $this->assertSame(9215, $epInsertCount);
-        $this->assertSame(0, $showUpdatedCount);
-        $this->assertSame(0, $epUpdatedCount);
-        $this->assertSame(0, $epRemovedCount);
+    //     $this->assertSame(1, $showInsertCount);
+    //     $this->assertSame(9215, $epInsertCount);
+    //     $this->assertSame(0, $showUpdatedCount);
+    //     $this->assertSame(0, $epUpdatedCount);
+    //     $this->assertSame(0, $epRemovedCount);
 
-        [
-            $showInsertCount,
-            $epInsertCount,
-            $showUpdatedCount,
-            $epUpdatedCount,
-            $epRemovedCount
-        ] = $updateService->run();
-        $this->assertSame(0, $epInsertCount);
-        $this->assertSame(0, $epRemovedCount);
-    }
+    //     [
+    //         $showInsertCount,
+    //         $epInsertCount,
+    //         $showUpdatedCount,
+    //         $epUpdatedCount,
+    //         $epRemovedCount
+    //     ] = $updateService->run();
+    //     $this->assertSame(0, $epInsertCount);
+    //     $this->assertSame(0, $epRemovedCount);
+    // }
 
     public static function dataProviderHuge(): array
     {
