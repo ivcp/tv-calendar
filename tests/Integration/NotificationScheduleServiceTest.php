@@ -86,6 +86,10 @@ final class NotificationScheduleServiceTest extends TestCase
 
     public function testGetEpisodes(): void
     {
+
+        $episodes =  $this->notificationScheduleService->getEpisodes();
+        $this->assertCount(0, $episodes);
+
         $user = $this->em->getRepository(User::class)->find(1);
         $show = $this->em->getRepository(Show::class)->find(1);
 
