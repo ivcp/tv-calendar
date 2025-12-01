@@ -59,7 +59,6 @@ class NtfyService
            'permission' => 'read-only'
         ])]);
         $this->checkStatus($response);
-
     }
 
     public function deleteUser(string $username): void
@@ -71,7 +70,6 @@ class NtfyService
           'username' => $username,
         ])]);
         $this->checkStatus($response);
-
     }
 
 
@@ -82,6 +80,4 @@ class NtfyService
             throw new RuntimeException("Response failed with message: $message");
         }
     }
-
-
 }

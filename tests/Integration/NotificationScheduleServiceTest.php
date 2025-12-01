@@ -59,7 +59,7 @@ final class NotificationScheduleServiceTest extends TestCase
                     $ep->setShow($show);
                     $ep->setTvMazeShowId($i);
                     $ep->setTvMazeEpisodeId(10 + $e);
-                    $ep->setName("episode-". $e);
+                    $ep->setName("episode-" . $e);
                     $ep->setAirstamp(new DateTime('+20 hours'));
                 }
             }
@@ -81,7 +81,6 @@ final class NotificationScheduleServiceTest extends TestCase
             $this->em->persist($user);
         }
         $this->em->flush();
-
     }
 
     public function testGetEpisodes(): void
@@ -153,7 +152,6 @@ final class NotificationScheduleServiceTest extends TestCase
         foreach ($eps as $ep) {
             $this->assertSame($ep['topics'], '["test4"]');
         }
-
     }
 
     private function addShowForUser(User $user, Show $show): void

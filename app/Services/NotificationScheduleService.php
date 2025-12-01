@@ -22,7 +22,6 @@ class NotificationScheduleService
 
         //foreach episode, foreach topic send notifications with scheduled time
         //mark ep as processed??
-
     }
 
     public function getEpisodes(): array
@@ -58,7 +57,5 @@ class NotificationScheduleService
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         return $resultSet->fetchAllAssociative();
-
-
     }
 }

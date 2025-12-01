@@ -73,7 +73,6 @@ class UserProviderService implements UserProviderServiceInterface
 
         $this->entityManager->remove($user);
         $this->entityManager->flush();
-
     }
 
     private function hashPassword($password)

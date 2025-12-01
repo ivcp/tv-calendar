@@ -93,8 +93,6 @@ class ProfileController
         $this->userSettingsService->setupNotifications($user, $data['notificationsPassword']);
 
         return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
-
-
     }
 
     private function disableNotifications(Request $request, Response $response): Response

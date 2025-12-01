@@ -38,7 +38,6 @@ class UserSettingsService
             $this->entityManager->flush();
             throw $e;
         }
-
     }
 
     public function disableNotifications(User $user): void

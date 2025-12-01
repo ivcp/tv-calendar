@@ -44,7 +44,6 @@ final class NtfyServiceTest extends TestCase
 
         $this->expectExceptionMessage('Response failed with message: Conflict');
         $this->ntfyService->createUser('user@phpunit.test', 'password', 'test-topic');
-
     }
     public function testDeleteUser(): void
     {
@@ -61,6 +60,4 @@ final class NtfyServiceTest extends TestCase
         $this->expectExceptionMessage('Response failed with message: Bad Request');
         $this->ntfyService->deleteUser('user@phpunit.test');
     }
-
-
 }
