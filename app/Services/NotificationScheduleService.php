@@ -24,10 +24,11 @@ class NotificationScheduleService
             $topics = json_decode($episode['topics']);
             if (is_array($topics)) {
                 foreach ($topics as $topic) {
+
                     $title = $episode['showName'];
                     if ($episode['season'] && $episode['number']) {
                         $title = sprintf(
-                            '%s S%dE%d',
+                            '%s S%d E%d',
                             $episode['showName'],
                             $episode['season'],
                             $episode['season']
@@ -36,7 +37,8 @@ class NotificationScheduleService
 
                     $message = $episode['summary'] ?
                                 strip_tags($episode['summary']) :
-                                'Episode summary not available';
+                                'Episode summary not available.';
+
                     try {
                         $this->ntfyService->sendNotification($topic, $title, $message);
                     } catch (RuntimeException $e) {
