@@ -152,13 +152,33 @@ final class NotificationScheduleServiceTest extends TestCase
         foreach ($eps as $ep) {
             $this->assertSame($ep['topics'], '["test4"]');
         }
+
+
+        //user1 adds show, but disables notification for it
+        $user = $this->em->getRepository(User::class)->find(1);
+        $show = $this->em->getRepository(Show::class)->find(7);
+        $this->addShowForUser($user, $show, true);
+
+        $episodes =  $this->notificationScheduleService->getEpisodes();
+        //nothing changes
+        $this->assertCount(15, $episodes);
+        $eps = array_filter($episodes, fn ($ep) => $ep['showName'] === 'test show 7');
+        $this->assertCount(10, $eps);
+        foreach ($eps as $ep) {
+            $this->assertSame($ep['topics'], '["test4"]');
+        }
+
+
     }
 
-    private function addShowForUser(User $user, Show $show): void
+    private function addShowForUser(User $user, Show $show, bool $isEnabled = false): void
     {
         $us = new UserShows();
         $us->setUser($user);
         $us->setShow($show);
+        if ($isEnabled) {
+            $us->setNotificationsEnabled(false);
+        }
 
         $this->em->persist($us);
         $this->em->flush();
