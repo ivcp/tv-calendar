@@ -5,23 +5,46 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Doctrine\ORM\EntityManager;
+use RuntimeException;
 
-//SendNotificationService
 class NotificationScheduleService
 {
     public function __construct(
-        private readonly EntityManager $entityManager
+        private readonly EntityManager $entityManager,
+        private readonly NtfyService $ntfyService
     ) {
     }
 
     public function run(): void
     {
-        //TODO:
-        //get episodes
+
         $episodes = $this->getEpisodes();
 
-        //foreach episode, foreach topic send notifications with scheduled time
-        //mark ep as processed??
+        foreach ($episodes as $episode) {
+            $topics = json_decode($episode['topics']);
+            if (is_array($topics)) {
+                foreach ($topics as $topic) {
+                    $title = $episode['showName'];
+                    if ($episode['season'] && $episode['number']) {
+                        $title = sprintf(
+                            '%s S%dE%d',
+                            $episode['showName'],
+                            $episode['season'],
+                            $episode['season']
+                        );
+                    }
+
+                    $message = $episode['summary'] ?
+                                strip_tags($episode['summary']) :
+                                'Episode summary not available';
+                    try {
+                        $this->ntfyService->sendNotification($topic, $title, $message);
+                    } catch (RuntimeException $e) {
+                        error_log("ERROR sending notification: " . $e->getMessage());
+                    }
+                }
+            }
+        }
     }
 
     public function getEpisodes(): array
