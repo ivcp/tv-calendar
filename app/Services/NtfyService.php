@@ -76,14 +76,22 @@ class NtfyService
         $this->checkStatus($response);
     }
 
-    public function sendNotification(string $topic, string $title, string $message): void
-    {
+    public function sendNotification(
+        string $topic,
+        string $title,
+        string $message,
+        int $timestamp
+    ): void {
         $url = $this->url . '/'. $topic;
 
         $response = $this->client->post($url, [
         'headers' => array_merge(
             $this->headers,
-            ['Title' => $title, 'Tags' => 'tv']
+            [
+                'Title' => $title,
+                'Tags' => 'tv',
+                'Delay' => $timestamp
+            ]
         ),
         'body' => $message
          ]);
