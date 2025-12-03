@@ -4,3 +4,4 @@ storage
 .phpunit.result.cache
 node_modules
 public/build
+backup.sql.gz
