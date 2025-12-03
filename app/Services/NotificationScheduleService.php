@@ -21,24 +21,11 @@ class NotificationScheduleService
         $episodes = $this->getEpisodes();
 
         foreach ($episodes as $episode) {
+            [$title, $message] = $this->formatNotification($episode);
             $topics = json_decode($episode['topics']);
+
             if (is_array($topics)) {
                 foreach ($topics as $topic) {
-
-                    $title = $episode['showName'];
-                    if ($episode['season'] && $episode['number']) {
-                        $title = sprintf(
-                            '%s S%d E%d',
-                            $episode['showName'],
-                            $episode['season'],
-                            $episode['season']
-                        );
-                    }
-
-                    $message = $episode['summary'] ?
-                                strip_tags($episode['summary']) :
-                                'Episode summary not available.';
-
                     try {
                         $this->ntfyService->sendNotification($topic, $title, $message);
                     } catch (RuntimeException $e) {
@@ -47,6 +34,26 @@ class NotificationScheduleService
                 }
             }
         }
+    }
+
+    public function formatNotification(array $episode): array
+    {
+        $title = $episode['showName'];
+        if ($episode['season'] && $episode['number']) {
+            $title = sprintf(
+                '%s S%d E%d',
+                $episode['showName'],
+                $episode['season'],
+                $episode['number']
+            );
+        }
+
+        $message = $episode['summary'] ?
+                    strip_tags($episode['summary']) :
+                    'Episode summary not available.';
+
+        return [$title, $message];
+
     }
 
     public function getEpisodes(): array
