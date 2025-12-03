@@ -372,45 +372,45 @@ class UpdateTest extends TestCase
     //     $this->assertSame(0, $epRemovedCount);
     // }
 
-    public static function dataProviderHuge(): array
-    {
+    // public static function dataProviderHuge(): array
+    // {
 
-        $episodesFromFile = file_get_contents(__DIR__ . '/episodes_huge.json');
-        $eps = json_decode($episodesFromFile);
+    //     $episodesFromFile = file_get_contents(__DIR__ . '/episodes_huge.json');
+    //     $eps = json_decode($episodesFromFile);
 
-        $testShow = new ShowData(
-            tvMazeId: 1,
-            status: 'running',
-            weight: 100,
-            name: "test show 1",
-            summary: "test summary",
-            genres: ['Comedy', 'Drama']
-        );
+    //     $testShow = new ShowData(
+    //         tvMazeId: 1,
+    //         status: 'running',
+    //         weight: 100,
+    //         name: "test show 1",
+    //         summary: "test summary",
+    //         genres: ['Comedy', 'Drama']
+    //     );
 
-        $testEps = array_map(function ($episode) {
-            return new EpisodeData(
-                tvMazeShowId: 1,
-                tvMazeEpisodeId: $episode->id,
-                episodeName: $episode->name,
-                seasonNumber: $episode?->season,
-                episodeNumber: $episode?->number,
-                episodeSummary: $episode?->summary,
-                type: $episode?->type,
-                airstamp: $episode?->airstamp ? new DateTime($episode->airstamp) : null,
-                runtime: $episode?->runtime,
-                imageMedium: $episode?->image?->medium,
-                imageOriginal: $episode?->image?->original
-            );
-        }, $eps);
+    //     $testEps = array_map(function ($episode) {
+    //         return new EpisodeData(
+    //             tvMazeShowId: 1,
+    //             tvMazeEpisodeId: $episode->id,
+    //             episodeName: $episode->name,
+    //             seasonNumber: $episode?->season,
+    //             episodeNumber: $episode?->number,
+    //             episodeSummary: $episode?->summary,
+    //             type: $episode?->type,
+    //             airstamp: $episode?->airstamp ? new DateTime($episode->airstamp) : null,
+    //             runtime: $episode?->runtime,
+    //             imageMedium: $episode?->image?->medium,
+    //             imageOriginal: $episode?->image?->original
+    //         );
+    //     }, $eps);
 
-        return [
-            [
-                [[1], [1]],
-                [[$testShow], [$testShow]],
-                [$testEps, $testEps]
-            ],
-        ];
-    }
+    //     return [
+    //         [
+    //             [[1], [1]],
+    //             [[$testShow], [$testShow]],
+    //             [$testEps, $testEps]
+    //         ],
+    //     ];
+    // }
 
     public function tearDown(): void
     {
