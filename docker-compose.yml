@@ -10,8 +10,8 @@ services:
         - GROUP=${USER:-user}
     container_name: tv-calendar-app
     working_dir: /var/www/
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
+    # extra_hosts:
+    #   - 'host.docker.internal:host-gateway'
     ports:
       - '9003:9003'
     volumes:
