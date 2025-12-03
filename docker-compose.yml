@@ -102,8 +102,8 @@ services:
       NTFY_AUTH_TOKENS: 'tv:tk_dzedgb2t4ejk3kmumr7tp64uvzwuq'
       #NTFY_VISITOR_REQUEST_LIMIT_EXEMPT_HOSTS: #### Server IP
       #NTFY_GLOBAL_TOPIC_LIMIT: ## set higher than 15000 if needed
-      NTFY_CACHE_BATCH_SIZE: 25
-      NTFY_CACHE_BATCH_TIMEOUT: '1s'
+      # NTFY_CACHE_BATCH_SIZE: 25 #not needed for now
+      # NTFY_CACHE_BATCH_TIMEOUT: '1s' #not needed for now
       NTFY_CACHE_STARTUP_QUERIES: 'pragma journal_mode = WAL; pragma synchronous = normal; pragma temp_store = memory; pragma busy_timeout = 15000; vacuum;'
 
       # NTFY_BEHIND_PROXY: true
@@ -146,8 +146,8 @@ services:
       NTFY_AUTH_USERS: 'tv-test:$$2a$$12$$V3M0aJyoMfOS.yNLOiXCn.jsGHZuMUHB9S8V.r0Yey2FTWUZxGsV6:admin' # Must escape '$' as '$$'
       NTFY_AUTH_TOKENS: 'tv-test:tk_dzedgb2t4ejk3kmumr7tp64uvzwuq'
       NTFY_VISITOR_REQUEST_LIMIT_EXEMPT_HOSTS: '172.18.0.10' ##set ip of app container
-      NTFY_CACHE_BATCH_SIZE: 25
-      NTFY_CACHE_BATCH_TIMEOUT: '1s'
+      # NTFY_CACHE_BATCH_SIZE: 25
+      # NTFY_CACHE_BATCH_TIMEOUT: '1s'
       NTFY_CACHE_STARTUP_QUERIES: 'pragma journal_mode = WAL; pragma synchronous = normal; pragma temp_store = memory; pragma busy_timeout = 15000; vacuum;'
       # NTFY_BEHIND_PROXY: true
       # NTFY_ATTACHMENT_CACHE_DIR: /var/lib/ntfy/attachments
