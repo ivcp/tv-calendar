@@ -6,8 +6,10 @@ namespace App\Controllers;
 
 use App\Contracts\AuthInterface;
 use App\Contracts\UserProviderServiceInterface;
+use App\Enum\NotificationTime;
 use App\RequestValidators\EnableNotificationsRequestValidator;
 use App\RequestValidators\RequestValidatorFactory;
+use App\RequestValidators\SetNotificationTimeRequestValidator;
 use App\RequestValidators\StartOfWeekRequestValidator;
 use App\ResponseFormatter;
 use App\Services\RequestService;
@@ -38,7 +40,9 @@ class ProfileController
                 'email' => $user->getEmail(),
                 'verified' => $user->getVerifiedAt(),
                 'passwordSet' => $user->getPassword() !== null,
-                'ntfyTopic' => $user->getNtfyTopic()
+                'ntfyTopic' => $user->getNtfyTopic(),
+                'startOfWeekSunday' => $user->getStartOfWeekSunday(),
+                'notificationTime' => $user->getNotificationTime()->value
             ]
         );
     }
@@ -67,6 +71,10 @@ class ProfileController
 
         if (array_key_exists('disableNotifications', $body)) {
             return $this->disableNotifications($request, $response);
+        };
+
+        if (array_key_exists('notificationTime', $body)) {
+            return $this->setNotificationTime($request, $response);
         };
 
         return $this->responseFormatter->asJSONErrors($response->withStatus(400), 'bad request');
@@ -99,6 +107,20 @@ class ProfileController
     {
         $user = $request->getAttribute('user');
         $this->userSettingsService->disableNotifications($user);
+        return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
+    }
+
+    private function setNotificationTime(Request $request, Response $response): Response
+    {
+        $data = $this->requestValidatorFactory->make(SetNotificationTimeRequestValidator::class)->validate(
+            $request->getParsedBody()
+        );
+
+        $user = $request->getAttribute('user');
+        $this->userSettingsService->setNotificationTime(
+            $user,
+            NotificationTime::from($data['notificationTime'])
+        );
         return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
     }
 }

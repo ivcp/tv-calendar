@@ -52,7 +52,7 @@
           class="toggle"
           {%
           if
-          user.startOfWeekSunday
+          startOfWeekSunday
           %}
           checked
           {%
@@ -120,6 +120,22 @@
               class="text-xs font-bold text-base-content/60 -mt-3 cursor-pointer hover:underline uppercase"
               >What do I do with this?</a
             >
+            <div class="self-end space-x-4 mt-2">
+              <label>Notification time</label>
+              <select
+                class="select select-bordered select-sm"
+                id="notification-time"
+              >
+                <option disabled selected>
+                  {{ notificationTime | split('_') | join(' ') | capitalize }}
+                </option>
+                {% for case in enum('App\\Enum\\NotificationTime').cases %}
+                <option value="{{ case.value }}">
+                  {{ case.value | split('_') | join(' ') | capitalize}}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
           </div>
           {% else %}
           <div

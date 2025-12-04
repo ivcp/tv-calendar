@@ -54,6 +54,17 @@ async function setStartOfWeekSunday(start: boolean): Promise<Result> {
   }
 }
 
+async function setNotificationTime(time: string): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      notificationTime: time,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function enableNotifications(
   password: string,
   confirmPassword: string
@@ -152,4 +163,5 @@ export {
   setStartOfWeekSunday,
   enableNotifications,
   disableNotifications,
+  setNotificationTime,
 };

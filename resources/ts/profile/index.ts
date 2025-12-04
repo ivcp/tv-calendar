@@ -4,6 +4,7 @@ import {
   setStartOfWeekSunday,
   enableNotifications,
   disableNotifications,
+  setNotificationTime,
 } from '../utils/ajax';
 import {
   assertHtmlElement,
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   assertHtmlElement(deleteProfileBtn);
   const resendEmailBtn = document.getElementById('email-resend');
   const weekStartCheckbox = document.getElementById('weekstart');
+  const notificationTimeSelect = document.getElementById('notification-time');
   const notificationsToggle = document.getElementById('notifications-toggle');
   const enableNotificationsForm = document.getElementById(
     'enable-notifications-form'
@@ -61,6 +63,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const t = target as HTMLInputElement;
     t.disabled = true;
     const response = await setStartOfWeekSunday(t.checked);
+    if (response.error) {
+      t.disabled = false;
+      notification(response.messages, 'alert-error');
+      return;
+    }
+    t.disabled = false;
+    notification(response.messages, 'alert-success');
+  });
+
+  notificationTimeSelect?.addEventListener('change', async ({ target }) => {
+    const t = target as HTMLInputElement;
+    t.disabled = true;
+    const response = await setNotificationTime(t.value);
     if (response.error) {
       t.disabled = false;
       notification(response.messages, 'alert-error');
