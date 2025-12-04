@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contracts;
 
+use App\Enum\NotificationTime;
 use DateTime;
 
 interface UserInterface
@@ -18,4 +19,7 @@ interface UserInterface
     public function getStartOfWeekSunday(): bool;
     public function getNtfyTopic(): ?string;
     public function setNtfyTopic(?string $ntfyTopic): self;
+    public function getNotificationTime(): NotificationTime;
+    public function setNotificationTime(NotificationTime $notificationTime): self;
+
 }
