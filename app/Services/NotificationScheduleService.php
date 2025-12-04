@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use DateTime;
+use App\Contracts\UserProviderServiceInterface;
+use App\Enum\NotificationTime;
 use Doctrine\ORM\EntityManager;
 use RuntimeException;
 
@@ -12,7 +13,8 @@ class NotificationScheduleService
 {
     public function __construct(
         private readonly EntityManager $entityManager,
-        private readonly NtfyService $ntfyService
+        private readonly NtfyService $ntfyService,
+        private readonly UserProviderServiceInterface $userProvider
     ) {
     }
 
@@ -61,19 +63,29 @@ class NotificationScheduleService
             );
         }
 
+        //special
+        if ($episode['type'] && str_contains($episode['type'], 'special')) {
+            $title .= ' (special)';
+        }
+
         $message = $episode['summary'] ?
                     strip_tags($episode['summary']) :
                     'Episode summary not available.';
 
-        //premiere
+        //premiere show show summary
         if ($episode['season'] === 1 && $episode['number'] === 1) {
             $message = $episode['showSummary'] ?
                     strip_tags($episode['showSummary']) :
                     'Show summary not available.';
         }
 
+        $user = $this->userProvider->getById($episode['userId']);
 
-        $timestamp = strtotime($episode['airstamp']);
+        $timestamp = match ($user->getNotificationTime()) {
+            NotificationTime::AIRTIME => strtotime($episode['airstamp']),
+            NotificationTime::ONE_HOUR_BEFORE => strtotime($episode['airstamp']) - 3600,
+            NotificationTime::ONE_HOUR_AFTER => strtotime($episode['airstamp']) + 3600,
+        };
 
         return [$title, $message, $timestamp];
 
@@ -91,12 +103,13 @@ class NotificationScheduleService
                 s.summary as "showSummary", 
                 s.network_name as "networkName", 
                 s.web_channel_name as "webChannelName", 
+                u.id as "userId",
                 JSON_AGG(DISTINCT u.ntfy_topic) AS topics
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id
                 INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
                 INNER JOIN users u ON us.user_id = u.id AND u.ntfy_topic IS NOT NULL
-                WHERE (e.airstamp BETWEEN now() AND now() + interval \'24 hours\')
+                WHERE (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'3 hours\')
                 GROUP BY
                     e.id,
                     s.id,

@@ -51,7 +51,7 @@ final class NotificationScheduleServiceTest extends TestCase
             } elseif ($i === 9) {
                 $ep->setAirstamp(new DateTime('+25 hours'));
             } else {
-                $ep->setAirstamp(new DateTime('+2 hours'));
+                $ep->setAirstamp(new DateTime('+121 minutes'));
             }
             if ($i === 7) {
                 for ($e = 2; $e <= 10; $e++) {
@@ -60,7 +60,7 @@ final class NotificationScheduleServiceTest extends TestCase
                     $ep->setTvMazeShowId($i);
                     $ep->setTvMazeEpisodeId(10 + $e);
                     $ep->setName("episode-" . $e);
-                    $ep->setAirstamp(new DateTime('+20 hours'));
+                    $ep->setAirstamp(new DateTime('+180 minutes'));
                 }
             }
 
