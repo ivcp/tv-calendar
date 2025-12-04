@@ -21,7 +21,19 @@ class NotificationScheduleService
 
         $episodes = $this->getEpisodes();
 
+        $currentShow = null;
+        $currentShowAirstamp = null;
         foreach ($episodes as $episode) {
+            if (
+                $currentShow === $episode['showId'] &&
+                $currentShowAirstamp === $episode['airstamp']
+            ) {
+                continue;
+            }
+
+            $currentShow = $episode['showId'];
+            $currentShowAirstamp = $episode['airstamp'];
+
             [$title, $message, $timestamp] = $this->formatNotification($episode);
             $topics = json_decode($episode['topics']);
 
@@ -53,6 +65,14 @@ class NotificationScheduleService
                     strip_tags($episode['summary']) :
                     'Episode summary not available.';
 
+        //premiere
+        if ($episode['season'] === 1 && $episode['number'] === 1) {
+            $message = $episode['showSummary'] ?
+                    strip_tags($episode['showSummary']) :
+                    'Show summary not available.';
+        }
+
+
         $timestamp = strtotime($episode['airstamp']);
 
         return [$title, $message, $timestamp];
@@ -68,6 +88,7 @@ class NotificationScheduleService
                 e.season, e.number, e.summary, e.type, e.airstamp,
                 e.image_medium as image, 
                 s.id as "showId", 
+                s.summary as "showSummary", 
                 s.network_name as "networkName", 
                 s.web_channel_name as "webChannelName", 
                 JSON_AGG(DISTINCT u.ntfy_topic) AS topics
@@ -87,7 +108,8 @@ class NotificationScheduleService
                     e.airstamp,
                     e.image_medium,
                     s.network_name,
-                    s.web_channel_name            
+                    s.web_channel_name
+                ORDER BY e.airstamp ASC, s.id ASC, e.number ASC                   
                 ';
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
