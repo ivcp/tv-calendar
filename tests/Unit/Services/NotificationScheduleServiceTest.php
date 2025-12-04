@@ -33,9 +33,10 @@ final class NotificationScheduleServiceTest extends TestCase
         $episode = [
             'id' => 1,
             'showName' => 'test show',
+            'showSummary' => 'test show summary',
             'episodeName' => 'episode-1',
             'season' => 1,
-            'number' => 1,
+            'number' => 2,
             'summary' => 'summary',
             'type' => 'regular',
             'airstamp' => '2025-12-03 15:31:25+00',
@@ -47,10 +48,16 @@ final class NotificationScheduleServiceTest extends TestCase
             ];
 
         return [
-            'title and message' => [$episode, 'test show S1 E1', 'summary'],
+            'title and message' => [$episode, 'test show S1 E2', 'summary'],
             'title no SE, summary unavailable' => [
                 array_replace($episode, ['season' => null, 'summary' => null]),
-                'test show', 'Episode summary not available.']
+                'test show', 'Episode summary not available.'],
+            'season premiere' => [
+                array_replace($episode, [
+                    'season' => 1, 'number' => 1
+                ]),
+                'test show S1 E1', 'test show summary'
+            ],
         ];
     }
 
