@@ -47,21 +47,23 @@ class NtfyService
     {
 
         $response = $this->client->post($this->usersUrl, [
-        'headers' => $this->headers,
-        'body' => json_encode([
-            'username' => $username,
-            'password' => $password
-        ])]);
+            'headers' => $this->headers,
+            'body' => json_encode([
+                'username' => $username,
+                'password' => $password
+            ])
+        ]);
         $this->checkStatus($response);
 
 
         $response = $this->client->put($this->accessUrl, [
-        'headers' => $this->headers,
-        'body' => json_encode([
-           'username' => $username,
-           'topic' => $topic,
-           'permission' => 'read-only'
-        ])]);
+            'headers' => $this->headers,
+            'body' => json_encode([
+                'username' => $username,
+                'topic' => $topic,
+                'permission' => 'read-only'
+            ])
+        ]);
         $this->checkStatus($response);
     }
 
@@ -69,10 +71,11 @@ class NtfyService
     {
 
         $response = $this->client->delete($this->usersUrl, [
-        'headers' => $this->headers,
-        'body' => json_encode([
-          'username' => $username,
-        ])]);
+            'headers' => $this->headers,
+            'body' => json_encode([
+                'username' => $username,
+            ])
+        ]);
         $this->checkStatus($response);
     }
 
@@ -80,21 +83,29 @@ class NtfyService
         string $topic,
         string $title,
         string $message,
-        int $timestamp
+        ?int $timestamp = null,
+        ?string $showLink = null
     ): void {
-        $url = $this->url . '/'. $topic;
+        $url = $this->url . '/' . $topic;
+
+        $headers = [
+            'Title' => $title,
+            'Tags' => 'tv',
+            'Delay' => $timestamp,
+            'Action' => "view, Go to show page, $showLink"
+        ];
+        if (!$timestamp && !$showLink) {
+            unset($headers['Delay']);
+            unset($headers['Action']);
+        }
 
         $response = $this->client->post($url, [
-        'headers' => array_merge(
-            $this->headers,
-            [
-                'Title' => $title,
-                'Tags' => 'tv',
-                'Delay' => $timestamp
-            ]
-        ),
-        'body' => $message
-         ]);
+            'headers' => array_merge(
+                $this->headers,
+                $headers
+            ),
+            'body' => $message
+        ]);
         $this->checkStatus($response);
     }
 
