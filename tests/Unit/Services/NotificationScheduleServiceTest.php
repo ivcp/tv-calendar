@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
+use App\Config as AppConfig;
 use App\Entity\User;
 use App\Enum\NotificationTime;
 use App\Services\NotificationScheduleService;
@@ -27,17 +28,23 @@ final class NotificationScheduleServiceTest extends TestCase
         $dummyEm = $this->createStub(EntityManager::class);
         $dummyNtfy = $this->createStub(NtfyService::class);
         $dummyUserProvider = $this->createStub(UserProviderService::class);
+        $dummyConfig = $this->createStub(AppConfig::class);
         $user = new User();
         $user->setNotificationTime($notificationTime);
         $dummyUserProvider->method('getById')->willReturn($user);
-        $notificationScheduleService = new NotificationScheduleService($dummyEm, $dummyNtfy, $dummyUserProvider);
+        $dummyConfig->method('get')->willReturn('http://link');
+        $notificationScheduleService = new NotificationScheduleService(
+            $dummyEm,
+            $dummyNtfy,
+            $dummyUserProvider,
+            $dummyConfig
+        );
 
         [$title, $message, $timestamp] = $notificationScheduleService->formatNotification($episode);
 
         $this->assertSame($expectedTitle, $title);
-        $this->assertSame($expectedMessage, $message);
+        $this->assertStringContainsString($expectedMessage, $message);
         $this->assertSame($expectedNotificationTime, $timestamp);
-
     }
 
     public static function episodeProvider(): array
@@ -59,7 +66,7 @@ final class NotificationScheduleServiceTest extends TestCase
             'webChannelName' => null,
             'userId' => 1,
             'topics' => ["test1", "test2"]
-            ];
+        ];
 
         return [
             'title and message' => [
@@ -78,7 +85,8 @@ final class NotificationScheduleServiceTest extends TestCase
             ],
             'season premiere' => [
                 array_replace($episode, [
-                    'season' => 1, 'number' => 1
+                    'season' => 1,
+                    'number' => 1
                 ]),
                 'test show S1 E1',
                 'test show summary',
@@ -87,7 +95,4 @@ final class NotificationScheduleServiceTest extends TestCase
             ],
         ];
     }
-
-
-
 }
