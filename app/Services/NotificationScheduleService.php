@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Config;
 use App\Contracts\UserProviderServiceInterface;
 use App\Enum\NotificationTime;
 use Doctrine\ORM\EntityManager;
@@ -14,9 +15,9 @@ class NotificationScheduleService
     public function __construct(
         private readonly EntityManager $entityManager,
         private readonly NtfyService $ntfyService,
-        private readonly UserProviderServiceInterface $userProvider
-    ) {
-    }
+        private readonly UserProviderServiceInterface $userProvider,
+        private readonly Config $config
+    ) {}
 
     public function run(): void
     {
@@ -36,13 +37,19 @@ class NotificationScheduleService
             $currentShow = $episode['showId'];
             $currentShowAirstamp = $episode['airstamp'];
 
-            [$title, $message, $timestamp] = $this->formatNotification($episode);
+            [$title, $message, $timestamp, $showLink] = $this->formatNotification($episode);
             $topics = json_decode($episode['topics']);
 
             if (is_array($topics)) {
                 foreach ($topics as $topic) {
                     try {
-                        $this->ntfyService->sendNotification($topic, $title, $message, $timestamp);
+                        $this->ntfyService->sendNotification(
+                            $topic,
+                            $title,
+                            $message,
+                            $timestamp,
+                            $showLink
+                        );
                     } catch (RuntimeException $e) {
                         error_log("ERROR sending notification: " . $e->getMessage());
                     }
@@ -68,15 +75,15 @@ class NotificationScheduleService
             $title .= ' (special)';
         }
 
-        $message = $episode['summary'] ?
-                    strip_tags($episode['summary']) :
-                    'Episode summary not available.';
+        $summary = $episode['summary'] ?
+            strip_tags($episode['summary']) :
+            'Episode summary not available.';
 
         //premiere show show summary
         if ($episode['season'] === 1 && $episode['number'] === 1) {
-            $message = $episode['showSummary'] ?
-                    strip_tags($episode['showSummary']) :
-                    'Show summary not available.';
+            $summary = $episode['showSummary'] ?
+                strip_tags($episode['showSummary']) :
+                'Show summary not available.';
         }
 
         $user = $this->userProvider->getById($episode['userId']);
@@ -87,8 +94,31 @@ class NotificationScheduleService
             NotificationTime::ONE_HOUR_AFTER => strtotime($episode['airstamp']) + 3600,
         };
 
-        return [$title, $message, $timestamp];
+        $availableString =  match ($user->getNotificationTime()) {
+            NotificationTime::AIRTIME => 'Airing now.',
+            NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour.',
+            NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago.',
+        };
 
+        $channel = $episode['networkName'] ?
+            $episode['networkName'] :  $episode['webChannelName'];
+        if (!$channel) {
+            $channel = '?';
+        }
+
+        $showLink = $this->config->get('app_url') . '/shows/' . $episode['showId'];
+
+        $message = <<<MESSAGE
+        $availableString
+
+        Episode title: $episode[episodeName]
+
+        Summary: $summary
+
+        Available on: $channel
+        MESSAGE;
+
+        return [$title, $message, $timestamp, $showLink];
     }
 
     public function getEpisodes(): array
@@ -121,7 +151,8 @@ class NotificationScheduleService
                     e.airstamp,
                     e.image_medium,
                     s.network_name,
-                    s.web_channel_name
+                    s.web_channel_name,
+                    u.id
                 ORDER BY e.airstamp ASC, s.id ASC, e.number ASC                   
                 ';
         $stmt = $conn->prepare($sql);
