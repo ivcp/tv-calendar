@@ -29,6 +29,20 @@ class UserShowsService
         $this->entityManager->persist($userShow);
         $this->entityManager->flush();
     }
+    
+    public function changeNotificationEnabled(Show $show, User $user, bool $notificationsEnabled): void
+    {
+       $userShow = $this->entityManager
+            ->getRepository(UserShows::class)
+            ->findOneBy(['user' => $user, 'show' => $show]);
+        if (! $userShow) {
+            throw new ShowNotInListException();
+        }
+
+        $userShow->setNotificationsEnabled($notificationsEnabled);
+        $this->entityManager->persist($userShow);
+        $this->entityManager->flush();
+    }
 
     public function addMultipleShows(array $showIds, User $user): void
     {

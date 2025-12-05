@@ -34,6 +34,8 @@ class UserProviderService implements UserProviderServiceInterface
         $user = new User();
         $user->setEmail($data->email);
         $user->setStartOfWeekSunday($data->startOfWeekSunday);
+        $user->setNtfyTopic($data->ntfyTopic);
+        $user->setNotificationTime($data->notificationTime);
         if ($data->password) {
             $user->setPassword($this->hashPassword($data->password));
         }

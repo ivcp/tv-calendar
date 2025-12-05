@@ -91,6 +91,20 @@ async function disableNotifications(): Promise<Result> {
   }
 }
 
+async function setNotificationEnabled(
+  showId: string,
+  notificationsEnabled: boolean
+): Promise<Result> {
+  try {
+    return await getResult(`/showlist/${showId}`, 'PATCH', {
+      _METHOD: 'PATCH',
+      notificationsEnabled,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
@@ -164,4 +178,5 @@ export {
   enableNotifications,
   disableNotifications,
   setNotificationTime,
+  setNotificationEnabled,
 };

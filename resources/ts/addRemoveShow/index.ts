@@ -5,6 +5,8 @@ import {
   setLocalShowList,
 } from '../utils/localStorageHelpers';
 import { getShowTitle, markAdded } from './helpers';
+import setNotificationIcon from '../utils/notificationIcons';
+import notificationBtnEventListener from '../utils/notificationBtnEventListener';
 
 document.addEventListener('DOMContentLoaded', () => {
   const addButtons = document.querySelectorAll('.add-show');
@@ -49,6 +51,40 @@ document.addEventListener('DOMContentLoaded', () => {
           }
 
           markAdded(btn);
+          if (
+            user &&
+            btn.hasAttribute('notifications-enabled') &&
+            window.location.pathname.includes('/shows')
+          ) {
+            const wrapper = btn.parentElement?.parentElement;
+            const notificationBtn = document.createElement('button');
+            notificationBtn.setAttribute('id', 'notification-enable-btn');
+            notificationBtn.classList.add(
+              'flex',
+              'items-center',
+              'btn',
+              'lg:btn-ghost',
+              'h-10',
+              'min-h-10'
+            );
+            notificationBtn.setAttribute('enabled', '');
+            notificationBtn.setAttribute('data-show-id', showId);
+            notificationBtn.insertAdjacentHTML(
+              'beforeend',
+              setNotificationIcon(true)
+            );
+            notificationBtn.insertAdjacentHTML(
+              'beforeend',
+              `<span class="sr-only">toggle notifications for show</span>`
+            );
+            if (wrapper) {
+              wrapper.insertAdjacentElement('afterbegin', notificationBtn);
+              notificationBtn.addEventListener('click', () =>
+                notificationBtnEventListener(notificationBtn)
+              );
+            }
+          }
+
           return;
         }
 
@@ -83,7 +119,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const svg = btn.querySelector('svg');
           if (svg) svg.classList.remove('fill-secondary');
         }
+
         if (window.location.pathname.includes('/shows')) {
+          const notificationEnableBtn = document.getElementById(
+            'notification-enable-btn'
+          );
+          if (notificationEnableBtn) {
+            notificationEnableBtn.remove();
+          }
           btn.classList.replace('btn-secondary', 'btn-primary');
           const parent = btn.parentElement;
           if (parent) parent.dataset.tip = 'Add to my shows';
