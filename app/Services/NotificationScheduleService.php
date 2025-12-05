@@ -95,9 +95,9 @@ class NotificationScheduleService
         };
 
         $availableString =  match ($user->getNotificationTime()) {
-            NotificationTime::AIRTIME => 'Airing now.',
-            NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour.',
-            NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago.',
+            NotificationTime::AIRTIME => 'Airing now',
+            NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour',
+            NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago',
         };
 
         $channel = $episode['networkName'] ?
