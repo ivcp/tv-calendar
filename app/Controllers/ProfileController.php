@@ -132,7 +132,7 @@ class ProfileController
         $topic = $user->getNtfyTopic();
 
         $this->ntfyService->sendNotification($topic, 'Test', 'This is a test message');
-        //
+
         return $this->responseFormatter->asJSONMessage($response, 200, 'test notification sent');
     }
 }
