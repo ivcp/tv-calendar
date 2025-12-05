@@ -44,8 +44,8 @@ return function (App $app) {
 
     $app->group('', function (RouteCollectorProxy $user) {
         $user->get('/verify/{id}/{hash}', [AuthController::class, 'verify'])
-        ->setName('verify')
-        ->add(ValidateSignatureMiddleware::class);
+            ->setName('verify')
+            ->add(ValidateSignatureMiddleware::class);
         $user->post('/verify', [AuthController::class, 'resendEmail']);
 
         $user->post('/logout', [AuthController::class, 'logout']);
@@ -54,13 +54,14 @@ return function (App $app) {
         $user->get('/profile', [ProfileController::class, 'index']);
         $user->patch('/profile', [ProfileController::class, 'updateSettings']);
         $user->delete('/profile', [ProfileController::class, 'delete']);
+        $user->post('/ntfy-test', [ProfileController::class, 'sendTestNtfyMessage']);
     })->add(AuthMiddleware::class);
 
     $app->get('/forgot-password', [PasswordResetController::class, 'forgotPasswordView']);
     $app->post('/forgot-password', [PasswordResetController::class, 'handleForgotPassword']);
     $app->get('/reset-password/{token}', [PasswordResetController::class, 'resetPasswordView'])
-    ->setName('password-reset')
-    ->add(ValidateSignatureMiddleware::class);
+        ->setName('password-reset')
+        ->add(ValidateSignatureMiddleware::class);
     $app->post('/reset-password/{token}', [PasswordResetController::class, 'resetPassword']);
 
 

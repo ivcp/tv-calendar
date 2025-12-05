@@ -5,6 +5,7 @@ import {
   enableNotifications,
   disableNotifications,
   setNotificationTime,
+  sendTestNtfy,
 } from '../utils/ajax';
 import {
   assertHtmlElement,
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'enable-notifications-form'
   );
   const ntfySubmitBtn = document.getElementById('ntfy-submit-btn');
+  const testNtfyBtn = document.getElementById('test-ntfy');
 
   const notificationsSettingsContent = document.getElementById(
     'notifications-settings-content'
@@ -176,5 +178,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     new Promise(resolve => setTimeout(resolve, 250));
     //refresh the page
     window.location.reload();
+  });
+
+  testNtfyBtn?.addEventListener('click', async function ({ target }) {
+    const t = target as HTMLButtonElement;
+    t.disabled = true;
+    const response = await sendTestNtfy();
+    if (response.error) {
+      t.disabled = false;
+      notification(response.messages, 'alert-error');
+      return;
+    }
+    t.disabled = false;
+    notification(response.messages, 'alert-success');
   });
 });

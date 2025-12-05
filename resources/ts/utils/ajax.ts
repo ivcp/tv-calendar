@@ -105,6 +105,16 @@ async function setNotificationEnabled(
   }
 }
 
+async function sendTestNtfy(): Promise<Result> {
+  try {
+    return await getResult(`/ntfy-test`, 'POST', {
+      _METHOD: 'POST',
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
@@ -179,4 +189,5 @@ export {
   disableNotifications,
   setNotificationTime,
   setNotificationEnabled,
+  sendTestNtfy,
 };

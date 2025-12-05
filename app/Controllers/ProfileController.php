@@ -12,6 +12,7 @@ use App\RequestValidators\RequestValidatorFactory;
 use App\RequestValidators\SetNotificationTimeRequestValidator;
 use App\RequestValidators\StartOfWeekRequestValidator;
 use App\ResponseFormatter;
+use App\Services\NtfyService;
 use App\Services\RequestService;
 use App\Services\UserSettingsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -27,9 +28,9 @@ class ProfileController
         private readonly AuthInterface $auth,
         private readonly RequestValidatorFactory $requestValidatorFactory,
         private readonly UserSettingsService $userSettingsService,
-        private readonly RequestService $requestService
-    ) {
-    }
+        private readonly RequestService $requestService,
+        private readonly NtfyService $ntfyService
+    ) {}
     public function index(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
@@ -122,5 +123,16 @@ class ProfileController
             NotificationTime::from($data['notificationTime'])
         );
         return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
+    }
+
+    public function sendTestNtfyMessage(Request $request, Response $response): Response
+    {
+        $user = $request->getAttribute('user');
+
+        $topic = $user->getNtfyTopic();
+
+        $this->ntfyService->sendNotification($topic, 'Test', 'This is a test message');
+        //
+        return $this->responseFormatter->asJSONMessage($response, 200, 'test notification sent');
     }
 }
