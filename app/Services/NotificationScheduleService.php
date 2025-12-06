@@ -21,7 +21,6 @@ class NotificationScheduleService
 
     public function run(): void
     {
-
         $episodes = $this->getEpisodes();
 
         $currentShow = null;
@@ -37,21 +36,39 @@ class NotificationScheduleService
             $currentShow = $episode['showId'];
             $currentShowAirstamp = $episode['airstamp'];
 
-            [$title, $message, $timestamp, $showLink] = $this->formatNotification($episode);
+            [$title, $message, $showLink] = $this->formatNotification($episode);
             $topics = json_decode($episode['topics']);
 
             if (is_array($topics)) {
                 foreach ($topics as $topic) {
-                    try {
-                        $this->ntfyService->sendNotification(
-                            $topic,
-                            $title,
-                            $message,
-                            $timestamp,
-                            $showLink
-                        );
-                    } catch (RuntimeException $e) {
-                        error_log("ERROR sending notification: " . $e->getMessage());
+                    $user = $this->userProvider->getByNtfyTopic($topic);
+
+                    if ($user) {
+                        $timestamp = match ($user->getNotificationTime()) {
+                            NotificationTime::AIRTIME => strtotime($episode['airstamp']),
+                            NotificationTime::ONE_HOUR_BEFORE => strtotime($episode['airstamp']) - 3600,
+                            NotificationTime::ONE_HOUR_AFTER => strtotime($episode['airstamp']) + 3600,
+                        };
+
+                        $availableString =  match ($user->getNotificationTime()) {
+                            NotificationTime::AIRTIME => 'Airing now',
+                            NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour',
+                            NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago',
+                        };
+
+                        $messageWithAiring = "$availableString\n\n" . $message;
+
+                        try {
+                            $this->ntfyService->sendNotification(
+                                $topic,
+                                $title,
+                                $messageWithAiring,
+                                $timestamp,
+                                $showLink
+                            );
+                        } catch (RuntimeException $e) {
+                            error_log("ERROR sending notification: " . $e->getMessage());
+                        }
                     }
                 }
             }
@@ -86,20 +103,6 @@ class NotificationScheduleService
                 'Show summary not available.';
         }
 
-        $user = $this->userProvider->getById($episode['userId']);
-
-        $timestamp = match ($user->getNotificationTime()) {
-            NotificationTime::AIRTIME => strtotime($episode['airstamp']),
-            NotificationTime::ONE_HOUR_BEFORE => strtotime($episode['airstamp']) - 3600,
-            NotificationTime::ONE_HOUR_AFTER => strtotime($episode['airstamp']) + 3600,
-        };
-
-        $availableString =  match ($user->getNotificationTime()) {
-            NotificationTime::AIRTIME => 'Airing now',
-            NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour',
-            NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago',
-        };
-
         $channel = $episode['networkName'] ?
             $episode['networkName'] :  $episode['webChannelName'];
         if (!$channel) {
@@ -109,8 +112,6 @@ class NotificationScheduleService
         $showLink = $this->config->get('app_url') . '/shows/' . $episode['showId'];
 
         $message = <<<MESSAGE
-        $availableString
-
         Episode title: $episode[episodeName]
 
         Summary: $summary
@@ -118,7 +119,7 @@ class NotificationScheduleService
         Available on: $channel
         MESSAGE;
 
-        return [$title, $message, $timestamp, $showLink];
+        return [$title, $message, $showLink];
     }
 
     public function getEpisodes(): array
@@ -132,8 +133,7 @@ class NotificationScheduleService
                 s.id as "showId", 
                 s.summary as "showSummary", 
                 s.network_name as "networkName", 
-                s.web_channel_name as "webChannelName", 
-                u.id as "userId",
+                s.web_channel_name as "webChannelName",                
                 JSON_AGG(DISTINCT u.ntfy_topic) AS topics
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id
@@ -151,8 +151,7 @@ class NotificationScheduleService
                     e.airstamp,
                     e.image_medium,
                     s.network_name,
-                    s.web_channel_name,
-                    u.id
+                    s.web_channel_name
                 ORDER BY e.airstamp ASC, s.id ASC, e.number ASC                   
                 ';
         $stmt = $conn->prepare($sql);
