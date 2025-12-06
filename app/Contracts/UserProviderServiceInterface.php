@@ -14,4 +14,5 @@ interface UserProviderServiceInterface
     public function verifyUser(UserInterface $user): void;
     public function updatePassword(UserInterface $user, string $password): void;
     public function deleteUser(UserInterface $user): void;
+    public function getByNtfyTopic(string $topic): ?UserInterface;
 }

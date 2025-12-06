@@ -16,8 +16,7 @@ class UserProviderService implements UserProviderServiceInterface
     public function __construct(
         private readonly EntityManager $entityManager,
         private readonly NtfyService $ntfyService
-    ) {
-    }
+    ) {}
 
     public function getById(int $userId): ?UserInterface
     {
@@ -27,6 +26,11 @@ class UserProviderService implements UserProviderServiceInterface
     public function getByCredentials(array $credentials): ?UserInterface
     {
         return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials['email']]);
+    }
+
+    public function getByNtfyTopic(string $topic): ?UserInterface
+    {
+        return $this->entityManager->getRepository(User::class)->findOneBy(['ntfyTopic' => $topic]);
     }
 
     public function createUser(RegisterUserData $data): UserInterface
