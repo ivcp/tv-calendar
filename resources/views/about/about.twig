@@ -3,7 +3,7 @@
 <section
   class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
 >
-  <h1 class="text-center font-semibold tracking-tight lg:text-xl">
+  <h1 class="text-center font-semibold tracking-tight text-xl">
     About {{ app_name }}
   </h1>
 
@@ -14,8 +14,8 @@
       stay organized so you never miss an episode.
     </p>
     <p>With {{ app_name }}, you can:</p>
-    <ul>
-      <li class="flex flex-wrap space-x-2">
+    <ul class="space-y-2">
+      <li class="flex flex-wrap space-x-1">
         <span>•</span>
         <span>Create your personal</span>
         <a href="/showlist" class="text-primary font-bold">watchlist</a>
@@ -34,7 +34,7 @@
           />
         </svg>
       </li>
-      <li class="flex flex-wrap space-x-2">
+      <li class="flex flex-wrap space-x-1">
         <span>•</span>
         <span class="text-nowrap">See upcoming episodes on the</span>
         <a href="/" class="text-primary font-bold indent-2 md:indent-0"
@@ -55,7 +55,7 @@
           />
         </svg>
       </li>
-      <li class="flex flex-wrap space-x-2">
+      <li class="flex flex-wrap space-x-1">
         <span>•</span>
         <a href="/discover" class="text-primary font-bold">Discover</a>
         <span>new shows</span>
@@ -74,13 +74,24 @@
           />
         </svg>
       </li>
+      <li class="flex space-x-1">
+        <span>•</span>
+        <span
+          >Get push
+          <a href="/get-notified" class="text-primary font-bold"
+            >notifications</a
+          >
+          on your phone when new episodes come out</span
+        >
+      </li>
     </ul>
     <p>
       You can use this website without creating an account - your watchlist is
       saved right in your browser, with room for up to 10 shows. Perfect for
       casual TV fans! Creating an account removes the limit, stores your shows
-      safely on our servers, and lets you access your list from any device. And
-      yes: tracking your favorite shows is totally free.
+      safely on our servers, and lets you access your list from any device. You
+      can also opt in to receive push notifications on your phone. And yes:
+      tracking your favorite shows is totally free.
     </p>
   </div>
 </section>
