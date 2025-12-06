@@ -12,8 +12,7 @@ class AboutController
 {
     public function __construct(
         private readonly Twig $twig,
-    ) {
-    }
+    ) {}
 
     public function about(Request $request, Response $response): Response
     {
@@ -28,5 +27,10 @@ class AboutController
     public function terms(Request $request, Response $response): Response
     {
         return $this->twig->render($response, 'about/terms.twig');
+    }
+
+    public function notifications(Request $request, Response $response): Response
+    {
+        return $this->twig->render($response, 'about/notifications.twig');
     }
 }
