@@ -44,13 +44,15 @@ class NotificationScheduleService
                     $user = $this->userProvider->getByNtfyTopic($topic);
 
                     if ($user) {
-                        $timestamp = match ($user->getNotificationTime()) {
+                        $notificationTime = $user->getNotificationTime();
+
+                        $timestamp = match ($notificationTime) {
                             NotificationTime::AIRTIME => strtotime($episode['airstamp']),
                             NotificationTime::ONE_HOUR_BEFORE => strtotime($episode['airstamp']) - 3600,
                             NotificationTime::ONE_HOUR_AFTER => strtotime($episode['airstamp']) + 3600,
                         };
 
-                        $availableString =  match ($user->getNotificationTime()) {
+                        $availableString =  match ($notificationTime) {
                             NotificationTime::AIRTIME => 'Airing now',
                             NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour',
                             NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago',
