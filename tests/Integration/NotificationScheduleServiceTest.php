@@ -9,6 +9,7 @@ use App\Entity\Episode;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
+use App\Enum\NotificationTime;
 use App\Services\AccountCleanupService;
 use App\Services\NotificationScheduleService;
 use DateTime;
@@ -73,6 +74,7 @@ final class NotificationScheduleServiceTest extends TestCase
             $user->setEmail("test$i@email.com");
             $user->setPassword('12345678');
             $user->setStartOfWeekSunday(false);
+            $user->setNotificationTime(NotificationTime::AIRTIME);
             if ($i === 10) {
                 $user->setNtfyTopic(null);
             } else {
@@ -147,7 +149,7 @@ final class NotificationScheduleServiceTest extends TestCase
 
         $episodes = $this->notificationScheduleService->getEpisodes();
         $this->assertCount(15, $episodes);
-        $eps = array_filter($episodes, fn ($ep) => $ep['showName'] === 'test show 7');
+        $eps = array_filter($episodes, fn($ep) => $ep['showName'] === 'test show 7');
         $this->assertCount(10, $eps);
         foreach ($eps as $ep) {
             $this->assertSame($ep['topics'], '["test4"]');
@@ -162,13 +164,11 @@ final class NotificationScheduleServiceTest extends TestCase
         $episodes =  $this->notificationScheduleService->getEpisodes();
         //nothing changes
         $this->assertCount(15, $episodes);
-        $eps = array_filter($episodes, fn ($ep) => $ep['showName'] === 'test show 7');
+        $eps = array_filter($episodes, fn($ep) => $ep['showName'] === 'test show 7');
         $this->assertCount(10, $eps);
         foreach ($eps as $ep) {
             $this->assertSame($ep['topics'], '["test4"]');
         }
-
-
     }
 
     private function addShowForUser(User $user, Show $show, bool $isEnabled = false): void
