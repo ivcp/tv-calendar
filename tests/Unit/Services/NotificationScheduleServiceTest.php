@@ -20,18 +20,13 @@ final class NotificationScheduleServiceTest extends TestCase
     public function testFormatNotification(
         array $episode,
         string $expectedTitle,
-        string $expectedMessage,
-        NotificationTime $notificationTime,
-        int $expectedNotificationTime
+        string $expectedMessage
     ): void {
 
         $dummyEm = $this->createStub(EntityManager::class);
         $dummyNtfy = $this->createStub(NtfyService::class);
         $dummyUserProvider = $this->createStub(UserProviderService::class);
         $dummyConfig = $this->createStub(AppConfig::class);
-        $user = new User();
-        $user->setNotificationTime($notificationTime);
-        $dummyUserProvider->method('getById')->willReturn($user);
         $dummyConfig->method('get')->willReturn('http://link');
         $notificationScheduleService = new NotificationScheduleService(
             $dummyEm,
@@ -40,11 +35,11 @@ final class NotificationScheduleServiceTest extends TestCase
             $dummyConfig
         );
 
-        [$title, $message, $timestamp] = $notificationScheduleService->formatNotification($episode);
+        [$title, $message, $showlink] = $notificationScheduleService->formatNotification($episode);
 
         $this->assertSame($expectedTitle, $title);
         $this->assertStringContainsString($expectedMessage, $message);
-        $this->assertSame($expectedNotificationTime, $timestamp);
+        $this->assertSame('http://link/shows/1', $showlink);
     }
 
     public static function episodeProvider(): array
@@ -72,16 +67,12 @@ final class NotificationScheduleServiceTest extends TestCase
             'title and message' => [
                 $episode,
                 'test show S1 E2',
-                'summary',
-                NotificationTime::AIRTIME,
-                1764775885
+                'summary'
             ],
             'title no SE, summary unavailable' => [
                 array_replace($episode, ['season' => null, 'summary' => null]),
                 'test show',
-                'Episode summary not available.',
-                NotificationTime::ONE_HOUR_BEFORE,
-                1764772285
+                'Episode summary not available.'
             ],
             'season premiere' => [
                 array_replace($episode, [
@@ -89,9 +80,7 @@ final class NotificationScheduleServiceTest extends TestCase
                     'number' => 1
                 ]),
                 'test show S1 E1',
-                'test show summary',
-                NotificationTime::ONE_HOUR_AFTER,
-                1764779485
+                'test show summary'
             ],
         ];
     }
