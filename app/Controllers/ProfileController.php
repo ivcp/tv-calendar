@@ -30,7 +30,8 @@ class ProfileController
         private readonly UserSettingsService $userSettingsService,
         private readonly RequestService $requestService,
         private readonly NtfyService $ntfyService
-    ) {}
+    ) {
+    }
     public function index(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');

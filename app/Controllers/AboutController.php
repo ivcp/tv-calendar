@@ -12,7 +12,8 @@ class AboutController
 {
     public function __construct(
         private readonly Twig $twig,
-    ) {}
+    ) {
+    }
 
     public function about(Request $request, Response $response): Response
     {

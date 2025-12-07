@@ -17,8 +17,7 @@ class UserShowsService
     public function __construct(
         private readonly EntityManager $entityManager,
         private readonly ShowService $showService
-    ) {
-    }
+    ) {}
 
     public function add(Show $show, User $user): void
     {
@@ -29,10 +28,10 @@ class UserShowsService
         $this->entityManager->persist($userShow);
         $this->entityManager->flush();
     }
-    
+
     public function changeNotificationEnabled(Show $show, User $user, bool $notificationsEnabled): void
     {
-       $userShow = $this->entityManager
+        $userShow = $this->entityManager
             ->getRepository(UserShows::class)
             ->findOneBy(['user' => $user, 'show' => $show]);
         if (! $userShow) {
@@ -56,8 +55,8 @@ class UserShowsService
                 continue;
             }
             $showAlreadySaved = $this->entityManager
-            ->getRepository(UserShows::class)
-            ->findOneBy(['user' => $user, 'show' => $show]);
+                ->getRepository(UserShows::class)
+                ->findOneBy(['user' => $user, 'show' => $show]);
             if ($showAlreadySaved) {
                 continue;
             }
@@ -98,11 +97,11 @@ class UserShowsService
 
         $qb = $repository->createQueryBuilder('c');
         $qb->select('count(distinct s)')
-        ->where($qb->expr()->eq('c.user', ':userId'))
-        ->innerJoin('c.show', 's')
-        ->andWhere($qb->expr()->like('s.genres', ':genre'))
-        ->setParameter('userId', $user->getId())
-        ->setParameter('genre', '%' . $genre->value . '%');
+            ->where($qb->expr()->eq('c.user', ':userId'))
+            ->innerJoin('c.show', 's')
+            ->andWhere($qb->expr()->like('s.genres', ':genre'))
+            ->setParameter('userId', $user->getId())
+            ->setParameter('genre', '%' . $genre->value . '%');
 
 
         return $qb->getQuery()->getSingleScalarResult();

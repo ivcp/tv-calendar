@@ -36,7 +36,8 @@ class ShowController
         private readonly ResponseFormatter $responseFormatter,
         private readonly UserShowsService $userShowsService,
         private readonly RequestService $requestService,
-    ) {}
+    ) {
+    }
 
     public function index(Request $request, Response $response): Response
     {

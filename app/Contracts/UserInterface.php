@@ -21,5 +21,4 @@ interface UserInterface
     public function setNtfyTopic(?string $ntfyTopic): self;
     public function getNotificationTime(): NotificationTime;
     public function setNotificationTime(NotificationTime $notificationTime): self;
-
 }
