@@ -23,6 +23,10 @@ class NotificationScheduleService
     {
         $episodes = $this->getEpisodes();
 
+        $episodesTotal = count($episodes);
+        $messagesSent = 0;
+        $errorsSendingMessage = 0;
+
         $currentShow = null;
         $currentShowAirstamp = null;
         foreach ($episodes as $episode) {
@@ -68,13 +72,25 @@ class NotificationScheduleService
                                 $timestamp,
                                 $showLink
                             );
+                            $messagesSent += 1;
                         } catch (RuntimeException $e) {
+                            $errorsSendingMessage += 1;
                             error_log("ERROR sending notification: " . $e->getMessage());
                         }
                     }
                 }
             }
         }
+
+        echo <<<RESULT
+        --------------------------
+        NOTIFICATION SCHEDULE SERVICE
+        --
+        EPISODES TOTAL: $episodesTotal
+        MESSAGES SENT:  $messagesSent
+        ERRORS: $errorsSendingMessage       
+        --------------------------\n
+        RESULT;
     }
 
     public function formatNotification(array $episode): array
