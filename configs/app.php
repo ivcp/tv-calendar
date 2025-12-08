@@ -42,7 +42,7 @@ return [
         'lifetime' =>  60 * 60 * 24 * 365
     ],
     'json_tags' => JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS | JSON_THROW_ON_ERROR,
-    'popular_weight' => 100,
+    'popular_weight' => 99,
     'mailer' => [
         'dsn' => $_ENV['MAILER_DSN'],
         'from' => $_ENV['MAILER_FROM']
@@ -57,5 +57,9 @@ return [
     'turnstile' => [
         'site_key' => $_ENV['TURNSTILE_SITE_KEY'] ?? '',
         'secret_key' => $_ENV['TURNSTILE_SECRET_KEY'] ?? '',
+    ],
+    'ntfy' => [
+        'base_url' => $_ENV['NTFY_BASE_URL'],
+        'admin_token' => $_ENV['NTFY_ADMIN_TOKEN'],
     ]
 ];

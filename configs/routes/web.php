@@ -31,6 +31,7 @@ return function (App $app) {
     $app->get('/showlist', [ShowController::class, 'index']);
     $app->group('/showlist', function (RouteCollectorProxy $showlist) {
         $showlist->post('', [ShowController::class, 'store']);
+        $showlist->patch('/{showId}', [ShowController::class, 'update']);
         $showlist->delete('/{showId}', [ShowController::class, 'delete']);
     })->add(AuthMiddleware::class);
 
@@ -43,23 +44,24 @@ return function (App $app) {
 
     $app->group('', function (RouteCollectorProxy $user) {
         $user->get('/verify/{id}/{hash}', [AuthController::class, 'verify'])
-        ->setName('verify')
-        ->add(ValidateSignatureMiddleware::class);
+            ->setName('verify')
+            ->add(ValidateSignatureMiddleware::class);
         $user->post('/verify', [AuthController::class, 'resendEmail']);
 
         $user->post('/logout', [AuthController::class, 'logout']);
         $user->get('/update-password', [PasswordResetController::class, 'updatePasswordView']);
         $user->post('/update-password', [PasswordResetController::class, 'updatePassword']);
         $user->get('/profile', [ProfileController::class, 'index']);
-        $user->patch('/profile', [ProfileController::class, 'setStartOfWeek']);
+        $user->patch('/profile', [ProfileController::class, 'updateSettings']);
         $user->delete('/profile', [ProfileController::class, 'delete']);
+        $user->post('/ntfy-test', [ProfileController::class, 'sendTestNtfyMessage']);
     })->add(AuthMiddleware::class);
 
     $app->get('/forgot-password', [PasswordResetController::class, 'forgotPasswordView']);
     $app->post('/forgot-password', [PasswordResetController::class, 'handleForgotPassword']);
     $app->get('/reset-password/{token}', [PasswordResetController::class, 'resetPasswordView'])
-    ->setName('password-reset')
-    ->add(ValidateSignatureMiddleware::class);
+        ->setName('password-reset')
+        ->add(ValidateSignatureMiddleware::class);
     $app->post('/reset-password/{token}', [PasswordResetController::class, 'resetPassword']);
 
 
@@ -68,4 +70,5 @@ return function (App $app) {
     $app->get('/about', [AboutController::class, 'about']);
     $app->get('/privacy-policy', [AboutController::class, 'privacy']);
     $app->get('/terms', [AboutController::class, 'terms']);
+    $app->get('/get-notified', [AboutController::class, 'notifications']);
 };

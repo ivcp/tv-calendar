@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %} {% block content %}{% block javascripts %}
 {{ parent() }}
-{{ encore_entry_script_tags("profile") }}
+{{ encore_entry_script_tags('profile') }}
 {% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
@@ -38,19 +38,21 @@
         </div>
       </div>
     </div>
-    <div class="mx-auto flex flex-col gap-4">
-      <h2 class="hidden lg:block text-lg font-bold">Calendar</h2>
-      <div
-        class="hidden lg:flex items-center justify-between gap-4 pb-4 border-b"
+    <div class="mt-8 mb-6 mx-auto flex flex-col gap-4 w-[95%] lg:w-[40rem]">
+      <h2
+        class="hidden lg:block text-lg font-bold border-b border-neutral-content/40 pb-2"
       >
+        Calendar
+      </h2>
+      <div class="hidden lg:flex items-center justify-end gap-4 pb-4 my-6">
         <p class="">Start week with Sunday</p>
         <input
           type="checkbox"
           id="weekstart"
-          class="checkbox"
+          class="toggle"
           {%
           if
-          user.startOfWeekSunday
+          startOfWeekSunday
           %}
           checked
           {%
@@ -58,33 +60,171 @@
           %}
         />
       </div>
-      <h2 class="text-lg font-bold mt-12">Profile</h2>
-      {% if not verified %}
-      <div class="flex items-center justify-between gap-4 pb-4 border-b">
-        <p class="">Didn't receive the verification email?</p>
+      <h2
+        class="text-lg font-bold lg:mt-8 border-b border-neutral-content/40 pb-2"
+      >
+        Notifications
+      </h2>
+      <div class="flex flex-col justify-between gap-4 my-6 pb-4">
+        <div class="flex justify-end gap-4">
+          <p class="">Enable NTFY notifications</p>
+          <div
+            {%if
+            not
+            verified
+            %}class="tooltip tooltip-left"
+            data-tip="Please verify your account to enable notifications"
+            {%endif%}
+          >
+            <input
+              type="checkbox"
+              id="notifications-toggle"
+              data-ntfy-enabled="{{ ntfyTopic ? 'true' : 'false' }}"
+              class="toggle"
+              {%if
+              not
+              verified
+              %}disabled
+              {%endif%}
+              {%
+              if
+              ntfyTopic
+              %}
+              checked
+              {%
+              endif
+              %}
+            />
+          </div>
+        </div>
+        <div
+          id="notifications-settings-content"
+          class="{{ ntfyTopic ? '' : 'hidden' }} flex flex-col"
+        >
+          {% if ntfyTopic %}
+          <div class="flex flex-col gap-4 my-4">
+            <div class="bg-base-200 h-20 p-2 rounded-lg grid">
+              <p
+                class="text-xs row-start-1 col-start-1 uppercase text-base-content/80"
+              >
+                Your topic ID
+              </p>
+              <p
+                class="text-xl place-self-center row-start-1 row-end-2 col-start-1 col-end-2"
+              >
+                {{ ntfyTopic }}
+              </p>
+            </div>
+            <a
+              href="/get-notified#subscribe-ntfy"
+              class="text-xs font-bold text-base-content/60 -mt-3 cursor-pointer hover:underline uppercase"
+              >What do I do with this?</a
+            >
+            <div class="self-end flex flex-col gap-6 mt-2">
+              <div class="space-x-2">
+                <label>Notification time</label>
+                <select
+                  class="select select-bordered select-sm"
+                  id="notification-time"
+                >
+                  <option disabled selected>
+                    {{ notificationTime | split('_') | join(' ') | capitalize }}
+                  </option>
+                  {% for case in enum('App\\Enum\\NotificationTime').cases %}
+                  <option value="{{ case.value }}">
+                    {{ case.value | split('_') | join(' ') | capitalize}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button
+                id="test-ntfy"
+                class="btn btn-sm uppercase btn-outline w-fit self-end"
+              >
+                Send test notification
+              </button>
+            </div>
+          </div>
+          {% else %}
+          <div
+            class="flex flex-col lg:flex-row gap-6 bg-base-200 p-4 my-4 lg:p-6 rounded-lg"
+          >
+            {% if verified%}
+            <div class="space-y-4">
+              <p>
+                To enable notifications via <b>ntfy</b>, please set a password
+                for notifications. Remember it, as you will need to enter it in
+                the app later.
+              </p>
+              <p>
+                More info:
+                <a href="/get-notified" class="text-primary font-bold"
+                  >Get notified</a
+                >
+              </p>
+            </div>
+            <form
+              method="post"
+              id="enable-notifications-form"
+              class="flex flex-col gap-2 lg:w-1/2"
+            >
+              <input
+                type="password"
+                class="input input-bordered"
+                name="notificationsPassword"
+                placeholder="Password"
+                required
+                minlength="8"
+              />
+              <input
+                type="password"
+                class="input input-bordered"
+                name="confirmNotificationsPassword"
+                placeholder="Confirm password"
+                required
+                minlength="8"
+              />
+              <button
+                class="mt-2 btn btn-sm btn-outline self-center"
+                type="submit"
+                id="ntfy-submit-btn"
+              >
+                Enable
+              </button>
+            </form>
+            {% else %}
+            <p>Please verify your account to enable notifications.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <h2
+        class="text-lg font-bold mt-4 border-b border-neutral-content/40 pb-2"
+      >
+        Profile
+      </h2>
+      <div class="flex flex-col gap-6 my-6">
+        {% if not verified %}
         <button
           id="email-resend"
           data-email="{{ email }}"
-          class="btn btn-outline btn-sm rounded-lg"
+          class="btn btn-outline btn-sm rounded-lg self-end uppercase"
         >
-          Resend
+          Resend verification email
         </button>
-      </div>
-      {% endif %} {% if passwordSet %}
-      <div class="flex items-center justify-between gap-4 pb-4 border-b">
-        <p class="">Change your password</p>
+        {% endif %} {% if passwordSet %}
+
         <a
           href="/update-password"
-          class="btn btn-outline btn-primary btn-sm rounded-lg self-center"
+          class="btn btn-outline btn-sm rounded-lg self-end uppercase"
           >Update password</a
         >
-      </div>
-      {% endif %}
-      <div class="flex items-center justify-between gap-4">
-        <p class="">Delete account</p>
+        {% endif %}
+
         <button
           id="delete-account"
-          class="btn btn-outline btn-secondary btn-sm rounded-lg self-center"
+          class="btn btn-outline btn-error btn-sm rounded-lg self-end uppercase"
         >
           Delete account
         </button>

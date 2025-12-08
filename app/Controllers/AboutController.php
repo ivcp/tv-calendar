@@ -29,4 +29,9 @@ class AboutController
     {
         return $this->twig->render($response, 'about/terms.twig');
     }
+
+    public function notifications(Request $request, Response $response): Response
+    {
+        return $this->twig->render($response, 'about/notifications.twig');
+    }
 }

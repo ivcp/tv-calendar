@@ -29,6 +29,16 @@ module.exports = {
   plugins: [require('daisyui')],
 
   daisyui: {
-    themes: ['dim', 'fantasy'],
+    themes: [
+      'dim',
+      {
+        fantasy: {
+          ...require('daisyui/src/theming/themes')['fantasy'],
+          'base-100': '#f7f7f7',
+          'base-content': '#293649',
+          warning: '#d68708',
+        },
+      },
+    ],
   },
 };

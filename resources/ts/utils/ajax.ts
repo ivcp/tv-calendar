@@ -54,6 +54,67 @@ async function setStartOfWeekSunday(start: boolean): Promise<Result> {
   }
 }
 
+async function setNotificationTime(time: string): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      notificationTime: time,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
+async function enableNotifications(
+  password: string,
+  confirmPassword: string
+): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      notificationsPassword: password,
+      confirmNotificationsPassword: confirmPassword,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
+async function disableNotifications(): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      disableNotifications: true,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
+async function setNotificationEnabled(
+  showId: string,
+  notificationsEnabled: boolean
+): Promise<Result> {
+  try {
+    return await getResult(`/showlist/${showId}`, 'PATCH', {
+      _METHOD: 'PATCH',
+      notificationsEnabled,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
+async function sendTestNtfy(): Promise<Result> {
+  try {
+    return await getResult(`/ntfy-test`, 'POST', {
+      _METHOD: 'POST',
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
@@ -77,7 +138,13 @@ async function getResult(
     if ([400, 403, 404, 422].includes(response.status)) {
       const json = await response.json();
       if (response.status === 422) {
-        return { error: true, messages: json.errors.showId };
+        return {
+          error: true,
+          messages:
+            url === '/profile'
+              ? Object.values(json.errors)
+              : json.errors.showId,
+        };
       }
       return { error: true, messages: [json.msg] };
     }
@@ -118,4 +185,9 @@ export {
   resendEmail,
   deleteProfile,
   setStartOfWeekSunday,
+  enableNotifications,
+  disableNotifications,
+  setNotificationTime,
+  setNotificationEnabled,
+  sendTestNtfy,
 };

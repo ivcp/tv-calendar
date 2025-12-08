@@ -14,6 +14,7 @@ use App\RequestValidators\GetShowRequestValidator;
 use App\RequestValidators\SearchShowRequestValidator;
 use App\RequestValidators\ShowListRequestValidator;
 use App\RequestValidators\ShowRequestValidator;
+use App\RequestValidators\UpdateShowRequestValidator;
 use App\ResponseFormatter;
 use App\Services\PaginationService;
 use App\Services\RequestService;
@@ -42,8 +43,8 @@ class ShowController
     {
 
         $params = $this->requestValidatorFactory
-        ->make(ShowListRequestValidator::class)
-        ->validate($request->getQueryParams());
+            ->make(ShowListRequestValidator::class)
+            ->validate($request->getQueryParams());
 
 
         $user = $request->getAttribute('user');
@@ -61,9 +62,9 @@ class ShowController
 
         $showList = $this->paginationService->showlist($params, $user);
 
-        $shows = array_map(fn ($show) => new ShowCardData(
-            id:$show->getId(),
-            name:$show->getName(),
+        $shows = array_map(fn($show) => new ShowCardData(
+            id: $show->getId(),
+            name: $show->getName(),
             imageMedium: $show->getImageMedium()
         ), $showList->getShows());
 
@@ -102,8 +103,8 @@ class ShowController
     public function get(Request $request, Response $response, array $args): Response
     {
         $params = $this->requestValidatorFactory
-        ->make(GetShowRequestValidator::class)
-        ->validate($args);
+            ->make(GetShowRequestValidator::class)
+            ->validate($args);
 
         $showId = (int) $params['showId'];
 
@@ -118,12 +119,17 @@ class ShowController
 
         $user = $request->getAttribute('user');
         $userShows = [];
+        $notificationsEnabled = false;
         if ($user) {
             $shows = $this->userShowsService->get($user);
-            $userShows = array_map(fn ($us) => $us->getShow()->getId(), $shows);
+            $userShows = array_map(fn($us) => $us->getShow()->getId(), $shows);
+            $savedShow = array_find($shows, fn($us) => $us->getShow()->getId() === $showId);
+            if ($savedShow) {
+                $notificationsEnabled = $savedShow->getNotificationsEnabled();
+            }
         }
 
-        $episodes = $show->getEpisodes()->map(fn ($episode) => new EpisodeInfoData(
+        $episodes = $show->getEpisodes()->map(fn($episode) => new EpisodeInfoData(
             id: $episode->getId(),
             showId: $show->getId(),
             showName: $show->getName(),
@@ -138,13 +144,17 @@ class ShowController
             webChannelName: $show->getWebChannelName()
         ));
 
+
+
         return $this->twig->render(
             $response,
             'show/index.twig',
             [
                 'show' =>   $show,
                 'userShows' => $userShows,
-                'episodes' => $episodes->toArray()
+                'episodes' => $episodes->toArray(),
+                'ntfyTopic' => $user ? $user->getNtfyTopic() : null,
+                'notificationsEnabled' => $notificationsEnabled
             ]
         );
     }
@@ -152,8 +162,8 @@ class ShowController
     public function discover(Request $request, Response $response): Response
     {
         $params = $this->requestValidatorFactory
-        ->make(DiscoverRequestValidator::class)
-        ->validate($request->getQueryParams());
+            ->make(DiscoverRequestValidator::class)
+            ->validate($request->getQueryParams());
 
         $discover = $this->paginationService->discover($params);
 
@@ -162,12 +172,12 @@ class ShowController
         $userShows = [];
         if ($user) {
             $shows = $this->userShowsService->get($user);
-            $userShows = array_map(fn ($us) => $us->getShow()->getId(), $shows);
+            $userShows = array_map(fn($us) => $us->getShow()->getId(), $shows);
         }
 
-        $shows = array_map(fn ($show) => new ShowCardData(
-            id:$show->getId(),
-            name:$show->getName(),
+        $shows = array_map(fn($show) => new ShowCardData(
+            id: $show->getId(),
+            name: $show->getName(),
             imageMedium: $show->getImageMedium()
         ), $discover->getShows());
 
@@ -185,8 +195,8 @@ class ShowController
     public function store(Request $request, Response $response): Response
     {
         $params = $this->requestValidatorFactory
-        ->make(ShowRequestValidator::class)
-        ->validate($request->getParsedBody());
+            ->make(ShowRequestValidator::class)
+            ->validate($request->getParsedBody());
 
 
         $showId = (int) $params['showId'];
@@ -210,11 +220,55 @@ class ShowController
         return $this->responseFormatter->asJSONMessage($response, 200, $show->getName() . ' added');
     }
 
+    public function update(Request $request, Response $response, array $args): Response
+    {
+
+        $args = $this->requestValidatorFactory
+            ->make(ShowRequestValidator::class)
+            ->validate($args);
+
+        $params = $this->requestValidatorFactory
+            ->make(UpdateShowRequestValidator::class)
+            ->validate($request->getParsedBody());
+
+        $showId = (int) $args['showId'];
+        $notificationsEnabled = $params['notificationsEnabled'];
+
+        $show = $this->showService->getById($showId);
+        if (! $show) {
+            return $this->responseFormatter->asJSONMessage(
+                $response,
+                404,
+                "show with id $showId does not exist"
+            );
+        }
+
+        $user = $request->getAttribute('user');
+        try {
+            $this->userShowsService->changeNotificationEnabled(
+                $show,
+                $user,
+                $notificationsEnabled
+            );
+        } catch (ShowNotInListException $e) {
+            return $this->responseFormatter->asJSONMessage($response, 400, "bad request");
+        }
+
+
+        $message =  $notificationsEnabled ? 'enabled' : 'disabled';
+
+        return $this->responseFormatter->asJSONMessage(
+            $response,
+            200,
+            'notifications ' . $message
+        );
+    }
+
     public function delete(Request $request, Response $response, array $args): Response
     {
         $args = $this->requestValidatorFactory
-        ->make(ShowRequestValidator::class)
-        ->validate($args);
+            ->make(ShowRequestValidator::class)
+            ->validate($args);
 
         $showId = (int) $args['showId'];
         $show = $this->showService->getById($showId);
@@ -241,8 +295,8 @@ class ShowController
     {
 
         $params = $this->requestValidatorFactory
-        ->make(SearchShowRequestValidator::class)
-        ->validate($request->getQueryParams());
+            ->make(SearchShowRequestValidator::class)
+            ->validate($request->getQueryParams());
 
         $result = $this->paginationService->search($params);
 
@@ -250,8 +304,8 @@ class ShowController
             $response,
             200,
             [
-             'result' => $result->getShows(),
-             'pagination' => $result->getPagination()
+                'result' => $result->getShows(),
+                'pagination' => $result->getPagination()
             ]
         );
     }

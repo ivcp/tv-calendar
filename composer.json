@@ -41,12 +41,12 @@
     "phpunit/phpunit": "^11",
     "doctrine/data-fixtures": "^2.0",
     "overtrue/phplint": "^9.5",
-    "squizlabs/php_codesniffer": "^3.11"
+    "squizlabs/php_codesniffer": "^4.0"
   },
   "scripts": {
     "lint": "phplint --no-cache app/ public/index.php bootstrap.php configs/ scripts/ tests/",
-    "phpcs": "phpcs --standard=PSR12 app/ public/index.php bootstrap.php configs/ scripts/ tests/",
-    "phpcbf": "phpcbf --standard=PSR12 app/ public/index.php bootstrap.php configs/ scripts/ tests/",
+    "phpcs": "phpcs --standard=PSR1 app/ public/index.php bootstrap.php configs/ scripts/ tests/",
+    "phpcbf": "phpcbf --standard=PSR1 app/ public/index.php bootstrap.php configs/ scripts/ tests/",
     "test": "phpunit tests/Unit",
     "test-integration": "phpunit tests/Integration"
   }

@@ -15,7 +15,7 @@ source get_cloudflare_ips.sh
 
 msg "Stopping containers"
 
-sudo docker compose down --remove-orphans
+sudo docker compose --profile withcron down --remove-orphans
 
 
 msg "Building containers"

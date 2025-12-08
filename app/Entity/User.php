@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Contracts\UserInterface;
 use App\Entity\Traits\HasTimestamps;
+use App\Enum\NotificationTime;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -37,6 +38,17 @@ class User implements UserInterface
 
     #[Column(name: 'start_of_week_sunday', options: ['default' => false])]
     private bool $startOfWeekSunday;
+
+    #[Column(name:'ntfy_topic', type:'string', length: 10, nullable: true, unique: true)]
+    private ?string $ntfyTopic;
+
+    #[Column(
+        name:'notification_time',
+        enumType: NotificationTime::class,
+        options: ['default' => NotificationTime::AIRTIME]
+    )]
+    private NotificationTime $notificationTime;
+
 
     #[OneToMany(targetEntity: UserShows::class, mappedBy:'user', cascade:['persist'])]
     private Collection $userShows;
@@ -150,6 +162,46 @@ class User implements UserInterface
     public function setStartOfWeekSunday(bool $startOfWeekSunday): self
     {
         $this->startOfWeekSunday = $startOfWeekSunday;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of ntfyTopic
+     */
+    public function getNtfyTopic(): ?string
+    {
+        return $this->ntfyTopic;
+    }
+
+    /**
+     * Set the value of ntfyTopic
+     *
+     * @return  self
+     */
+    public function setNtfyTopic(?string $ntfyTopic): self
+    {
+        $this->ntfyTopic = $ntfyTopic;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of notificationTime
+     */
+    public function getNotificationTime(): NotificationTime
+    {
+        return $this->notificationTime;
+    }
+
+    /**
+     * Set the value of notificationTime
+     *
+     * @return  self
+     */
+    public function setNotificationTime(NotificationTime $notificationTime): self
+    {
+        $this->notificationTime = $notificationTime;
 
         return $this;
     }

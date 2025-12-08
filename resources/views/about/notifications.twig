@@ -1,0 +1,149 @@
+{% extends 'layout.twig' %} {% block content %}
+
+<section
+  class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
+>
+  <h1 class="text-center font-semibold tracking-tight text-xl">
+    Get Notified When New Episodes Come Out
+  </h1>
+
+  <div class="max-w-3xl text-lg space-y-8">
+    <p>
+      {{ app_name }} supports notifications via the <strong>ntfy</strong> app.
+      Ntfy is a free and open-source app that allows you to receive push
+      notifications directly to your phone.
+    </p>
+
+    <h2 id="install-ntfy" class="text-xl uppercase text-center">
+      # Install the ntfy App
+    </h2>
+    <div>
+      <p>
+        Before setting up notifications, install the ntfy app on your device:
+      </p>
+      <ul class="list-disc list-inside">
+        <li>
+          <strong>Android:</strong> Download the app from the
+          <a
+            href="https://play.google.com/store/apps/details?id=io.heckel.ntfy"
+            target="_blank"
+            class="font-bold hover:underline"
+            >Google Play Store</a
+          >
+          or
+          <a
+            href="https://f-droid.org/en/packages/io.heckel.ntfy/"
+            target="_blank"
+            class="font-bold hover:underline"
+            >F-Droid</a
+          >.
+        </li>
+        <li>
+          <strong>iPhone:</strong> Download the app from the
+          <a
+            href="https://apps.apple.com/us/app/ntfy/id1625396347"
+            target="_blank"
+            class="font-bold hover:underline"
+            >App Store</a
+          >.
+        </li>
+      </ul>
+    </div>
+
+    <h2 id="enable-ntfy" class="text-xl uppercase text-center">
+      # Enable Ntfy Notifications
+    </h2>
+    <ol class="list-decimal list-inside space-y-2">
+      <li>
+        Go to your
+        <a href="/profile" class="font-bold hover:underline">profile</a> on
+        {{ app_name }}.
+      </li>
+      <li>Select "<strong>Enable NTFY notifications</strong>".</li>
+      <li>
+        A form will appear asking for a <strong>password</strong>. This password
+        is required to set up notifications.
+        <strong>Remember this password</strong>, as you will need it to
+        configure the app on your phone.
+      </li>
+      <li>
+        After entering the password, a <strong>topic ID</strong> will appear.
+        You will need this topic ID, your email, and the password you just set
+        to complete the setup.
+      </li>
+    </ol>
+
+    <h2 id="subscribe-ntfy" class="text-xl uppercase text-center">
+      # Subscribe to Notifications in the ntfy App
+    </h2>
+    <ol class="list-decimal list-inside space-y-2">
+      <li>Open the <strong>ntfy app</strong> on your phone.</li>
+      <li>
+        Tap the <strong>+</strong> button at the bottom to subscribe to a new
+        topic.
+      </li>
+      <li>
+        In the <strong>topic name</strong> field, enter the
+        <strong>topic ID</strong> provided by {{ app_name }}.
+      </li>
+      <li>Check the "<strong>Use another server</strong>" option.</li>
+      <li>
+        Enter the server address for TvCalendar:
+        <strong><code>https://ntfy.tvshowcalendar.com</code></strong
+        >.
+      </li>
+      <li>
+        You will be prompted to enter a <strong>username</strong> and
+        <strong>password</strong>:
+      </li>
+      <ul class="list-disc list-inside">
+        <li>
+          <strong>Username:</strong> Enter the email address you used to create
+          your {{ app_name }} account.
+        </li>
+        <li>
+          <strong>Password:</strong> Enter the password you set for
+          notifications.
+        </li>
+      </ul>
+    </ol>
+
+    <h2 id="test-ntfy" class="text-xl uppercase text-center">
+      # Test Your Setup
+    </h2>
+    <p>
+      To ensure everything is working, go to your
+      <a href="/profile" class="font-bold hover:underline">profile</a> on
+      {{ app_name }}. Press "<strong>Send test notification</strong>". You
+      should receive a push notification on your phone. If you do, your setup is
+      complete!
+    </p>
+
+    <h2 id="timing-ntfy" class="text-xl uppercase text-center">
+      # Customize Notifications
+    </h2>
+    <div>
+      <p>You can choose when to receive notifications:</p>
+      <ul class="list-disc list-inside">
+        <li>At the episode airtime (default)</li>
+        <li>One hour before the episode airs</li>
+        <li>One hour after the episode airs</li>
+      </ul>
+    </div>
+
+    <div>
+      <p>
+        Notifications are enabled by default for all shows in your list. To
+        manage them individually, visit the show page and click the bell icon to
+        toggle notifications on or off.
+      </p>
+    </div>
+
+    <p>
+      <a href="https://ntfy.sh/" target="_blank" class="font-bold">Ntfy</a> is a
+      fantastic free and open-source project. If you enjoy using the app,
+      consider supporting them.
+    </p>
+  </div>
+</section>
+{% endblock %}

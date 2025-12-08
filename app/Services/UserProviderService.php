@@ -13,9 +13,10 @@ use Doctrine\ORM\EntityManager;
 
 class UserProviderService implements UserProviderServiceInterface
 {
-    public function __construct(private readonly EntityManager $entityManager)
-    {
-    }
+    public function __construct(
+        private readonly EntityManager $entityManager,
+        private readonly NtfyService $ntfyService
+    ) {}
 
     public function getById(int $userId): ?UserInterface
     {
@@ -27,11 +28,18 @@ class UserProviderService implements UserProviderServiceInterface
         return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials['email']]);
     }
 
+    public function getByNtfyTopic(string $topic): ?UserInterface
+    {
+        return $this->entityManager->getRepository(User::class)->findOneBy(['ntfyTopic' => $topic]);
+    }
+
     public function createUser(RegisterUserData $data): UserInterface
     {
         $user = new User();
         $user->setEmail($data->email);
         $user->setStartOfWeekSunday($data->startOfWeekSunday);
+        $user->setNtfyTopic($data->ntfyTopic);
+        $user->setNotificationTime($data->notificationTime);
         if ($data->password) {
             $user->setPassword($this->hashPassword($data->password));
         }
@@ -63,6 +71,12 @@ class UserProviderService implements UserProviderServiceInterface
 
     public function deleteUser(UserInterface $user): void
     {
+        $ntfyTopic = $user->getNtfyTopic();
+        $email = $user->getEmail();
+        if ($ntfyTopic) {
+            $this->ntfyService->deleteUser($email);
+        }
+
         $this->entityManager->remove($user);
         $this->entityManager->flush();
     }
