@@ -6,22 +6,18 @@ namespace App\Mail;
 
 use App\Config;
 use App\Entity\User;
+use App\Services\EmailSendingService;
 use DateTime;
 use Slim\Interfaces\RouteParserInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\BodyRendererInterface;
 
 class VerificatonEmail
 {
     public function __construct(
         private readonly Config $config,
-        private readonly MailerInterface $mailer,
-        private readonly BodyRendererInterface $bodyRenderer,
-        private readonly RouteParserInterface $routeParser
-    ) {
-    }
+        private readonly RouteParserInterface $routeParser,
+        private readonly EmailSendingService $emailSendingService
+
+    ) {}
 
     public function send(User $user): void
     {
@@ -34,23 +30,13 @@ class VerificatonEmail
         );
         $appName = $this->config->get('app_name');
 
-        $message = (new TemplatedEmail())
-        ->from($this->config->get('mailer.from'))
-        ->to($email)
-        ->subject('Welcome to ' . $appName)
-        ->htmlTemplate('emails/register.html.twig')
-        ->context([
-            'activationLink' => $activationLink,
-            'expirationDate' => $expirationDate,
-            'appName' => $appName
-        ]);
-        $this->bodyRenderer->render($message);
-
-        try {
-            $this->mailer->send($message);
-        } catch (TransportExceptionInterface $e) {
-            error_log($e->getMessage());
-        }
+        $this->emailSendingService->queue(
+            to: $email,
+            subject: "Welcome to $appName",
+            htmlTemplate: 'emails/register.html.twig',
+            activationLink: $activationLink,
+            expirationDate: $expirationDate
+        );
     }
 
     private function generateSignedUrl(int $userId, string $email, DateTime $expirationDate): string

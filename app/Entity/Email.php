@@ -23,7 +23,7 @@ class Email
     private int $id;
 
     #[Column]
-    private string $to;
+    private string $email;
 
     #[Column]
     private string $subject;
@@ -51,9 +51,9 @@ class Email
     /**
      * Get the value of to
      */
-    public function getTo(): string
+    public function getEmail(): string
     {
-        return $this->to;
+        return $this->email;
     }
 
     /**
@@ -61,9 +61,9 @@ class Email
      *
      * @return  self
      */
-    public function setTo(string $to): self
+    public function setEmail(string $email): self
     {
-        $this->to = $to;
+        $this->email = $email;
 
         return $this;
     }
