@@ -10,7 +10,6 @@ use DateTime;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\BodyRendererInterface;
 
@@ -26,6 +25,7 @@ class EmailSendingService
     public function run(): void
     {
         $emails = $this->entityManager->getRepository(Email::class)->findAll();
+        $errors = 0;
         foreach ($emails as $email) {
             try {
                 $this->send(
@@ -36,12 +36,22 @@ class EmailSendingService
                     expirationDate: $email->getExpirationDate(),
                     resetLink: $email->getResetLink()
                 );
+                $this->entityManager->remove($email);
+                $this->entityManager->flush();
             } catch (Exception $e) {
+                $errors += 1;
                 error_log($e->getMessage());
             }
+        }
 
-            $this->entityManager->remove($email);
-            $this->entityManager->flush();
+        if ($errors) {
+            echo <<<RESULT
+            --------------------------
+            EMAIL SENDING SERVICE
+            --        
+            ERRORS: $errors       
+            --------------------------\n
+            RESULT;
         }
     }
 
