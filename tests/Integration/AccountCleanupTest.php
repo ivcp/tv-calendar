@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration;
 
 use App\Entity\User;
+use App\Enum\NotificationTime;
 use App\Services\AccountCleanupService;
 use DateTime;
 use DI\Container;
@@ -29,6 +30,7 @@ final class AccountCleanupTest extends TestCase
             $user->setEmail("test$i@email.com");
             $user->setPassword('12345678');
             $user->setStartOfWeekSunday(false);
+            $user->setNotificationTime(NotificationTime::AIRTIME);
             $user->setCreatedAt($i % 2 !== 0 ? new DateTime('6 days ago') : new DateTime());
             $user->setUpdatedAt(new DateTime());
             if ($i === 3 || $i === 7) {
