@@ -131,7 +131,7 @@ class Email
     /**
      * Get the value of expirationDate
      */
-    public function getExpirationDate(): DateTime
+    public function getExpirationDate(): ?DateTime
     {
         return $this->expirationDate;
     }

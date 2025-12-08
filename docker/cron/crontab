@@ -1,3 +1,4 @@
 0 0 * * * php /var/www/scripts/update.php
 0 6 * * * php /var/www/scripts/unverifiedAccountsCleanup.php
 12 * * * * php /var/www/scripts/scheduleNotifications.php
+* * * * * php /var/www/scripts/sendEmails.php

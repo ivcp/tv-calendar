@@ -8,6 +8,7 @@ use App\Config;
 use App\Entity\Email;
 use DateTime;
 use Doctrine\ORM\EntityManager;
+use Exception;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
@@ -24,7 +25,24 @@ class EmailSendingService
 
     public function run(): void
     {
-        #TODO: code...
+        $emails = $this->entityManager->getRepository(Email::class)->findAll();
+        foreach ($emails as $email) {
+            try {
+                $this->send(
+                    to: $email->getEmail(),
+                    subject: $email->getSubject(),
+                    htmlTemplate: $email->getHtmlTemplate(),
+                    activationLink: $email->getActivationLink(),
+                    expirationDate: $email->getExpirationDate(),
+                    resetLink: $email->getResetLink()
+                );
+            } catch (Exception $e) {
+                error_log($e->getMessage());
+            }
+
+            $this->entityManager->remove($email);
+            $this->entityManager->flush();
+        }
     }
 
     public function queue(
@@ -49,6 +67,7 @@ class EmailSendingService
 
     public function send(
         string $to,
+        string $subject,
         string $htmlTemplate,
         ?string $activationLink = null,
         ?DateTime $expirationDate = null,
@@ -74,16 +93,12 @@ class EmailSendingService
         $message = (new TemplatedEmail())
             ->from($this->config->get('mailer.from'))
             ->to($to)
-            ->subject('Welcome to ' . $appName)
+            ->subject($subject)
             ->htmlTemplate($htmlTemplate)
             ->context($context);
 
         $this->bodyRenderer->render($message);
 
-        try {
-            $this->mailer->send($message);
-        } catch (TransportExceptionInterface $e) {
-            error_log($e->getMessage());
-        }
+        $this->mailer->send($message);
     }
 }
