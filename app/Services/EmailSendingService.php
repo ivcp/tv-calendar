@@ -20,6 +20,7 @@ class EmailSendingService
         private readonly Config $config,
         private readonly MailerInterface $mailer,
         private readonly BodyRendererInterface $bodyRenderer,
+        private readonly WebhookService $webhookService
     ) {}
 
     public function run(): void
@@ -52,6 +53,11 @@ class EmailSendingService
             ERRORS: $errors       
             --------------------------\n
             RESULT;
+
+            $this->webhookService->send(
+                $this->config->get('webhook_url'),
+                '🚨 Email Sending Service: An error occurred while sending email. Check the logs.'
+            );
         }
     }
 
