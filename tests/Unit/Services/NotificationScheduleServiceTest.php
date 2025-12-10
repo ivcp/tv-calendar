@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace Tests\Integration;
 
 use App\Config as AppConfig;
-use App\Entity\User;
-use App\Enum\NotificationTime;
 use App\Services\NotificationScheduleService;
 use App\Services\NtfyService;
 use App\Services\UserProviderService;
+use App\Services\WebhookService;
 use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -28,11 +27,13 @@ final class NotificationScheduleServiceTest extends TestCase
         $dummyUserProvider = $this->createStub(UserProviderService::class);
         $dummyConfig = $this->createStub(AppConfig::class);
         $dummyConfig->method('get')->willReturn('http://link');
+        $dummyWebhook = $this->createStub(WebhookService::class);
         $notificationScheduleService = new NotificationScheduleService(
             $dummyEm,
             $dummyNtfy,
             $dummyUserProvider,
-            $dummyConfig
+            $dummyConfig,
+            $dummyWebhook
         );
 
         [$title, $message, $showlink] = $notificationScheduleService->formatNotification($episode);
