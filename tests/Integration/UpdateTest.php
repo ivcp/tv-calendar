@@ -12,6 +12,7 @@ use App\Services\EpisodeService;
 use App\Services\ShowService;
 use App\Services\TvMazeService;
 use App\Services\UpdateService;
+use App\Services\WebhookService;
 use DateTime;
 use DI\Container;
 use Doctrine\ORM\EntityManager;
@@ -46,12 +47,16 @@ class UpdateTest extends TestCase
         $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
         $tvMazeService->method('getShows')->willReturn(...$shows);
         $tvMazeService->method('getEpisodes')->willReturn(...$episodes);
+        $webhookService = $this->createStub(WebhookService::class);
+
 
         $updateService = new UpdateService(
             new ShowService($this->entityManager),
             new EpisodeService($this->entityManager, $this->config),
             $tvMazeService,
-            $this->entityManager
+            $this->entityManager,
+            $webhookService,
+            $this->config
         );
 
         [
@@ -128,7 +133,7 @@ class UpdateTest extends TestCase
             $this->assertSame(2, $firstShow->getEpisodes()->count());
             $this->assertSame('updated E1', $firstShow->getEpisodes()->first()->getName());
             $this->assertSame('updated E4', $secondShow->getEpisodes()
-                ->findFirst(fn ($k, $v) => $v->getId() === 4)->getName());
+                ->findFirst(fn($k, $v) => $v->getId() === 4)->getName());
             $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
             $this->assertSame(12, $firstShow->getEpisodes()->first()->getNumber());
             $this->assertEqualsWithDelta(
@@ -339,12 +344,15 @@ class UpdateTest extends TestCase
     //     $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
     //     $tvMazeService->method('getShows')->willReturn(...$shows);
     //     $tvMazeService->method('getEpisodes')->willReturn(...$episodes);
+    //     $webhookService = $this->createStub(WebhookService::class);
 
     //     $updateService = new UpdateService(
     //         new ShowService($this->entityManager),
     //         new EpisodeService($this->entityManager, $this->config),
     //         $tvMazeService,
-    //         $this->entityManager
+    //         $this->entityManager,
+    //         $webhookService,
+    //         $this->config
     //     );
 
     //     [

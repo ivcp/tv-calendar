@@ -17,6 +17,7 @@ use App\Services\ShowService;
 use App\Services\TvMazeService;
 use App\Services\UpdateService;
 use App\Services\UserProviderService;
+use App\Services\WebhookService;
 use App\Session;
 use App\TwigDefaultSort;
 use Doctrine\DBAL\DriverManager;
@@ -125,22 +126,31 @@ return [
         $showService = $container->get(ShowService::class);
         $episodeService = $container->get(EpisodeService::class);
         $tvMazeService = $container->get(TvMazeService::class);
-        return new UpdateService($showService, $episodeService, $tvMazeService, $container->get(EntityManager::class));
+        $webhookService = $container->get(WebhookService::class);
+        $config = $container->get(Config::class);
+        return new UpdateService(
+            $showService,
+            $episodeService,
+            $tvMazeService,
+            $container->get(EntityManager::class),
+            $webhookService,
+            $config
+        );
     },
 
-    'webpack_encore.packages'     => fn () => new Packages(
+    'webpack_encore.packages'     => fn() => new Packages(
         new Package(new JsonManifestVersionStrategy(BUILD_PATH . '/manifest.json'))
     ),
-    '_default' => fn () => new EntrypointLookup(BUILD_PATH . '/entrypoints.json'),
-    'webpack_encore.tag_renderer' => fn (ContainerInterface $container) => new TagRenderer(
+    '_default' => fn() => new EntrypointLookup(BUILD_PATH . '/entrypoints.json'),
+    'webpack_encore.tag_renderer' => fn(ContainerInterface $container) => new TagRenderer(
         new EntrypointLookupCollection($container),
         $container->get('webpack_encore.packages')
     ),
-    ResponseFactoryInterface::class => fn (App $app) => $app->getResponseFactory(),
-    AuthInterface::class => fn (ContainerInterface $container) => $container->get(Auth::class),
+    ResponseFactoryInterface::class => fn(App $app) => $app->getResponseFactory(),
+    AuthInterface::class => fn(ContainerInterface $container) => $container->get(Auth::class),
     UserProviderServiceInterface::class =>
-        fn (ContainerInterface $container) => $container->get(UserProviderService::class),
-    SessionInterface::class => fn (Config $config) => new Session(
+    fn(ContainerInterface $container) => $container->get(UserProviderService::class),
+    SessionInterface::class => fn(Config $config) => new Session(
         new SessionConfig(
             $config->get('session.name', ''),
             $config->get('session.secure', true),
@@ -151,8 +161,8 @@ return [
         )
     ),
     RequestValidatorFactoryInterface::class =>
-        fn (ContainerInterface $container) => $container->get(RequestValidatorFactory::class),
-    'csrf' => fn (ResponseFactoryInterface $responseFactory) => new Guard($responseFactory, persistentTokenMode:true),
+    fn(ContainerInterface $container) => $container->get(RequestValidatorFactory::class),
+    'csrf' => fn(ResponseFactoryInterface $responseFactory) => new Guard($responseFactory, persistentTokenMode: true),
     MailerInterface::class => function (Config $config) {
         $transport = Transport::fromDsn($config->get('mailer.dsn'));
         return new Mailer($transport);
@@ -160,5 +170,5 @@ return [
     BodyRendererInterface::class => function (Twig $twig) {
         return new BodyRenderer($twig->getEnvironment());
     },
-    RouteParserInterface::class => fn (App $app) => $app->getRouteCollector()->getRouteParser()
+    RouteParserInterface::class => fn(App $app) => $app->getRouteCollector()->getRouteParser()
 ];

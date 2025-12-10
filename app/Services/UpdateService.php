@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Config;
 use DateTime;
 use Doctrine\ORM\EntityManager;
+use GuzzleHttp\Exception\GuzzleException;
 
 class UpdateService
 {
@@ -13,9 +15,10 @@ class UpdateService
         private readonly ShowService $showService,
         private readonly EpisodeService $episodeService,
         private readonly TvMazeService $tvMazeService,
-        private readonly EntityManager $entityManager
-    ) {
-    }
+        private readonly EntityManager $entityManager,
+        private readonly WebhookService $webhookService,
+        private readonly Config $config
+    ) {}
 
     public function run(): array
     {
@@ -24,6 +27,7 @@ class UpdateService
         $epInsertCount = 0;
         $epUpdatedCount = 0;
         $epRemovedCount = 0;
+        $errors = 0;
 
         $updatedShowIDs = $this->tvMazeService->getUpdatedShowIDs();
         if (!$updatedShowIDs) {
@@ -40,17 +44,22 @@ class UpdateService
 
         $showsInDB = $this->showService->getShowsByTvMazeId($updatedShowIDs);
 
-        $showsInDBIds = $showsInDB ? array_map(fn ($show) => $show->getTvMazeId(), $showsInDB) : [];
+        $showsInDBIds = $showsInDB ? array_map(fn($show) => $show->getTvMazeId(), $showsInDB) : [];
 
         $showsToInsert = array_values(
-            array_filter($updatedShowsData, fn ($show) => !in_array($show->tvMazeId, $showsInDBIds))
+            array_filter($updatedShowsData, fn($show) => !in_array($show->tvMazeId, $showsInDBIds))
         );
 
 
 
 
         if ($showsToInsert) {
-            $this->insertShowsAndEpisodes($showsToInsert, $showInsertCount, $epInsertCount);
+            $this->insertShowsAndEpisodes(
+                $showsToInsert,
+                $showInsertCount,
+                $epInsertCount,
+                $errors
+            );
         }
 
         $showsToUpdate = [];
@@ -73,17 +82,31 @@ class UpdateService
                 $epInsertCount,
                 $showUpdatedCount,
                 $epUpdatedCount,
-                $epRemovedCount
+                $epRemovedCount,
+                $errors
             );
         }
 
 
-        echo "
-        SHOWS INSERTED: $showInsertCount \n
-        EPISODES INSERTED:  $epInsertCount \n
-        SHOWS UPDATED: $showUpdatedCount \n
-        EPISODES UPDATED: $epUpdatedCount \n
-        EPISODES REMOVED:  $epRemovedCount \n";
+        echo <<<UPDATE
+        --------------------------
+        UPDATING STATS
+        SHOWS INSERTED: $showInsertCount 
+        EPISODES INSERTED:  $epInsertCount 
+        SHOWS UPDATED: $showUpdatedCount 
+        EPISODES UPDATED: $epUpdatedCount 
+        EPISODES REMOVED:  $epRemovedCount
+        ERRORS: $errors
+        --------------------------\n 
+        UPDATE;
+
+        if ($errors) {
+            $this->webhookService->send(
+                $this->config->get('webhook_url'),
+                "🚨 Update Service: $errors error(s)" .
+                    " occurred while updating. Check the logs."
+            );
+        }
 
 
         return [
@@ -95,11 +118,17 @@ class UpdateService
         ];
     }
 
-    private function insertShowsAndEpisodes(array $showsToInsert, int &$showInsertCount, int &$epInsertCount): void
-    {
+    private function insertShowsAndEpisodes(
+        array $showsToInsert,
+        int &$showInsertCount,
+        int &$epInsertCount,
+        int &$errors
+    ): void {
+
         try {
             $insertedShows = $this->showService->insertShows($showsToInsert);
         } catch (\Throwable $e) {
+            $errors += 1;
             error_log('ERROR insertShows: ' . $e->getMessage());
             return;
         }
@@ -107,12 +136,19 @@ class UpdateService
         $showInsertCount += $insertedShows;
 
         foreach ($showsToInsert as $show) {
-            $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            try {
+                $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            } catch (GuzzleException $e) {
+                $errors += 1;
+                error_log('ERROR getEpisodes: ' . $e->getMessage());
+                continue;
+            }
 
             try {
                 $insertedEpisodes = $this->episodeService->insertEpisodes($episodes);
                 $epInsertCount += $insertedEpisodes;
             } catch (\Throwable $e) {
+                $errors += 1;
                 error_log("ERROR insert episodes for $show->tvMazeId: " . $e->getMessage());
             }
         }
@@ -125,7 +161,8 @@ class UpdateService
         int &$epInsertCount,
         int &$showUpdatedCount,
         int &$epUpdatedCount,
-        int &$epRemovedCount
+        int &$epRemovedCount,
+        int &$errors
     ): void {
 
 
@@ -133,21 +170,28 @@ class UpdateService
             $updatedShows = $this->showService->updateShows($showsToUpdate);
             $showUpdatedCount += $updatedShows;
         } catch (\Throwable $e) {
+            $errors += 1;
             error_log('ERROR update shows: ' . $e->getMessage());
             return;
         }
 
 
         foreach ($showsToUpdate as $showId => $show) {
-            $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            try {
+                $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            } catch (GuzzleException $e) {
+                $errors += 1;
+                error_log('ERROR getEpisodes: ' . $e->getMessage());
+                continue;
+            }
 
             $episodesInDb = $this->showService->getById($showId)->getEpisodes();
 
             $episodesToUpdate = [];
-            $episodesInDbTvMazeIds = array_map(fn ($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
-            $episodesInDbIds =  array_map(fn ($e) => $e->getId(), $episodesInDb->toArray());
+            $episodesInDbTvMazeIds = array_map(fn($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
+            $episodesInDbIds =  array_map(fn($e) => $e->getId(), $episodesInDb->toArray());
             foreach ($episodes as $episode) {
-                $ep = $episodesInDb->findFirst(fn ($k, $v) => $v->getTvMazeEpisodeId() === $episode->tvMazeEpisodeId);
+                $ep = $episodesInDb->findFirst(fn($k, $v) => $v->getTvMazeEpisodeId() === $episode->tvMazeEpisodeId);
                 if ($ep) {
                     $episodesToUpdate[$ep->getId()] = $episode;
                 }
@@ -157,19 +201,20 @@ class UpdateService
             if ($episodesToUpdate) {
                 $epsToUpdateFiltered = array_filter(
                     $episodesToUpdate,
-                    fn ($e) => $e->airstamp > new DateTime('7 days ago')
+                    fn($e) => $e->airstamp > new DateTime('7 days ago')
                 );
                 try {
                     $updatedEpisodesNumber = $this->episodeService->updateEpisodes($epsToUpdateFiltered, $showId);
                     $epUpdatedCount += $updatedEpisodesNumber;
                 } catch (\Throwable $e) {
+                    $errors += 1;
                     error_log("ERROR updateEpisodes for $show->tvMazeId: " . $e->getMessage());
                     return;
                 }
             }
             $episodesToInsert = array_filter(
                 $episodes,
-                fn ($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
+                fn($ep) => !in_array($ep->tvMazeEpisodeId, $episodesInDbTvMazeIds)
             );
 
             if ($episodesToInsert) {
@@ -178,17 +223,19 @@ class UpdateService
                     $epInsertCount += $insertedEpisodes;
                     $this->episodeService->connectEpisodesWithShows();
                 } catch (\Throwable $e) {
+                    $errors += 1;
                     error_log("ERROR update insertEpisodes for $show->tvMazeId: " . $e->getMessage());
                     return;
                 }
             }
 
-            $episodesToRemove = array_filter($episodesInDbIds, fn ($e) => !in_array($e, array_keys($episodesToUpdate)));
+            $episodesToRemove = array_filter($episodesInDbIds, fn($e) => !in_array($e, array_keys($episodesToUpdate)));
             if ($episodesToRemove) {
                 try {
                     $removedEpisodes = $this->episodeService->removeEpisodes($episodesToRemove);
                     $epRemovedCount += $removedEpisodes;
                 } catch (\Throwable $e) {
+                    $errors += 1;
                     error_log("ERROR update removeEpisodes: $show->tvMazeId: " . $e->getMessage());
                     return;
                 }

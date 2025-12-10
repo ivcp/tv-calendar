@@ -16,9 +16,7 @@ class TvMazeService
 
     private int $pause = 1;
 
-    public function __construct(private readonly Client $client)
-    {
-    }
+    public function __construct(private readonly Client $client) {}
 
 
     /**

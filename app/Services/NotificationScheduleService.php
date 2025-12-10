@@ -16,7 +16,8 @@ class NotificationScheduleService
         private readonly EntityManager $entityManager,
         private readonly NtfyService $ntfyService,
         private readonly UserProviderServiceInterface $userProvider,
-        private readonly Config $config
+        private readonly Config $config,
+        private readonly WebhookService $webhookService
     ) {}
 
     public function run(): void
@@ -91,6 +92,14 @@ class NotificationScheduleService
         ERRORS: $errorsSendingMessage       
         --------------------------\n
         RESULT;
+
+        if ($errorsSendingMessage) {
+            $this->webhookService->send(
+                $this->config->get('webhook_url'),
+                "🚨 Notification Schedule Service: $errorsSendingMessage error(s)" .
+                    " occurred while sending notifications. Check the logs."
+            );
+        }
     }
 
     public function formatNotification(array $episode): array
