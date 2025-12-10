@@ -22,6 +22,7 @@
         <env name="GOOGLE_REDIRECT_URI" value=""/>      
         <env name="NTFY_BASE_URL" value="http://ntfy-test:80"/>      
         <env name="NTFY_ADMIN_TOKEN" value="tk_dzedgb2t4ejk3kmumr7tp64uvzwuq"/>      
+        <env name="WEBHOOK_URL" value="http://localhost"/>      
         <ini name="memory_limit" value="300M" />
     </php>
 </phpunit>
