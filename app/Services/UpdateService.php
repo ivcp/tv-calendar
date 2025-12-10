@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Config;
 use DateTime;
 use Doctrine\ORM\EntityManager;
+use GuzzleHttp\Exception\GuzzleException;
 
 class UpdateService
 {
@@ -135,7 +136,13 @@ class UpdateService
         $showInsertCount += $insertedShows;
 
         foreach ($showsToInsert as $show) {
-            $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            try {
+                $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            } catch (GuzzleException $e) {
+                $errors += 1;
+                error_log('ERROR getEpisodes: ' . $e->getMessage());
+                continue;
+            }
 
             try {
                 $insertedEpisodes = $this->episodeService->insertEpisodes($episodes);
@@ -170,7 +177,13 @@ class UpdateService
 
 
         foreach ($showsToUpdate as $showId => $show) {
-            $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            try {
+                $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
+            } catch (GuzzleException $e) {
+                $errors += 1;
+                error_log('ERROR getEpisodes: ' . $e->getMessage());
+                continue;
+            }
 
             $episodesInDb = $this->showService->getById($showId)->getEpisodes();
 
