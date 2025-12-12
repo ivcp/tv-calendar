@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Config;
 use App\Contracts\UserProviderServiceInterface;
+use App\Entity\User;
 use App\Enum\NotificationTime;
 use Doctrine\ORM\EntityManager;
 use RuntimeException;
@@ -184,5 +185,60 @@ class NotificationScheduleService
         $stmt = $conn->prepare($sql);
         $resultSet = $stmt->executeQuery();
         return $resultSet->fetchAllAssociative();
+    }
+
+
+    /**
+     * only to be run if ntfy server restored from backup
+     *     
+     **/
+    public function checkAndSync(): void
+    {
+
+        $actions = 0;
+        $ntfyUsers = $this->ntfyService->getAllUsers();
+
+        foreach ($ntfyUsers as $ntfyUser) {
+            if ($ntfyUser['role'] === 'admin' || $ntfyUser['role'] === 'anonymous') {
+                continue;
+            }
+            $user = $this->entityManager
+                ->getRepository(User::class)
+                ->findOneBy(['email' => $ntfyUser['username']]);
+            if (!$user) {
+                $this->ntfyService->deleteUser($ntfyUser['username']);
+                $actions += 1;
+                continue;
+            }
+            if ($user->getNtfyTopic() !== $ntfyUser['grants'][0]['topic']) {
+                $user->setNtfyTopic(null);
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+                $this->ntfyService->deleteUser($ntfyUser['username']);
+                $actions += 1;
+            }
+        }
+
+        $q = $this->entityManager->createQuery(
+            'SELECT u FROM App\Entity\User u WHERE u.ntfyTopic IS NOT NULL'
+        );
+        $users = $q->getResult();
+
+        foreach ($users as $user) {
+            $exists = array_find($ntfyUsers, fn($nu) => $nu['username'] === $user->getEmail());
+            if (!$exists) {
+                $user->setNtfyTopic(null);
+                $this->entityManager->persist($user);
+                $this->entityManager->flush();
+                $actions += 1;
+            }
+        }
+
+        if ($actions) {
+            echo "Actions taken for $actions user(s)." . PHP_EOL;
+            return;
+        }
+
+        echo "All good! No intervention required." . PHP_EOL;
     }
 }
