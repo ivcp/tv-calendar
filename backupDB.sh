@@ -12,6 +12,8 @@ fi
 
 /usr/bin/curl -T backup.sql.gz "${ORACLE_PAR}backup.sql.gz"
 
+export PATH="/usr/bin:$PATH"
 /usr/bin/mega-put backup.sql.gz /Backups/TvShowCalendar
 
 /usr/bin/rm backup.sql.gz
+
