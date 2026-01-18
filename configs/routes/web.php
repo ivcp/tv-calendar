@@ -55,6 +55,7 @@ return function (App $app) {
         $user->patch('/profile', [ProfileController::class, 'updateSettings']);
         $user->delete('/profile', [ProfileController::class, 'delete']);
         $user->post('/ntfy-test', [ProfileController::class, 'sendTestNtfyMessage']);
+        $user->post('/discord-test', [ProfileController::class, 'sendTestDiscordMessage']);
     })->add(AuthMiddleware::class);
 
     $app->get('/forgot-password', [PasswordResetController::class, 'forgotPasswordView']);

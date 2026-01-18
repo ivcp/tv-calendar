@@ -62,5 +62,6 @@ return [
         'base_url' => $_ENV['NTFY_BASE_URL'],
         'admin_token' => $_ENV['NTFY_ADMIN_TOKEN'],
     ],
-    'webhook_url' => $_ENV['WEBHOOK_URL']
+    'webhook_url' => $_ENV['WEBHOOK_URL'],
+    'url_secret_key' => $_ENV['URL_SECRET_KEY']
 ];

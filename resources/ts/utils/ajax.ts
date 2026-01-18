@@ -65,9 +65,9 @@ async function setNotificationTime(time: string): Promise<Result> {
   }
 }
 
-async function enableNotifications(
+async function enableNtfyNotifications(
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
 ): Promise<Result> {
   try {
     return await getResult(`/profile`, 'PATCH', {
@@ -80,11 +80,35 @@ async function enableNotifications(
   }
 }
 
-async function disableNotifications(): Promise<Result> {
+async function enableDiscordNotifications(
+  discordWebhookUrl: string,
+): Promise<Result> {
   try {
     return await getResult(`/profile`, 'PATCH', {
       _METHOD: 'PATCH',
-      disableNotifications: true,
+      discordWebhookUrl,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
+async function disableNtfyNotifications(): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      disableNtfyNotifications: true,
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
+async function disableDiscordNotifications(): Promise<Result> {
+  try {
+    return await getResult(`/profile`, 'PATCH', {
+      _METHOD: 'PATCH',
+      disableDiscordNotifications: true,
     });
   } catch (error) {
     return { error: true, messages: ['something went wrong'] };
@@ -93,7 +117,7 @@ async function disableNotifications(): Promise<Result> {
 
 async function setNotificationEnabled(
   showId: string,
-  notificationsEnabled: boolean
+  notificationsEnabled: boolean,
 ): Promise<Result> {
   try {
     return await getResult(`/showlist/${showId}`, 'PATCH', {
@@ -115,10 +139,20 @@ async function sendTestNtfy(): Promise<Result> {
   }
 }
 
+async function sendTestDiscord(): Promise<Result> {
+  try {
+    return await getResult(`/discord-test`, 'POST', {
+      _METHOD: 'POST',
+    });
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-  body: object | undefined = undefined
+  body: object | undefined = undefined,
 ): Promise<Result> {
   const response = await fetch(url, {
     method: method !== 'GET' ? 'POST' : method,
@@ -161,7 +195,7 @@ async function getResult(
 function getCsrfFields(): object {
   const csrfNameField = document.querySelector('#csrfName') as HTMLMetaElement;
   const csrfValueField = document.querySelector(
-    '#csrfValue'
+    '#csrfValue',
   ) as HTMLMetaElement;
   if (csrfNameField && csrfValueField) {
     const csrfNameKey = csrfNameField.getAttribute('name');
@@ -185,9 +219,12 @@ export {
   resendEmail,
   deleteProfile,
   setStartOfWeekSunday,
-  enableNotifications,
-  disableNotifications,
+  enableNtfyNotifications,
+  enableDiscordNotifications,
+  disableNtfyNotifications,
+  disableDiscordNotifications,
   setNotificationTime,
   setNotificationEnabled,
   sendTestNtfy,
+  sendTestDiscord,
 };

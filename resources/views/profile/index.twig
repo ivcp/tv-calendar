@@ -78,7 +78,7 @@
           >
             <input
               type="checkbox"
-              id="notifications-toggle"
+              id="ntfy-notifications-toggle"
               data-ntfy-enabled="{{ ntfyTopic ? 'true' : 'false' }}"
               class="toggle"
               {%if
@@ -98,7 +98,7 @@
           </div>
         </div>
         <div
-          id="notifications-settings-content"
+          id="ntfy-notifications-settings-content"
           class="{{ ntfyTopic ? '' : 'hidden' }} flex flex-col"
         >
           {% if ntfyTopic %}
@@ -165,7 +165,7 @@
             </div>
             <form
               method="post"
-              id="enable-notifications-form"
+              id="enable-ntfy-notifications-form"
               class="flex flex-col gap-2 lg:w-1/2"
             >
               <input
@@ -188,6 +188,94 @@
                 class="mt-2 btn btn-sm btn-outline self-center"
                 type="submit"
                 id="ntfy-submit-btn"
+              >
+                Enable
+              </button>
+            </form>
+            {% else %}
+            <p>Please verify your account to enable notifications.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <div class="flex flex-col justify-between gap-4 my-6 pb-4">
+        <div class="flex justify-end gap-4">
+          <p class="">Enable Discord notifications</p>
+          <div
+            {%if
+            not
+            verified
+            %}class="tooltip tooltip-left"
+            data-tip="Please verify your account to enable notifications"
+            {%endif%}
+          >
+            <input
+              type="checkbox"
+              id="discord-notifications-toggle"
+              data-discord-enabled="{{ discordWebhookUrl ? 'true' : 'false' }}"
+              class="toggle"
+              {%if
+              not
+              verified
+              %}disabled
+              {%endif%}
+              {%
+              if
+              discordWebhookUrl
+              %}
+              checked
+              {%
+              endif
+              %}
+            />
+          </div>
+        </div>
+        <div
+          id="discord-notifications-settings-content"
+          class="{{ discordWebhookUrl ? '' : 'hidden' }} flex flex-col"
+        >
+          {% if discordWebhookUrl %}
+          
+              <button
+                id="test-discord-webhook"
+                class="btn btn-sm uppercase btn-outline w-fit self-end"
+              >
+                Send test notification
+              </button>
+          
+          {% else %}
+          <div
+            class="flex flex-col lg:flex-row gap-6 bg-base-200 p-4 my-4 lg:p-6 rounded-lg"
+          >
+            {% if verified%}
+            <div class="space-y-4">
+              <p>
+                To enable notifications via <b>Discord</b>, please enter your Discord webhook url.
+              </p>
+              <p>
+                More info:
+                <a href="/get-notified" class="text-primary font-bold"
+                  >Get notified</a
+                >
+              </p>
+            </div>
+            <form
+              method="post"
+              id="enable-discord-notifications-form"
+              class="flex flex-col gap-2 lg:w-1/2"
+            >
+              <input
+                type="text"
+                class="input input-bordered"
+                name="discordWebhookUrl"
+                placeholder="Discord Webhook Url"
+                required
+              />            
+              <button
+                class="mt-2 btn btn-sm btn-outline self-center"
+                type="submit"
+                id="discord-submit-btn"
               >
                 Enable
               </button>

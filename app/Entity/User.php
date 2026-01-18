@@ -10,6 +10,7 @@ use App\Enum\NotificationTime;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
@@ -27,10 +28,10 @@ class User implements UserInterface
     #[Id, Column(options: ['unsigned' => true]), GeneratedValue]
     private int $id;
 
-    #[Column(type:'string', unique:true)]
+    #[Column(type: 'string', unique: true)]
     private string $email;
 
-    #[Column(type:'string', nullable: true)]
+    #[Column(type: 'string', nullable: true)]
     private ?string $password;
 
     #[Column(name: 'verified_at', nullable: true)]
@@ -39,18 +40,21 @@ class User implements UserInterface
     #[Column(name: 'start_of_week_sunday', options: ['default' => false])]
     private bool $startOfWeekSunday;
 
-    #[Column(name:'ntfy_topic', type:'string', length: 10, nullable: true, unique: true)]
+    #[Column(name: 'ntfy_topic', type: Types::STRING, length: 10, nullable: true, unique: true)]
     private ?string $ntfyTopic;
 
+    #[Column(name: 'discord_webhook_url', type: Types::TEXT, nullable: true)]
+    private ?string $discordWebhookUrl;
+
     #[Column(
-        name:'notification_time',
+        name: 'notification_time',
         enumType: NotificationTime::class,
         options: ['default' => NotificationTime::AIRTIME]
     )]
     private NotificationTime $notificationTime;
 
 
-    #[OneToMany(targetEntity: UserShows::class, mappedBy:'user', cascade:['persist'])]
+    #[OneToMany(targetEntity: UserShows::class, mappedBy: 'user', cascade: ['persist'])]
     private Collection $userShows;
 
 
@@ -202,6 +206,26 @@ class User implements UserInterface
     public function setNotificationTime(NotificationTime $notificationTime): self
     {
         $this->notificationTime = $notificationTime;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of discordWebhookUrl
+     */
+    public function getDiscordWebhookUrl(): ?string
+    {
+        return $this->discordWebhookUrl;
+    }
+
+    /**
+     * Set the value of discordWebhookUrl
+     *
+     * @return  self
+     */
+    public function setDiscordWebhookUrl(?string $discordWebhookUrl): self
+    {
+        $this->discordWebhookUrl = $discordWebhookUrl;
 
         return $this;
     }
