@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Config;
-use App\Contracts\UserProviderServiceInterface;
+use App\DataObjects\NotificationMessage;
 use App\Entity\User;
 use App\Enum\NotificationTime;
+use App\Notifications\DiscordNotification;
+use DateTime;
 use Doctrine\ORM\EntityManager;
 use RuntimeException;
 
@@ -16,9 +18,9 @@ class NotificationScheduleService
     public function __construct(
         private readonly EntityManager $entityManager,
         private readonly NtfyService $ntfyService,
-        private readonly UserProviderServiceInterface $userProvider,
         private readonly Config $config,
-        private readonly WebhookService $webhookService
+        private readonly WebhookService $webhookService,
+        private readonly DiscordNotification $discordNotification,
     ) {}
 
     public function run(): void
@@ -26,7 +28,7 @@ class NotificationScheduleService
         $episodes = $this->getEpisodes();
 
         $episodesTotal = count($episodes);
-        $messagesSent = 0;
+        $messagesQueued = 0;
         $errorsSendingMessage = 0;
 
         $currentShow = null;
@@ -43,38 +45,51 @@ class NotificationScheduleService
             $currentShowAirstamp = $episode['airstamp'];
 
             [$title, $message, $showLink] = $this->formatNotification($episode);
-            $topics = json_decode($episode['topics']);
+            $users = json_decode($episode['users']);
 
-            if (is_array($topics)) {
-                foreach ($topics as $topic) {
-                    $user = $this->userProvider->getByNtfyTopic($topic);
+            if (is_array($users)) {
+                foreach ($users as $user) {
+                    $notificationTime = $user->notification_time;
 
-                    if ($user) {
-                        $notificationTime = $user->getNotificationTime();
+                    $timestamp = match ($notificationTime) {
+                        NotificationTime::AIRTIME->value => strtotime($episode['airstamp']),
+                        NotificationTime::ONE_HOUR_BEFORE->value => strtotime($episode['airstamp']) - 3600,
+                        NotificationTime::ONE_HOUR_AFTER->value => strtotime($episode['airstamp']) + 3600,
+                    };
 
-                        $timestamp = match ($notificationTime) {
-                            NotificationTime::AIRTIME => strtotime($episode['airstamp']),
-                            NotificationTime::ONE_HOUR_BEFORE => strtotime($episode['airstamp']) - 3600,
-                            NotificationTime::ONE_HOUR_AFTER => strtotime($episode['airstamp']) + 3600,
-                        };
+                    $availableString =  match ($notificationTime) {
+                        NotificationTime::AIRTIME->value => 'Airing now',
+                        NotificationTime::ONE_HOUR_BEFORE->value => 'Airing in one hour',
+                        NotificationTime::ONE_HOUR_AFTER->value => 'Aired one hour ago',
+                    };
 
-                        $availableString =  match ($notificationTime) {
-                            NotificationTime::AIRTIME => 'Airing now',
-                            NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour',
-                            NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago',
-                        };
+                    $messageWithAiring = "$availableString\n\n" . $message;
 
-                        $messageWithAiring = "$availableString\n\n" . $message;
+                    if ($user->discord_webhook_url) {
+                        $date = new DateTime();
+                        $date->setTimestamp($timestamp);
+                        $this->discordNotification->queue(
+                            new NotificationMessage(
+                                $user->discord_webhook_url,
+                                $title,
+                                $messageWithAiring,
+                                $showLink
+                            ),
+                            $date
+                        );
+                        $messagesQueued += 1;
+                    }
 
+                    if ($user->ntfy_topic) {
                         try {
                             $this->ntfyService->sendNotification(
-                                $topic,
+                                $user->ntfy_topic,
                                 $title,
                                 $messageWithAiring,
                                 $timestamp,
                                 $showLink
                             );
-                            $messagesSent += 1;
+                            $messagesQueued += 1;
                         } catch (RuntimeException $e) {
                             $errorsSendingMessage += 1;
                             error_log("ERROR sending notification: " . $e->getMessage());
@@ -89,7 +104,7 @@ class NotificationScheduleService
         NOTIFICATION SCHEDULE SERVICE
         --
         EPISODES TOTAL: $episodesTotal
-        MESSAGES SENT:  $messagesSent
+        MESSAGES QUEUED:  $messagesQueued
         ERRORS: $errorsSendingMessage       
         --------------------------\n
         RESULT;
@@ -162,12 +177,12 @@ class NotificationScheduleService
                 s.summary as "showSummary", 
                 s.network_name as "networkName", 
                 s.web_channel_name as "webChannelName",                
-                JSON_AGG(DISTINCT u.ntfy_topic) AS topics
+                JSON_AGG(DISTINCT u) AS "users"
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id
                 INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
-                INNER JOIN users u ON us.user_id = u.id AND u.ntfy_topic IS NOT NULL
-                WHERE e.airstamp IS NOT NULL AND (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'3 hours\')
+                INNER JOIN users u ON us.user_id = u.id AND (u.ntfy_topic IS NOT NULL OR u.discord_webhook_url IS NOT NULL)
+                WHERE e.airstamp IS NOT NULL AND (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'13 hours\')
                 GROUP BY
                     e.id,
                     s.id,

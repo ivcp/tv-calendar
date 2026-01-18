@@ -7,7 +7,9 @@ namespace App\Controllers;
 use App\Config;
 use App\Contracts\AuthInterface;
 use App\Contracts\UserProviderServiceInterface;
+use App\DataObjects\NotificationMessage;
 use App\Enum\NotificationTime;
+use App\Notifications\DiscordNotification;
 use App\RequestValidators\EnableDiscordNotificationsRequestValidator;
 use App\RequestValidators\EnableNtfyNotificationsRequestValidator;
 use App\RequestValidators\RequestValidatorFactory;
@@ -34,6 +36,7 @@ class ProfileController
         private readonly RequestService $requestService,
         private readonly NtfyService $ntfyService,
         private readonly Config $config,
+        private readonly DiscordNotification $discordNotification,
     ) {}
     public function index(Request $request, Response $response): Response
     {
@@ -176,8 +179,14 @@ class ProfileController
 
         $url = $urlProtectionService->decrypt($encodedUrl);
 
-        echo $url;
-        //TODO:
+        $this->discordNotification->send(
+            new NotificationMessage(
+                $url,
+                'It works!',
+                'This is a test message from',
+                $this->config->get('app_url')
+            )
+        );
 
         return $this->responseFormatter->asJSONMessage($response, 200, 'test notification sent');
     }

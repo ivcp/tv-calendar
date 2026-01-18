@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\DataObjects\NotificationMessage;
 use App\Entity\Traits\HasTimestamps;
 use DateTime;
 use Doctrine\DBAL\Types\Types;
@@ -24,7 +25,7 @@ class Notification
     private int $id;
 
     #[Column(type: Types::JSON)]
-    private array $content;
+    private NotificationMessage $content;
 
     #[Column(name: 'scheduled_time')]
     private DateTime $scheduledTime;
@@ -45,7 +46,7 @@ class Notification
     /**
      * Get the value of content
      */
-    public function getContent(): array
+    public function getContent(): NotificationMessage
     {
         return $this->content;
     }
@@ -55,7 +56,7 @@ class Notification
      *
      * @return  self
      */
-    public function setContent(array $content): self
+    public function setContent(NotificationMessage $content): self
     {
         $this->content = $content;
 
