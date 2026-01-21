@@ -100,7 +100,7 @@ class NotificationScheduleService
 
         $this->notificationScheduler->notify();
         $messagesQueued = $this->notificationScheduler->getMessagesQueued();
-        $errorsSendingMessage  = $this->notificationScheduler->getErrorsSchedulingMessage();
+        $errorsSchedulingMessage  = $this->notificationScheduler->getErrorsSchedulingMessage();
 
 
         echo <<<RESULT
@@ -109,14 +109,14 @@ class NotificationScheduleService
         --
         EPISODES TOTAL: $episodesTotal
         MESSAGES QUEUED:  $messagesQueued
-        ERRORS: $errorsSendingMessage       
+        ERRORS: $errorsSchedulingMessage       
         --------------------------\n
         RESULT;
 
-        if ($errorsSendingMessage) {
+        if ($errorsSchedulingMessage) {
             $this->webhookService->send(
                 $this->config->get('webhook_url'),
-                "🚨 Notification Schedule Service: $errorsSendingMessage error(s)" .
+                "🚨 Notification Schedule Service: $errorsSchedulingMessage error(s)" .
                     " occurred while sending notifications. Check the logs."
             );
         }
