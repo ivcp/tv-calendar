@@ -5,31 +5,16 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\DataObjects\NotificationMessage;
-use App\Entity\Notification;
 use App\Exception\NotificationFailedException;
-use DateTime;
-use Doctrine\ORM\EntityManager;
 use GuzzleHttp\Client;
 
-class DiscordNotification implements NotificationInterface
+class DiscordNotificationSender implements NotificationSenderInterface
 {
 
     public function __construct(
-        private Client $client,
-        private readonly EntityManager $entityManager,
-
+        private readonly Client $client
     ) {}
 
-    public function queue(NotificationMessage $content, DateTime $scheduledTime): void
-    {
-        $notification = new Notification();
-        $notification->setContent($content);
-        $notification->setScheduledTime($scheduledTime);
-        $notification->setStatus(false);
-
-        $this->entityManager->persist($notification);
-        $this->entityManager->flush();
-    }
 
     public function send(NotificationMessage $content): void
     {

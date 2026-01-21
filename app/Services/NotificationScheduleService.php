@@ -8,10 +8,10 @@ use App\Config;
 use App\DataObjects\NotificationMessage;
 use App\Entity\User;
 use App\Enum\NotificationTime;
-use App\Notifications\DiscordNotification;
-use DateTime;
+use App\Notifications\DiscordNotificationScheduler;
+use App\Notifications\NotificationScheduler;
+use App\Notifications\NtfyNotificationScheduler;
 use Doctrine\ORM\EntityManager;
-use RuntimeException;
 
 class NotificationScheduleService
 {
@@ -20,7 +20,7 @@ class NotificationScheduleService
         private readonly NtfyService $ntfyService,
         private readonly Config $config,
         private readonly WebhookService $webhookService,
-        private readonly DiscordNotification $discordNotification,
+        private readonly NotificationScheduler $notificationScheduler
     ) {}
 
     public function run(): void
@@ -28,8 +28,6 @@ class NotificationScheduleService
         $episodes = $this->getEpisodes();
 
         $episodesTotal = count($episodes);
-        $messagesQueued = 0;
-        $errorsSendingMessage = 0;
 
         $currentShow = null;
         $currentShowAirstamp = null;
@@ -66,38 +64,44 @@ class NotificationScheduleService
                     $messageWithAiring = "$availableString\n\n" . $message;
 
                     if ($user->discord_webhook_url) {
-                        $date = new DateTime();
-                        $date->setTimestamp($timestamp);
-                        $this->discordNotification->queue(
-                            new NotificationMessage(
-                                $user->discord_webhook_url,
-                                $title,
-                                $messageWithAiring,
-                                $showLink
-                            ),
-                            $date
+                        $this->notificationScheduler->attach(
+                            new DiscordNotificationScheduler(
+                                $this->entityManager,
+                                new NotificationMessage(
+                                    $user->discord_webhook_url,
+                                    $title,
+                                    $messageWithAiring,
+                                    $showLink
+                                ),
+                                $timestamp
+                            )
                         );
-                        $messagesQueued += 1;
                     }
 
                     if ($user->ntfy_topic) {
-                        try {
-                            $this->ntfyService->sendNotification(
-                                $user->ntfy_topic,
-                                $title,
-                                $messageWithAiring,
+
+                        $this->notificationScheduler->attach(
+                            new NtfyNotificationScheduler(
+                                $this->ntfyService,
+                                new NotificationMessage(
+                                    $user->ntfy_topic,
+                                    $title,
+                                    $messageWithAiring,
+                                    $showLink
+                                ),
                                 $timestamp,
-                                $showLink
-                            );
-                            $messagesQueued += 1;
-                        } catch (RuntimeException $e) {
-                            $errorsSendingMessage += 1;
-                            error_log("ERROR sending notification: " . $e->getMessage());
-                        }
+                            )
+
+                        );
                     }
                 }
             }
         }
+
+        $this->notificationScheduler->notify();
+        $messagesQueued = $this->notificationScheduler->getMessagesQueued();
+        $errorsSendingMessage  = $this->notificationScheduler->getErrorsSchedulingMessage();
+
 
         echo <<<RESULT
         --------------------------
@@ -182,7 +186,7 @@ class NotificationScheduleService
                 INNER JOIN shows s ON s.id = e.show_id
                 INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
                 INNER JOIN users u ON us.user_id = u.id AND (u.ntfy_topic IS NOT NULL OR u.discord_webhook_url IS NOT NULL)
-                WHERE e.airstamp IS NOT NULL AND (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'13 hours\')
+                WHERE e.airstamp IS NOT NULL AND (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'28 hours\')
                 GROUP BY
                     e.id,
                     s.id,

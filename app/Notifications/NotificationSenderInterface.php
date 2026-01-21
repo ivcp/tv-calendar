@@ -5,12 +5,9 @@ declare(strict_types=1);
 namespace App\Notifications;
 
 use App\DataObjects\NotificationMessage;
-use DateTime;
 
-interface NotificationInterface
+interface NotificationSenderInterface
 {
-    public function queue(NotificationMessage $content, DateTime $scheduledTime): void;
-
     /**
      *   
      * @throws NotificationFailedException

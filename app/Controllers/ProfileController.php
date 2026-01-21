@@ -10,6 +10,7 @@ use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\NotificationMessage;
 use App\Enum\NotificationTime;
 use App\Notifications\DiscordNotification;
+use App\Notifications\DiscordNotificationSender;
 use App\RequestValidators\EnableDiscordNotificationsRequestValidator;
 use App\RequestValidators\EnableNtfyNotificationsRequestValidator;
 use App\RequestValidators\RequestValidatorFactory;
@@ -36,7 +37,7 @@ class ProfileController
         private readonly RequestService $requestService,
         private readonly NtfyService $ntfyService,
         private readonly Config $config,
-        private readonly DiscordNotification $discordNotification,
+        private readonly DiscordNotificationSender $discordNotification,
     ) {}
     public function index(Request $request, Response $response): Response
     {

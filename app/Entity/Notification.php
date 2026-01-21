@@ -31,7 +31,7 @@ class Notification
     private DateTime $scheduledTime;
 
     #[Column(options: ['default' => false])]
-    private bool $status;
+    private bool $processed;
 
     //add type to support more types like email
 
@@ -86,9 +86,9 @@ class Notification
     /**
      * Get the value of status
      */
-    public function getStatus(): bool
+    public function getProcessedStatus(): bool
     {
-        return $this->status;
+        return $this->processed;
     }
 
     /**
@@ -96,9 +96,9 @@ class Notification
      *
      * @return  self
      */
-    public function setStatus(bool $status): self
+    public function setProcessedStatus(bool $status): self
     {
-        $this->status = $status;
+        $this->processed = $status;
 
         return $this;
     }
