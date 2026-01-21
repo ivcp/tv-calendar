@@ -186,7 +186,7 @@ class NotificationScheduleService
                 INNER JOIN shows s ON s.id = e.show_id
                 INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
                 INNER JOIN users u ON us.user_id = u.id AND (u.ntfy_topic IS NOT NULL OR u.discord_webhook_url IS NOT NULL)
-                WHERE e.airstamp IS NOT NULL AND (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'28 hours\')
+                WHERE e.airstamp IS NOT NULL AND (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'3 hours\')
                 GROUP BY
                     e.id,
                     s.id,
