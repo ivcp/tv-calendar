@@ -120,23 +120,7 @@
               class="text-xs font-bold text-base-content/60 -mt-3 cursor-pointer hover:underline uppercase"
               >What do I do with this?</a
             >
-            <div class="self-end flex flex-col gap-6 mt-2">
-              <div class="space-x-2">
-                <label>Notification time</label>
-                <select
-                  class="select select-bordered select-sm"
-                  id="notification-time"
-                >
-                  <option disabled selected>
-                    {{ notificationTime | split('_') | join(' ') | capitalize }}
-                  </option>
-                  {% for case in enum('App\\Enum\\NotificationTime').cases %}
-                  <option value="{{ case.value }}">
-                    {{ case.value | split('_') | join(' ') | capitalize}}
-                  </option>
-                  {% endfor %}
-                </select>
-              </div>
+            <div class="self-end flex flex-col gap-6 mt-2">              
               <button
                 id="test-ntfy"
                 class="btn btn-sm uppercase btn-outline w-fit self-end"
@@ -197,7 +181,8 @@
             {% endif %}
           </div>
           {% endif %}
-        </div>
+        </div> 
+
       </div>
       <div class="flex flex-col justify-between gap-4 my-6 pb-4">
         <div class="flex justify-end gap-4">
@@ -233,9 +218,29 @@
         </div>
         <div
           id="discord-notifications-settings-content"
-          class="{{ discordWebhookUrl ? '' : 'hidden' }} flex flex-col"
+          class="{{ discordWebhookUrl ? '' : 'hidden' }} flex flex-col gap-4"
         >
           {% if discordWebhookUrl %}
+
+            <div class="bg-base-200 h-36 lg:h-24 p-2 rounded-lg grid">
+              <p
+                class="text-xs row-start-1 col-start-1 uppercase text-base-content/80"
+              >
+                Discord webhook url
+              </p>
+              <p
+                class="text-base-content/80 text-sm break-all place-self-center mt-1 row-start-1 row-end-2 col-start-1 col-end-2"
+              >
+                {{ discordWebhookUrl }}
+              </p>
+
+              <div class="place-self-end row-start-1 row-end-2 col-start-2 col-end-3 tooltip tooltip-left" data-tip="To change webhook url disable Discord notifications and enable again.">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                </svg>
+              </div>
+
+            </div>
           
               <button
                 id="test-discord-webhook"
@@ -286,7 +291,26 @@
           </div>
           {% endif %}
         </div>
+        
       </div>
+       {% if ntfyTopic or discordWebhookUrl %}
+        <div class="self-end space-x-2">
+            <label>Notification time</label>
+            <select
+              class="select select-bordered select-sm"
+              id="notification-time"
+            >
+              <option disabled selected>
+                {{ notificationTime | split('_') | join(' ') | capitalize }}
+              </option>
+              {% for case in enum('App\\Enum\\NotificationTime').cases %}
+              <option value="{{ case.value }}">
+                {{ case.value | split('_') | join(' ') | capitalize}}
+              </option>
+              {% endfor %}
+            </select>
+        </div>
+        {% endif %}
       <h2
         class="text-lg font-bold mt-4 border-b border-neutral-content/40 pb-2"
       >
