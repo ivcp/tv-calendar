@@ -9,7 +9,6 @@ use App\Contracts\AuthInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\NotificationMessage;
 use App\Enum\NotificationTime;
-use App\Notifications\DiscordNotification;
 use App\Notifications\DiscordNotificationSender;
 use App\RequestValidators\EnableDiscordNotificationsRequestValidator;
 use App\RequestValidators\EnableNtfyNotificationsRequestValidator;
@@ -42,6 +41,12 @@ class ProfileController
     public function index(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
+        $discordWebhookUrl = null;
+        if ($discordUrlEncrypted = $user->getDiscordWebhookUrl()) {
+            $urlProtectionService = new UrlProtectionService($this->config->get('url_secret_key'));
+            $discordWebhookUrl = $urlProtectionService->decrypt($discordUrlEncrypted);
+        }
+
         return $this->twig->render(
             $response,
             'profile/index.twig',
@@ -50,7 +55,7 @@ class ProfileController
                 'verified' => $user->getVerifiedAt(),
                 'passwordSet' => $user->getPassword() !== null,
                 'ntfyTopic' => $user->getNtfyTopic(),
-                'discordWebhookUrl' => $user->getDiscordWebhookUrl(),
+                'discordWebhookUrl' => $discordWebhookUrl,
                 'startOfWeekSunday' => $user->getStartOfWeekSunday(),
                 'notificationTime' => $user->getNotificationTime()->value
             ]
