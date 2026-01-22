@@ -174,15 +174,9 @@ class ProfileController
     {
         $user = $request->getAttribute('user');
 
-        $encodedUrl = $user->getDiscordWebhookUrl();
-
-        $urlProtectionService = new UrlProtectionService($this->config->get('url_secret_key'));
-
-        $url = $urlProtectionService->decrypt($encodedUrl);
-
         $this->discordNotification->send(
             new NotificationMessage(
-                $url,
+                $user->getDiscordWebhookUrl(),
                 'It works!',
                 'This is a test message from',
                 $this->config->get('app_url')

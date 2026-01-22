@@ -2,3 +2,4 @@
 0 6 * * * php /var/www/scripts/unverifiedAccountsCleanup.php
 12 * * * * php /var/www/scripts/scheduleNotifications.php
 * * * * * php /var/www/scripts/sendEmails.php
+* * * * * sleep 20; php /var/www/scripts/sendNotifications.php

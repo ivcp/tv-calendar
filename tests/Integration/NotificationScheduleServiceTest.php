@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\DataObjects\ShowData;
 use App\Entity\Episode;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
 use App\Enum\NotificationTime;
-use App\Services\AccountCleanupService;
 use App\Services\NotificationScheduleService;
 use DateTime;
 use DI\Container;

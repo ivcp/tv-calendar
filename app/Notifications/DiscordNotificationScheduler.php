@@ -27,7 +27,7 @@ class DiscordNotificationScheduler implements SplObserver
         $date->setTimestamp($this->scheduledTime);
 
         $notification = new Notification();
-        $notification->setContent($this->content);
+        $notification->setContent((array) $this->content);
         $notification->setScheduledTime($date);
         $notification->setProcessedStatus(false);
 

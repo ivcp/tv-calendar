@@ -25,7 +25,7 @@ class Notification
     private int $id;
 
     #[Column(type: Types::JSON)]
-    private NotificationMessage $content;
+    private array $content;
 
     #[Column(name: 'scheduled_time')]
     private DateTime $scheduledTime;
@@ -46,7 +46,7 @@ class Notification
     /**
      * Get the value of content
      */
-    public function getContent(): NotificationMessage
+    public function getContent(): array
     {
         return $this->content;
     }
@@ -56,7 +56,7 @@ class Notification
      *
      * @return  self
      */
-    public function setContent(NotificationMessage $content): self
+    public function setContent(array $content): self
     {
         $this->content = $content;
 
