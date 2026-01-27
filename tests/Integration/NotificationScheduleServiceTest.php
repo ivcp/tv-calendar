@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Integration;
 
-use App\DataObjects\ShowData;
 use App\Entity\Episode;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
 use App\Enum\NotificationTime;
-use App\Services\AccountCleanupService;
 use App\Services\NotificationScheduleService;
 use DateTime;
 use DI\Container;
@@ -99,7 +97,10 @@ final class NotificationScheduleServiceTest extends TestCase
 
         $episodes =  $this->notificationScheduleService->getEpisodes();
         $this->assertCount(1, $episodes);
-        $this->assertSame($episodes[0]['topics'], '["test1"]');
+
+        $users = json_decode($episodes[0]['users']);
+        //exit;
+        $this->assertSame($users[0]->ntfy_topic, 'test1');
 
         //user adds 4 more shows
         for ($i = 2; $i <= 5; $i++) {
@@ -120,7 +121,10 @@ final class NotificationScheduleServiceTest extends TestCase
         $this->assertCount(5, $episodes);
         $this->assertSame('episode-1', $episodes[0]['episodeName']);
         //assert both user topics are there
-        $this->assertSame($episodes[0]['topics'], '["test1", "test2"]');
+        $users = json_decode($episodes[0]['users']);
+
+        $this->assertSame($users[0]->ntfy_topic, 'test1');
+        $this->assertSame($users[1]->ntfy_topic, 'test2');
 
         //user3 adds shows whose episodes don't air in next 24h, nothing changes
         $user3 = $this->em->getRepository(User::class)->find(3);
@@ -139,7 +143,9 @@ final class NotificationScheduleServiceTest extends TestCase
 
         $episodes = $this->notificationScheduleService->getEpisodes();
         $this->assertCount(5, $episodes);
-        $this->assertSame($episodes[0]['topics'], '["test1", "test2"]');
+        $users = json_decode($episodes[0]['users']);
+        $this->assertSame($users[0]->ntfy_topic, 'test1');
+        $this->assertSame($users[1]->ntfy_topic, 'test2');
 
 
         //user4 adds show with multiple episodes airing
@@ -152,7 +158,8 @@ final class NotificationScheduleServiceTest extends TestCase
         $eps = array_filter($episodes, fn($ep) => $ep['showName'] === 'test show 7');
         $this->assertCount(10, $eps);
         foreach ($eps as $ep) {
-            $this->assertSame($ep['topics'], '["test4"]');
+            $users = json_decode($ep['users']);
+            $this->assertSame($users[0]->ntfy_topic, 'test4');
         }
 
 
@@ -167,7 +174,8 @@ final class NotificationScheduleServiceTest extends TestCase
         $eps = array_filter($episodes, fn($ep) => $ep['showName'] === 'test show 7');
         $this->assertCount(10, $eps);
         foreach ($eps as $ep) {
-            $this->assertSame($ep['topics'], '["test4"]');
+            $users = json_decode($ep['users']);
+            $this->assertSame($users[0]->ntfy_topic, 'test4');
         }
     }
 

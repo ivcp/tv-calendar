@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration;
 
 use App\Config as AppConfig;
+use App\Notifications\NotificationScheduler;
 use App\Services\NotificationScheduleService;
 use App\Services\NtfyService;
 use App\Services\UserProviderService;
@@ -24,16 +25,16 @@ final class NotificationScheduleServiceTest extends TestCase
 
         $dummyEm = $this->createStub(EntityManager::class);
         $dummyNtfy = $this->createStub(NtfyService::class);
-        $dummyUserProvider = $this->createStub(UserProviderService::class);
         $dummyConfig = $this->createStub(AppConfig::class);
         $dummyConfig->method('get')->willReturn('http://link');
         $dummyWebhook = $this->createStub(WebhookService::class);
+        $dummyScheduler = $this->createStub(NotificationScheduler::class);
         $notificationScheduleService = new NotificationScheduleService(
             $dummyEm,
             $dummyNtfy,
-            $dummyUserProvider,
             $dummyConfig,
-            $dummyWebhook
+            $dummyWebhook,
+            $dummyScheduler
         );
 
         [$title, $message, $showlink] = $notificationScheduleService->formatNotification($episode);

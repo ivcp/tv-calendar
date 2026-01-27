@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use App\Contracts\SessionInterface;
-use App\Exception\BadRequestException;
 use App\Exception\NotFoundException;
-use App\Exception\ValidationException;
 use App\ResponseFormatter;
 use App\Services\RequestService;
 use Psr\Http\Message\ResponseFactoryInterface;
@@ -21,11 +18,9 @@ class NotFoundExceptionMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly SessionInterface $session,
         private readonly RequestService $requestService,
         private readonly ResponseFormatter $responseFormatter
-    ) {
-    }
+    ) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

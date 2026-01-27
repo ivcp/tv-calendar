@@ -8,7 +8,7 @@ use App\Contracts\RequestValidatorInterface;
 use App\Exception\ValidationException;
 use Valitron\Validator;
 
-class EnableNotificationsRequestValidator implements RequestValidatorInterface
+class EnableNtfyNotificationsRequestValidator implements RequestValidatorInterface
 {
     public function validate(array $data): array
     {
@@ -16,11 +16,11 @@ class EnableNotificationsRequestValidator implements RequestValidatorInterface
 
         $v->rule('required', ['notificationsPassword', 'confirmNotificationsPassword']);
         $v->rule('equals', 'notificationsPassword', 'confirmNotificationsPassword')
-                ->message("Password and Confirm password must match");
+            ->message("Password and Confirm password must match");
         $v->rule('lengthMin', 'notificationsPassword', 8)
-                ->message("Password must be at least 8 characters long");
+            ->message("Password must be at least 8 characters long");
         $v->rule('lengthMin', 'confirmNotificationsPassword', 8)
-                ->message("Confirm password must be at least 8 characters long");
+            ->message("Confirm password must be at least 8 characters long");
 
 
         if (! $v->validate()) {

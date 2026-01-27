@@ -4,16 +4,21 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Config;
 use App\Contracts\AuthInterface;
 use App\Contracts\UserProviderServiceInterface;
+use App\DataObjects\NotificationMessage;
 use App\Enum\NotificationTime;
-use App\RequestValidators\EnableNotificationsRequestValidator;
+use App\Notifications\DiscordNotificationSender;
+use App\RequestValidators\EnableDiscordNotificationsRequestValidator;
+use App\RequestValidators\EnableNtfyNotificationsRequestValidator;
 use App\RequestValidators\RequestValidatorFactory;
 use App\RequestValidators\SetNotificationTimeRequestValidator;
 use App\RequestValidators\StartOfWeekRequestValidator;
 use App\ResponseFormatter;
 use App\Services\NtfyService;
 use App\Services\RequestService;
+use App\Services\UrlProtectionService;
 use App\Services\UserSettingsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -29,12 +34,19 @@ class ProfileController
         private readonly RequestValidatorFactory $requestValidatorFactory,
         private readonly UserSettingsService $userSettingsService,
         private readonly RequestService $requestService,
-        private readonly NtfyService $ntfyService
-    ) {
-    }
+        private readonly NtfyService $ntfyService,
+        private readonly Config $config,
+        private readonly DiscordNotificationSender $discordNotification,
+    ) {}
     public function index(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
+        $discordWebhookUrl = null;
+        if ($discordUrlEncrypted = $user->getDiscordWebhookUrl()) {
+            $urlProtectionService = new UrlProtectionService($this->config->get('url_secret_key'));
+            $discordWebhookUrl = $urlProtectionService->decrypt($discordUrlEncrypted);
+        }
+
         return $this->twig->render(
             $response,
             'profile/index.twig',
@@ -43,6 +55,7 @@ class ProfileController
                 'verified' => $user->getVerifiedAt(),
                 'passwordSet' => $user->getPassword() !== null,
                 'ntfyTopic' => $user->getNtfyTopic(),
+                'discordWebhookUrl' => $discordWebhookUrl,
                 'startOfWeekSunday' => $user->getStartOfWeekSunday(),
                 'notificationTime' => $user->getNotificationTime()->value
             ]
@@ -68,11 +81,18 @@ class ProfileController
         };
 
         if (array_key_exists('notificationsPassword', $body)) {
-            return $this->enableNotifications($request, $response);
+            return $this->enableNtfyNotifications($request, $response);
         };
 
-        if (array_key_exists('disableNotifications', $body)) {
-            return $this->disableNotifications($request, $response);
+        if (array_key_exists('discordWebhookUrl', $body)) {
+            return $this->enableDiscordNotifications($request, $response);
+        };
+
+        if (array_key_exists('disableNtfyNotifications', $body)) {
+            return $this->disableNtfyNotifications($request, $response);
+        };
+        if (array_key_exists('disableDiscordNotifications', $body)) {
+            return $this->disableDiscordNotifications($request, $response);
         };
 
         if (array_key_exists('notificationTime', $body)) {
@@ -93,22 +113,40 @@ class ProfileController
         return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
     }
 
-    private function enableNotifications(Request $request, Response $response): Response
+    private function enableNtfyNotifications(Request $request, Response $response): Response
     {
-        $data = $this->requestValidatorFactory->make(EnableNotificationsRequestValidator::class)->validate(
+        $data = $this->requestValidatorFactory->make(EnableNtfyNotificationsRequestValidator::class)->validate(
             $request->getParsedBody()
         );
 
         $user = $request->getAttribute('user');
-        $this->userSettingsService->setupNotifications($user, $data['notificationsPassword']);
+        $this->userSettingsService->setupNtfyNotifications($user, $data['notificationsPassword']);
 
         return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
     }
 
-    private function disableNotifications(Request $request, Response $response): Response
+    private function enableDiscordNotifications(Request $request, Response $response): Response
+    {
+        $data = $this->requestValidatorFactory->make(EnableDiscordNotificationsRequestValidator::class)->validate(
+            $request->getParsedBody()
+        );
+
+        $user = $request->getAttribute('user');
+        $this->userSettingsService->setupDiscordNotifications($user, $data['discordWebhookUrl']);
+
+        return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
+    }
+
+    private function disableNtfyNotifications(Request $request, Response $response): Response
     {
         $user = $request->getAttribute('user');
-        $this->userSettingsService->disableNotifications($user);
+        $this->userSettingsService->disableNtfyNotifications($user);
+        return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
+    }
+    private function disableDiscordNotifications(Request $request, Response $response): Response
+    {
+        $user = $request->getAttribute('user');
+        $this->userSettingsService->disableDiscordNotifications($user);
         return $this->responseFormatter->asJSONMessage($response, 200, 'settings saved');
     }
 
@@ -133,6 +171,22 @@ class ProfileController
         $topic = $user->getNtfyTopic();
 
         $this->ntfyService->sendNotification($topic, 'Test', 'This is a test message');
+
+        return $this->responseFormatter->asJSONMessage($response, 200, 'test notification sent');
+    }
+
+    public function sendTestDiscordMessage(Request $request, Response $response): Response
+    {
+        $user = $request->getAttribute('user');
+
+        $this->discordNotification->send(
+            new NotificationMessage(
+                $user->getDiscordWebhookUrl(),
+                'It works!',
+                'This is a test message from',
+                $this->config->get('app_url')
+            )
+        );
 
         return $this->responseFormatter->asJSONMessage($response, 200, 'test notification sent');
     }

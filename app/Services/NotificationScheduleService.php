@@ -5,20 +5,22 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Config;
-use App\Contracts\UserProviderServiceInterface;
+use App\DataObjects\NotificationMessage;
 use App\Entity\User;
 use App\Enum\NotificationTime;
+use App\Notifications\DiscordNotificationScheduler;
+use App\Notifications\NotificationScheduler;
+use App\Notifications\NtfyNotificationScheduler;
 use Doctrine\ORM\EntityManager;
-use RuntimeException;
 
 class NotificationScheduleService
 {
     public function __construct(
         private readonly EntityManager $entityManager,
         private readonly NtfyService $ntfyService,
-        private readonly UserProviderServiceInterface $userProvider,
         private readonly Config $config,
-        private readonly WebhookService $webhookService
+        private readonly WebhookService $webhookService,
+        private readonly NotificationScheduler $notificationScheduler
     ) {}
 
     public function run(): void
@@ -26,8 +28,6 @@ class NotificationScheduleService
         $episodes = $this->getEpisodes();
 
         $episodesTotal = count($episodes);
-        $messagesSent = 0;
-        $errorsSendingMessage = 0;
 
         $currentShow = null;
         $currentShowAirstamp = null;
@@ -43,61 +43,80 @@ class NotificationScheduleService
             $currentShowAirstamp = $episode['airstamp'];
 
             [$title, $message, $showLink] = $this->formatNotification($episode);
-            $topics = json_decode($episode['topics']);
+            $users = json_decode($episode['users']);
 
-            if (is_array($topics)) {
-                foreach ($topics as $topic) {
-                    $user = $this->userProvider->getByNtfyTopic($topic);
+            if (is_array($users)) {
+                foreach ($users as $user) {
+                    $notificationTime = $user->notification_time;
 
-                    if ($user) {
-                        $notificationTime = $user->getNotificationTime();
+                    $timestamp = match ($notificationTime) {
+                        NotificationTime::AIRTIME->value => strtotime($episode['airstamp']),
+                        NotificationTime::ONE_HOUR_BEFORE->value => strtotime($episode['airstamp']) - 3600,
+                        NotificationTime::ONE_HOUR_AFTER->value => strtotime($episode['airstamp']) + 3600,
+                    };
 
-                        $timestamp = match ($notificationTime) {
-                            NotificationTime::AIRTIME => strtotime($episode['airstamp']),
-                            NotificationTime::ONE_HOUR_BEFORE => strtotime($episode['airstamp']) - 3600,
-                            NotificationTime::ONE_HOUR_AFTER => strtotime($episode['airstamp']) + 3600,
-                        };
+                    $availableString =  match ($notificationTime) {
+                        NotificationTime::AIRTIME->value => 'Airing now',
+                        NotificationTime::ONE_HOUR_BEFORE->value => 'Airing in one hour',
+                        NotificationTime::ONE_HOUR_AFTER->value => 'Aired one hour ago',
+                    };
 
-                        $availableString =  match ($notificationTime) {
-                            NotificationTime::AIRTIME => 'Airing now',
-                            NotificationTime::ONE_HOUR_BEFORE => 'Airing in one hour',
-                            NotificationTime::ONE_HOUR_AFTER => 'Aired one hour ago',
-                        };
+                    $messageWithAiring = "$availableString\n\n" . $message;
 
-                        $messageWithAiring = "$availableString\n\n" . $message;
+                    if ($user->discord_webhook_url) {
+                        $this->notificationScheduler->attach(
+                            new DiscordNotificationScheduler(
+                                $this->entityManager,
+                                new NotificationMessage(
+                                    $user->discord_webhook_url,
+                                    $title,
+                                    $messageWithAiring,
+                                    $showLink
+                                ),
+                                $timestamp
+                            )
+                        );
+                    }
 
-                        try {
-                            $this->ntfyService->sendNotification(
-                                $topic,
-                                $title,
-                                $messageWithAiring,
+                    if ($user->ntfy_topic) {
+
+                        $this->notificationScheduler->attach(
+                            new NtfyNotificationScheduler(
+                                $this->ntfyService,
+                                new NotificationMessage(
+                                    $user->ntfy_topic,
+                                    $title,
+                                    $messageWithAiring,
+                                    $showLink
+                                ),
                                 $timestamp,
-                                $showLink
-                            );
-                            $messagesSent += 1;
-                        } catch (RuntimeException $e) {
-                            $errorsSendingMessage += 1;
-                            error_log("ERROR sending notification: " . $e->getMessage());
-                        }
+                            )
+
+                        );
                     }
                 }
             }
         }
+
+        $this->notificationScheduler->notify();
+        $messagesQueued = $this->notificationScheduler->getMessagesQueued();
+        $errorsSchedulingMessage  = $this->notificationScheduler->getErrorsSchedulingMessage();
+
 
         echo <<<RESULT
         --------------------------
         NOTIFICATION SCHEDULE SERVICE
         --
         EPISODES TOTAL: $episodesTotal
-        MESSAGES SENT:  $messagesSent
-        ERRORS: $errorsSendingMessage       
+        MESSAGES QUEUED:  $messagesQueued
+        ERRORS: $errorsSchedulingMessage       
         --------------------------\n
         RESULT;
 
-        if ($errorsSendingMessage) {
+        if ($errorsSchedulingMessage) {
             $this->webhookService->send(
                 $this->config->get('webhook_url'),
-                "🚨 Notification Schedule Service: $errorsSendingMessage error(s)" .
+                "🚨 Notification Schedule Service: $errorsSchedulingMessage error(s)" .
                     " occurred while sending notifications. Check the logs."
             );
         }
@@ -162,11 +181,11 @@ class NotificationScheduleService
                 s.summary as "showSummary", 
                 s.network_name as "networkName", 
                 s.web_channel_name as "webChannelName",                
-                JSON_AGG(DISTINCT u.ntfy_topic) AS topics
+                JSON_AGG(DISTINCT u) AS "users"
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id
                 INNER JOIN users_shows us ON us.show_id = s.id AND us.notifications_enabled = true
-                INNER JOIN users u ON us.user_id = u.id AND u.ntfy_topic IS NOT NULL
+                INNER JOIN users u ON us.user_id = u.id AND (u.ntfy_topic IS NOT NULL OR u.discord_webhook_url IS NOT NULL)
                 WHERE e.airstamp IS NOT NULL AND (e.airstamp BETWEEN now() + interval \'2 hours\' AND now() + interval \'3 hours\')
                 GROUP BY
                     e.id,

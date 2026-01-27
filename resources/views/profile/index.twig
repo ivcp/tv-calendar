@@ -78,7 +78,7 @@
           >
             <input
               type="checkbox"
-              id="notifications-toggle"
+              id="ntfy-notifications-toggle"
               data-ntfy-enabled="{{ ntfyTopic ? 'true' : 'false' }}"
               class="toggle"
               {%if
@@ -98,7 +98,7 @@
           </div>
         </div>
         <div
-          id="notifications-settings-content"
+          id="ntfy-notifications-settings-content"
           class="{{ ntfyTopic ? '' : 'hidden' }} flex flex-col"
         >
           {% if ntfyTopic %}
@@ -120,23 +120,7 @@
               class="text-xs font-bold text-base-content/60 -mt-3 cursor-pointer hover:underline uppercase"
               >What do I do with this?</a
             >
-            <div class="self-end flex flex-col gap-6 mt-2">
-              <div class="space-x-2">
-                <label>Notification time</label>
-                <select
-                  class="select select-bordered select-sm"
-                  id="notification-time"
-                >
-                  <option disabled selected>
-                    {{ notificationTime | split('_') | join(' ') | capitalize }}
-                  </option>
-                  {% for case in enum('App\\Enum\\NotificationTime').cases %}
-                  <option value="{{ case.value }}">
-                    {{ case.value | split('_') | join(' ') | capitalize}}
-                  </option>
-                  {% endfor %}
-                </select>
-              </div>
+            <div class="self-end flex flex-col gap-6 mt-2">              
               <button
                 id="test-ntfy"
                 class="btn btn-sm uppercase btn-outline w-fit self-end"
@@ -158,14 +142,14 @@
               </p>
               <p>
                 More info:
-                <a href="/get-notified" class="text-primary font-bold"
+                <a href="/get-notified#install-ntfy" class="text-primary font-bold"
                   >Get notified</a
                 >
               </p>
             </div>
             <form
               method="post"
-              id="enable-notifications-form"
+              id="enable-ntfy-notifications-form"
               class="flex flex-col gap-2 lg:w-1/2"
             >
               <input
@@ -197,8 +181,136 @@
             {% endif %}
           </div>
           {% endif %}
-        </div>
+        </div> 
+
       </div>
+      <div class="flex flex-col justify-between gap-4 my-6 pb-4">
+        <div class="flex justify-end gap-4">
+          <p class="">Enable Discord notifications</p>
+          <div
+            {%if
+            not
+            verified
+            %}class="tooltip tooltip-left"
+            data-tip="Please verify your account to enable notifications"
+            {%endif%}
+          >
+            <input
+              type="checkbox"
+              id="discord-notifications-toggle"
+              data-discord-enabled="{{ discordWebhookUrl ? 'true' : 'false' }}"
+              class="toggle"
+              {%if
+              not
+              verified
+              %}disabled
+              {%endif%}
+              {%
+              if
+              discordWebhookUrl
+              %}
+              checked
+              {%
+              endif
+              %}
+            />
+          </div>
+        </div>
+        <div
+          id="discord-notifications-settings-content"
+          class="{{ discordWebhookUrl ? '' : 'hidden' }} flex flex-col gap-4"
+        >
+          {% if discordWebhookUrl %}
+
+            <div class="bg-base-200 h-36 lg:h-24 p-2 rounded-lg grid">
+              <p
+                class="text-xs row-start-1 col-start-1 uppercase text-base-content/80"
+              >
+                Discord webhook url
+              </p>
+              <p
+                class="text-base-content/80 text-sm break-all place-self-center mt-1 row-start-1 row-end-2 col-start-1 col-end-2"
+              >
+                {{ discordWebhookUrl }}
+              </p>
+
+              <div class="place-self-end row-start-1 row-end-2 col-start-2 col-end-3 tooltip tooltip-left" data-tip="To change webhook url disable Discord notifications and enable again.">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                </svg>
+              </div>
+
+            </div>
+          
+              <button
+                id="test-discord-webhook"
+                class="btn btn-sm uppercase btn-outline w-fit self-end"
+              >
+                Send test notification
+              </button>
+          
+          {% else %}
+          <div
+            class="flex flex-col lg:flex-row gap-6 bg-base-200 p-4 my-4 lg:p-6 rounded-lg"
+          >
+            {% if verified%}
+            <div class="space-y-4">
+              <p>
+                To enable notifications via <b>Discord</b>, please enter your Discord webhook url.
+              </p>
+              <p>
+                More info:
+                <a href="/get-notified#discord" class="text-primary font-bold"
+                  >Get notified</a
+                >
+              </p>
+            </div>
+            <form
+              method="post"
+              id="enable-discord-notifications-form"
+              class="flex flex-col gap-2 lg:w-1/2"
+            >
+              <input
+                type="text"
+                class="input input-bordered"
+                name="discordWebhookUrl"
+                placeholder="Discord Webhook Url"
+                required
+              />            
+              <button
+                class="mt-2 btn btn-sm btn-outline self-center"
+                type="submit"
+                id="discord-submit-btn"
+              >
+                Enable
+              </button>
+            </form>
+            {% else %}
+            <p>Please verify your account to enable notifications.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+        
+      </div>
+       {% if ntfyTopic or discordWebhookUrl %}
+        <div class="self-end space-x-2">
+            <label>Notification time</label>
+            <select
+              class="select select-bordered select-sm"
+              id="notification-time"
+            >
+              <option disabled selected>
+                {{ notificationTime | split('_') | join(' ') | capitalize }}
+              </option>
+              {% for case in enum('App\\Enum\\NotificationTime').cases %}
+              <option value="{{ case.value }}">
+                {{ case.value | split('_') | join(' ') | capitalize}}
+              </option>
+              {% endfor %}
+            </select>
+        </div>
+        {% endif %}
       <h2
         class="text-lg font-bold mt-4 border-b border-neutral-content/40 pb-2"
       >
