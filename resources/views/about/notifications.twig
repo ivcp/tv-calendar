@@ -9,16 +9,20 @@
 
   <div class="max-w-3xl text-lg space-y-8">
     <p>
-      {{ app_name }} supports notifications via the <strong>ntfy</strong> app.
-      Ntfy is a free and open-source app that allows you to receive push
-      notifications directly to your phone.
+      {{ app_name }} supports notifications via <strong>ntfy</strong> and <strong>Discord</strong>.
+      
+      
     </p>
 
-    <h2 id="install-ntfy" class="text-xl uppercase text-center">
-      # Install the ntfy App
-    </h2>
+    <h2 class="text-xl uppercase font-bold">NTFY</h2>
+
+    <h3 id="install-ntfy" class="text-xl uppercase">
+       Install the ntfy App
+    </h3>
     <div>
       <p>
+        Ntfy is a free and open-source app that allows you to receive push
+        notifications directly to your phone.
         Before setting up notifications, install the ntfy app on your device:
       </p>
       <ul class="list-disc list-inside">
@@ -50,9 +54,9 @@
       </ul>
     </div>
 
-    <h2 id="enable-ntfy" class="text-xl uppercase text-center">
-      # Enable Ntfy Notifications
-    </h2>
+    <h3 id="enable-ntfy" class="text-xl uppercase ">
+       Enable Ntfy Notifications
+    </h3>
     <ol class="list-decimal list-inside space-y-2">
       <li>
         Go to your
@@ -73,9 +77,9 @@
       </li>
     </ol>
 
-    <h2 id="subscribe-ntfy" class="text-xl uppercase text-center">
-      # Subscribe to Notifications in the ntfy App
-    </h2>
+    <h3 id="subscribe-ntfy" class="text-xl uppercase ">
+       Subscribe to Notifications in the ntfy App
+    </h3>
     <ol class="list-decimal list-inside space-y-2">
       <li>Open the <strong>ntfy app</strong> on your phone.</li>
       <li>
@@ -108,9 +112,9 @@
       </ul>
     </ol>
 
-    <h2 id="test-ntfy" class="text-xl uppercase text-center">
-      # Test Your Setup
-    </h2>
+    <h3 id="test-ntfy" class="text-xl uppercase ">
+       Test Your Setup
+    </h3>
     <p>
       To ensure everything is working, go to your
       <a href="/profile" class="font-bold hover:underline">profile</a> on
@@ -119,9 +123,9 @@
       complete!
     </p>
 
-    <h2 id="timing-ntfy" class="text-xl uppercase text-center">
-      # Customize Notifications
-    </h2>
+    <h3 id="timing-ntfy" class="text-xl uppercase ">
+       Customize Notifications
+    </h3>
     <div>
       <p>You can choose when to receive notifications:</p>
       <ul class="list-disc list-inside">
@@ -144,6 +148,40 @@
       fantastic free and open-source project. If you enjoy using the app,
       consider supporting them.
     </p>
+
+    <h2 id="discord" class="text-xl uppercase font-bold">Discord</h2>
+
+    <h3 id="install-ntfy" class="text-xl uppercase">
+       Setup Discord webhook
+    </h3>
+    <p>
+        Discord notifications about episodes will be sent to you via a Discord webhook. Discord webhooks function as 
+        a unique URL where services like {{app_name}} can "post" information the moment an event occurs, like when an episode airs.
+
+      </p>
+      <ul class="list-inside list-decimal space-y-2">
+        <li>Go to your Discord server and find the channel where you want messages to appear. Typically, you would create a new 
+        channel specifically for receiving {{app_name}}.</li>
+        <li>Click the little gear icon next to the channel name to open the settings. 
+        Look for a tab labeled Integrations and click the Webhooks option.</li>
+        <li>From there, just hit the New Webhook button. You can give your webhook a name and a profile picture if you like, 
+        then click Copy Webhook URL.</li>
+        <li>This link is the "address" you will paste into {{app_name}}
+        so it knows exactly where to send notifications.</li>        
+    </ul>
+
+
+    <h3 id="install-ntfy" class="text-xl uppercase">
+       Profile setup  
+    </h3>
+
+    <p>
+       Go to your {{app_name}} profile and select Enable Discord notifications. Paste your Discord webhook URL into the provided 
+       field and click Enable. If the setup is successful, your webhook URL will appear on the screen. 
+       You can then verify the connection by clicking the Send test message button.      
+      </p>
+     
+
   </div>
 </section>
 {% endblock %}
