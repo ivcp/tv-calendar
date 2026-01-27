@@ -9,10 +9,16 @@
 
   <div class="max-w-3xl text-lg space-y-8">
     <p>
-      {{ app_name }} supports notifications via <strong>ntfy</strong> and <strong>Discord</strong>.
-      
+      {{ app_name }} supports notifications via <strong>ntfy</strong> and <strong>Discord</strong>.    
       
     </p>
+
+    <ul class="list-decimal list-inside space-y-2">
+      <p>Table of contents:</p>
+      <li><a class="text-primary font-bold" href="#install-ntfy">Ntfy</a></li>
+      <li><a class="text-primary font-bold" href="#discord">Discord</a></li>
+      <li><a class="text-primary font-bold" href="#customize">Customize notifications</a></li>
+    </ul>
 
     <h2 class="text-xl uppercase font-bold">NTFY</h2>
 
@@ -121,27 +127,7 @@
       {{ app_name }}. Press "<strong>Send test notification</strong>". You
       should receive a push notification on your phone. If you do, your setup is
       complete!
-    </p>
-
-    <h3 id="timing-ntfy" class="text-xl uppercase ">
-       Customize Notifications
-    </h3>
-    <div>
-      <p>You can choose when to receive notifications:</p>
-      <ul class="list-disc list-inside">
-        <li>At the episode airtime (default)</li>
-        <li>One hour before the episode airs</li>
-        <li>One hour after the episode airs</li>
-      </ul>
-    </div>
-
-    <div>
-      <p>
-        Notifications are enabled by default for all shows in your list. To
-        manage them individually, visit the show page and click the bell icon to
-        toggle notifications on or off.
-      </p>
-    </div>
+    </p> 
 
     <p>
       <a href="https://ntfy.sh/" target="_blank" class="font-bold">Ntfy</a> is a
@@ -182,6 +168,24 @@
       </p>
      
 
+    <h2 id="customize" class="text-xl uppercase font-bold">Customize Notifications</h2>
+       
+    <div>
+      <p>You can choose when to receive notifications:</p>
+      <ul class="list-disc list-inside">
+        <li>At the episode airtime (default)</li>
+        <li>One hour before the episode airs</li>
+        <li>One hour after the episode airs</li>
+      </ul>
+    </div>
+
+    <div>
+      <p>
+        Notifications are enabled by default for all shows in your list. To
+        manage them individually, visit the show page and click the bell icon to
+        toggle notifications on or off.
+      </p>
+    </div>
   </div>
 </section>
 {% endblock %}
