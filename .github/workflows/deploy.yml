@@ -2,6 +2,7 @@ on:
   push:
     branches: ['master']
 
+#
 jobs:
   run_pull:
     name: Run pull
