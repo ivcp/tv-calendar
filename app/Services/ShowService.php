@@ -58,8 +58,12 @@ class ShowService
             ->select('count(distinct c)');
 
         if ($genre === Genres::Default && $query) {
+            $queryParameter = strtolower($query) . '%';
+            if (strlen($query) >= 3) {
+                $queryParameter = '%' . strtolower($query) . '%';
+            }
             $qb->where('lower(c.name) LIKE :query')
-                ->setParameter('query', strtolower($query) . '%');
+                ->setParameter('query',  $queryParameter);
         }
 
         if ($genre !== Genres::Default) {
@@ -137,10 +141,15 @@ class ShowService
         }
 
         if ($query) {
+            $queryParameter = strtolower($query) . '%';
+            if (strlen($query) >= 3) {
+                $queryParameter = '%' . strtolower($query) . '%';
+            }
+
             $qb
                 ->select('c.id, c.name')
                 ->where('lower(c.name) LIKE :query')
-                ->setParameter('query', strtolower($query) . '%');
+                ->setParameter('query', $queryParameter);
         }
 
         $qb->addOrderBy($user ? 's.id' : 'c.id', 'desc');
