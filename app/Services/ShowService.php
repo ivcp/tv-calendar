@@ -24,9 +24,7 @@ class ShowService
 {
     use ParamsTypesCases;
 
-    public function __construct(private readonly EntityManager $entityManager)
-    {
-    }
+    public function __construct(private readonly EntityManager $entityManager) {}
 
     public function getById(int $id): ?Show
     {
@@ -36,12 +34,12 @@ class ShowService
     public function getImageOriginal(int $id): ?string
     {
         return $this->entityManager->getRepository(Show::class)
-        ->createQueryBuilder('c')
-        ->select('c.imageOriginal')
-        ->where('c.id = :id')
-        ->setParameter('id', $id)
-        ->getQuery()
-        ->getSingleResult()['imageOriginal'];
+            ->createQueryBuilder('c')
+            ->select('c.imageOriginal')
+            ->where('c.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getSingleResult()['imageOriginal'];
     }
 
     public function getShowsByTvMazeId(array $ids): array
@@ -57,16 +55,16 @@ class ShowService
         }
 
         $qb = $repository->createQueryBuilder('c')
-        ->select('count(distinct c)');
+            ->select('count(distinct c)');
 
         if ($genre === Genres::Default && $query) {
             $qb->where('lower(c.name) LIKE :query')
-            ->setParameter('query', '%' . strtolower($query) . '%');
+                ->setParameter('query', strtolower($query) . '%');
         }
 
         if ($genre !== Genres::Default) {
             $qb->where('c.genres LIKE :genre')
-            ->setParameter('genre', '%' . $genre->value . '%');
+                ->setParameter('genre', '%' . $genre->value . '%');
         }
 
         return $qb->getQuery()->getSingleScalarResult();
@@ -88,24 +86,24 @@ class ShowService
         array $localList
     ): array {
         $qb = $this->entityManager->getRepository(Show::class)
-                ->createQueryBuilder('c')
-                ->setFirstResult($start)
-                ->setMaxResults($length);
+            ->createQueryBuilder('c')
+            ->setFirstResult($start)
+            ->setMaxResults($length);
 
         if ($user) {
             $qb = $this->entityManager->getRepository(UserShows::class)->createQueryBuilder('c');
             $qb->select('s')
-            ->where($qb->expr()->eq('c.user', ':userId'))
-            ->innerJoin(Show::class, 's', 'WITH', 's.id = c.show')
-            ->setFirstResult($start)
-            ->setMaxResults($length)
-            ->setParameter('userId', $user->getId());
+                ->where($qb->expr()->eq('c.user', ':userId'))
+                ->innerJoin(Show::class, 's', 'WITH', 's.id = c.show')
+                ->setFirstResult($start)
+                ->setMaxResults($length)
+                ->setParameter('userId', $user->getId());
         }
 
         if (!$user && !$query && count($localList) > 0) {
             $qb
-            ->where('c.id IN (:list)')
-            ->setParameter('list', $localList);
+                ->where('c.id IN (:list)')
+                ->setParameter('list', $localList);
         }
 
         switch ($sort) {
@@ -140,9 +138,9 @@ class ShowService
 
         if ($query) {
             $qb
-            ->select('c.id, c.name')
-            ->where('lower(c.name) LIKE :query')
-            ->setParameter('query', '%' . strtolower($query) . '%');
+                ->select('c.id, c.name')
+                ->where('lower(c.name) LIKE :query')
+                ->setParameter('query', strtolower($query) . '%');
         }
 
         $qb->addOrderBy($user ? 's.id' : 'c.id', 'desc');
