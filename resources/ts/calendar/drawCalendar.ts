@@ -1,12 +1,16 @@
-import { assertHtmlElement } from '../utils/assertElement';
+import { assertAnchorElement, assertHtmlElement } from '../utils/assertElement';
 
 function drawCalendar(): void {
   const calendarElement = document.getElementById('calendar');
   const currentMonthElement = document.getElementById('current-month');
   const currentYearElement = document.getElementById('current-year');
+  const nextMonthBtn = document.getElementById('next-month-btn');
+  const prevMonthBtn = document.getElementById('prev-month-btn');
   assertHtmlElement(calendarElement);
   assertHtmlElement(currentMonthElement);
   assertHtmlElement(currentYearElement);
+  assertAnchorElement(nextMonthBtn);
+  assertAnchorElement(prevMonthBtn);
 
   const sundayStart = document
     .getElementById('days')
@@ -18,10 +22,20 @@ function drawCalendar(): void {
   });
   currentYearElement.textContent = `| ${now.getFullYear()}`;
 
+  const monthNav = new Date();
+  monthNav.setDate(1);
+  monthNav.setMonth(monthNav.getMonth() + 1);
+  const nextMonth = String(monthNav.getMonth() + 1).padStart(2, '0');
+  nextMonthBtn.href = `${monthNav.getFullYear()}-${nextMonth}`;
+
+  monthNav.setMonth(monthNav.getMonth() - 2);
+  const prevMonth = String(monthNav.getMonth() + 1).padStart(2, '0');
+  prevMonthBtn.href = `${monthNav.getFullYear()}-${prevMonth}`;
+
   const daysInMonth = new Date(
     now.getFullYear(),
     now.getMonth() + 1,
-    0
+    0,
   ).getDate();
 
   let firstDayInMonth = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
@@ -39,8 +53,8 @@ function drawCalendar(): void {
       'beforeend',
       dateCard(
         new Date(now.getFullYear(), now.getMonth(), date + 1),
-        firstDayInMonth
-      )
+        firstDayInMonth,
+      ),
     );
   });
 }
@@ -60,8 +74,8 @@ function dateCard(date: Date, firstDay: number) {
             weekday: 'long',
           })}, </span></span>
           ${dateNumber}<span class="text-xs lg:hidden">${nthNumber(
-    dateNumber
-  )}</span>
+            dateNumber,
+          )}</span>
         </p>
         <div class="card-body justify-end gap-2 lg:gap-1 p-2 text-base-300">
         </div>
