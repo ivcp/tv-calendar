@@ -3,7 +3,7 @@ function assertHtmlElement(el: unknown): asserts el is HTMLElement {
     throw new Error(
       `Expected element to be an HTMLElement, was ${
         (el && el.constructor && el.constructor.name) || el
-      }`
+      }`,
     );
 }
 function assertHtmlInputElement(el: unknown): asserts el is HTMLInputElement {
@@ -11,7 +11,7 @@ function assertHtmlInputElement(el: unknown): asserts el is HTMLInputElement {
     throw new Error(
       `Expected element to be an HTMLInputElement, was ${
         (el && el.constructor && el.constructor.name) || el
-      }`
+      }`,
     );
 }
 
@@ -20,7 +20,7 @@ function assertDialogElement(el: unknown): asserts el is HTMLDialogElement {
     throw new Error(
       `Expected element to be an HTMLDialogElement, was ${
         (el && el.constructor && el.constructor.name) || el
-      }`
+      }`,
     );
 }
 
@@ -29,7 +29,7 @@ function assertFormElement(el: unknown): asserts el is HTMLFormElement {
     throw new Error(
       `Expected element to be an HTMLFormElement, was ${
         (el && el.constructor && el.constructor.name) || el
-      }`
+      }`,
     );
 }
 
@@ -38,7 +38,16 @@ function assertButtonElement(el: unknown): asserts el is HTMLButtonElement {
     throw new Error(
       `Expected element to be an HTMLButtonElement, was ${
         (el && el.constructor && el.constructor.name) || el
-      }`
+      }`,
+    );
+}
+
+function assertAnchorElement(el: unknown): asserts el is HTMLAnchorElement {
+  if (!(el instanceof HTMLAnchorElement))
+    throw new Error(
+      `Expected element to be an HTMLAnchorElement, was ${
+        (el && el.constructor && el.constructor.name) || el
+      }`,
     );
 }
 export {
@@ -47,4 +56,5 @@ export {
   assertDialogElement,
   assertFormElement,
   assertButtonElement,
+  assertAnchorElement,
 };
