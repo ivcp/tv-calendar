@@ -20,6 +20,7 @@
     >
       <div class="flex-1 flex items-center">
         <a
+          id="prev-month-btn"
           href="/{{ month|date_modify('-1 month')|date('Y-m') }}"
           class="mr-4 btn btn-sm h-10 lg:btn-md"
           ><svg
@@ -43,6 +44,7 @@
           <span id="current-year" class="font-normal">| {{month|date('Y')}}</span>
         </h1>
         <a
+          id="next-month-btn"
           href="/{{ month|date_modify('+1 month')|date('Y-m') }}"
           class="ml-4 btn btn-sm h-10 lg:btn-md"
         >
