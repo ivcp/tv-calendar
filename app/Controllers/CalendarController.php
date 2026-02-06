@@ -21,8 +21,7 @@ class CalendarController
         private readonly RequestService $requestService,
         private readonly ResponseFormatter $responseFormatter,
         private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request, Response $response): Response
     {
@@ -39,8 +38,8 @@ class CalendarController
 
         if ($this->requestService->isXhr($request)) {
             $args = $this->requestValidatorFactory
-            ->make(ScheduleRequestValidator::class)
-            ->validate($request->getQueryParams());
+                ->make(ScheduleRequestValidator::class)
+                ->validate($request->getQueryParams());
 
             $episodes = $this->calendarService->getSchedule(
                 $month,
