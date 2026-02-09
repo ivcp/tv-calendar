@@ -9,28 +9,28 @@ msg () {
 
 source .env
 
-msg "Update Cloudflare IPs"
+#msg "Update Cloudflare IPs"
 
-source get_cloudflare_ips.sh
+#source get_cloudflare_ips.sh
 
 msg "Stopping containers"
 
-sudo docker compose --profile withcron down --remove-orphans
+docker compose down --remove-orphans
 
 
 msg "Building containers"
 
-sudo docker compose -f prod.compose.yml up -d  app nginx db cron --build
-sudo docker cp tv-calendar-app:var/www/vendor .
-sudo docker cp tv-calendar-app:var/www/public/build ./public/
-sudo docker exec tv-calendar-app bash -c './bin/doctrine orm:generate-proxies'
-sudo docker exec tv-calendar-app bash -c './bin/doctrine migrations:migrate --no-interaction'
-sudo chmod 1777 /tmp
-sudo docker cp /etc/ssl/tvshowcalendar.pem tv-calendar-nginx:etc/ssl
-sudo docker cp /etc/ssl/tvshowcalendar.key tv-calendar-nginx:etc/ssl
+docker compose -f prod.compose.yml up -d  tv_app tv_nginx tv_db tv_cron --build
+docker cp tv-calendar-app:var/www/vendor .
+docker cp tv-calendar-app:var/www/public/build ./public/
+docker exec tv-calendar-app bash -c './bin/doctrine orm:generate-proxies'
+docker exec tv-calendar-app bash -c './bin/doctrine migrations:migrate --no-interaction'
+chmod 1777 /tmp
+docker cp /etc/ssl/tvshowcalendar.pem tv-calendar-nginx:etc/ssl
+docker cp /etc/ssl/tvshowcalendar.key tv-calendar-nginx:etc/ssl
 
 msg "Removing stale images"
 
-sudo docker image prune -f
+docker image prune -f
 
 msg "Finished in $SECONDS seconds"
