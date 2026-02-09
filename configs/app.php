@@ -22,7 +22,7 @@ return [
         'entity_dir' => [APP_PATH . '/Entity'],
         'connection' => [
             'driver'   => $_ENV['DB_DRIVER'] ?? 'pdo_pgsql',
-            'host'     => $_ENV['DB_HOST'] ?? 'db',
+            'host'     => $_ENV['DB_HOST'] ?? 'tv_db',
             'port'     => $_ENV['DB_PORT'] ?? 5432,
             'dbname'   => $_ENV['DB_NAME'],
             'user'     => $_ENV['DB_USER'],

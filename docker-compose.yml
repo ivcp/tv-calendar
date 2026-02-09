@@ -31,7 +31,7 @@ services:
       - ./docker/nginx/dev.conf:/etc/nginx/conf.d/default.conf
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
 
-  db:
+  tv_db:
     container_name: tv-calendar-db
     image: postgres:17-bookworm
     volumes:
