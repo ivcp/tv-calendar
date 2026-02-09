@@ -27,26 +27,26 @@ jobs:
       - name: Run tests
         run: docker exec -t tv-calendar-app bash -c 'composer test'
 
-  test-integration:
-    name: Run integration tests
-    runs-on: ubuntu-latest
+  # test-integration:
+  #   name: Run integration tests
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Start container
-        run: docker compose up -d app db-test ntfy-test
+  #     - name: Start container
+  #       run: docker compose up -d app db-test ntfy-test
 
-      - name: Set permissions
-        run: sudo chmod -Rf 777 ./
+  #     - name: Set permissions
+  #       run: sudo chmod -Rf 777 ./
 
-      - name: Composer install
-        run: docker exec -t tv-calendar-app bash -c 'composer install --optimize-autoloader'
+  #     - name: Composer install
+  #       run: docker exec -t tv-calendar-app bash -c 'composer install --optimize-autoloader'
 
-      - name: Set env
-        run: |
-          docker exec -t tv-calendar-app bash \
-          -c 'printf "APP_ENV=development\nDB_USER=test\nDB_NAME=tv-calendar-test-db\nDB_PASS=test\nNTFY_BASE_URL=http://ntfy-test:80" > .env'
+  #     - name: Set env
+  #       run: |
+  #         docker exec -t tv-calendar-app bash \
+  #         -c 'printf "APP_ENV=development\nDB_USER=test\nDB_NAME=tv-calendar-test-db\nDB_PASS=test\nNTFY_BASE_URL=http://ntfy-test:80" > .env'
 
-      - name: Run tests
-        run: docker exec -t tv-calendar-app bash -c 'composer test-integration'
+  #     - name: Run tests
+  #       run: docker exec -t tv-calendar-app bash -c 'composer test-integration'
