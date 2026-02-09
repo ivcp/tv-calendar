@@ -25,7 +25,6 @@ docker cp tv-calendar-app:var/www/vendor .
 docker cp tv-calendar-app:var/www/public/build ./public/
 docker exec tv-calendar-app bash -c './bin/doctrine orm:generate-proxies'
 docker exec tv-calendar-app bash -c './bin/doctrine migrations:migrate --no-interaction'
-chmod 1777 /tmp
 
 msg "Removing stale images"
 
