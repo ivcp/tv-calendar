@@ -13,8 +13,6 @@ services:
       - tv-internal-network
     restart: always
     working_dir: /var/www/
-    ports:
-      - '9001'
     volumes:
       - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
       - ./docker/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
