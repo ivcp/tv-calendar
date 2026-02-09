@@ -88,6 +88,6 @@ networks:
   proxy:
     name: proxy
     external: true
-  internal-network:
+  tv-internal-network:
     name: tv-internal-network
     external: false
