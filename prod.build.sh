@@ -15,6 +15,7 @@ source .env
 
 msg "Stopping containers"
 
+docker stop tv-calendar-cron
 docker compose down --remove-orphans
 
 
