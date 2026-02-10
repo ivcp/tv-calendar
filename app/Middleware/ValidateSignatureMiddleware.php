@@ -34,11 +34,16 @@ class ValidateSignatureMiddleware implements MiddlewareInterface
         if ($expiration <= time() || !hash_equals($signature, $originalSignature)) {
             if (!hash_equals($signature, $originalSignature)) {
                 error_log(
-                    sprintf('ERROR Signature mismatch: signature=%s original=%s', $signature, $originalSignature)
+                    sprintf(
+                        'EMAIL VERIFICATION Signature mismatch: signature=%s original=%s',
+                        $signature,
+                        $originalSignature
+                    )
                 );
+                error_log(sprintf('URL ENTERED: %s', $url));
             }
             if ($expiration <= time()) {
-                error_log('ERROR Link Expired');
+                error_log('EMAIL VERIFICATION Link Expired');
             }
             $response = $this->responseFactory->createResponse();
             return $this->twig->render($response, 'auth/verify.twig', ['verified' => false]);
