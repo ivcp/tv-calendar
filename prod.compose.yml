@@ -35,7 +35,7 @@ services:
     restart: always
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.tv_nginx.rule=Host(`tv.16091988.xyz`)'
+      - 'traefik.http.routers.tv_nginx.rule=Host(`tvshowcalendar.com`) || Host(`www.tvshowcalendar.com`)'
       - 'traefik.http.routers.tv_nginx.entrypoints=websecure'
       - 'traefik.http.routers.tv_nginx.tls=true'
       - 'traefik.http.routers.tv_nginx.middlewares=cf-allowlist@file'
