@@ -18,8 +18,7 @@ class ValidateSignatureMiddleware implements MiddlewareInterface
         private readonly Config $config,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly Twig $twig
-    ) {
-    }
+    ) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -33,6 +32,14 @@ class ValidateSignatureMiddleware implements MiddlewareInterface
         $signature = hash_hmac('sha256', $url, $this->config->get('app_key'));
 
         if ($expiration <= time() || !hash_equals($signature, $originalSignature)) {
+            if (!hash_equals($signature, $originalSignature)) {
+                error_log(
+                    sprintf('ERROR Signature mismatch: signature=%s original=%s', $signature, $originalSignature)
+                );
+            }
+            if ($expiration <= time()) {
+                error_log('ERROR Link Expired');
+            }
             $response = $this->responseFactory->createResponse();
             return $this->twig->render($response, 'auth/verify.twig', ['verified' => false]);
         };
