@@ -14,9 +14,10 @@ services:
     restart: always
     working_dir: /var/www/
     volumes:
-      - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
-      - ./docker/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
-      - tv-calendar-sessions:/tmp
+      - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini:ro
+      - ./docker/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini:ro
+      - ./docker/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf:ro
+      - tv-calendar-sessions:/var/www/sessions
     deploy:
       resources:
         limits:

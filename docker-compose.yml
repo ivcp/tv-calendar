@@ -17,7 +17,7 @@ services:
     volumes:
       - .:/var/www
       - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
-      - tv-calendar-sessions:/tmp
+      - tv-calendar-sessions:/var/www/sessions
 
   nginx:
     image: nginx:1.19-alpine
