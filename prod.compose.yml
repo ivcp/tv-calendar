@@ -17,6 +17,13 @@ services:
       - ./docker/local.ini:/usr/local/etc/php/conf.d/local.ini
       - ./docker/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
       - tv-calendar-sessions:/tmp
+    deploy:
+      resources:
+        limits:
+          cpus: '0.75'
+          memory: 1G
+        reservations:
+          memory: 400M
 
   tv_nginx:
     image: nginx:1.19-alpine
@@ -63,6 +70,13 @@ services:
       POSTGRES_DB: ${DB_NAME}
     ports:
       - 5432:5432
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 768M
+        reservations:
+          memory: 256M
 
   tv_adminer:
     image: adminer
@@ -83,6 +97,13 @@ services:
       - ./docker/cron/local.ini:/usr/local/etc/php/conf.d/local.ini
     depends_on:
       - tv_db
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          memory: 128M
 
 volumes:
   tv-calendar-db-data:
