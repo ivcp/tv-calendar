@@ -42,9 +42,11 @@ services:
       - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
       #- ./docker/nginx/set-real-ips.conf:/etc/nginx/set-real-ips.conf
       #- ./docker/nginx/allow-cloudflare-only.conf:/etc/nginx/allow-cloudflare-only.conf
-    limits:
-      memory: 128M
-      cpus: '0.25'
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
 
   tv_db:
     container_name: tv-calendar-db
