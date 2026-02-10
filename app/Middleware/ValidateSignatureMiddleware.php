@@ -40,7 +40,6 @@ class ValidateSignatureMiddleware implements MiddlewareInterface
                         $originalSignature
                     )
                 );
-                error_log(sprintf('URL ENTERED: %s', $url));
             }
             if ($expiration <= time()) {
                 error_log('EMAIL VERIFICATION Link Expired');

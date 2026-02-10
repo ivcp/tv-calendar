@@ -48,9 +48,6 @@ class VerificatonEmail
         $url = $baseUrl . $this->routeParser->urlFor('verify', $routeParams, $queryParams);
         $signature = hash_hmac('sha256', $url, $this->config->get('app_key'));
 
-        error_log(sprintf('URL GENERATED: %s', $url));
-        error_log(sprintf('SIGNATURE GENERATED: %s', $signature));
-
         return $baseUrl . $this->routeParser->urlFor(
             'verify',
             $routeParams,
