@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 
 source .env
 
@@ -12,7 +13,6 @@ docker exec -t tv-calendar-db bash -c "rm backup.sql.gz"
 
 curl -T backup.sql.gz "${ORACLE_PAR}backup.sql.gz"
 
-export PATH="/usr/bin:$PATH"
 mega-put backup.sql.gz /Backups/TvShowCalendar
 
 rm backup.sql.gz
