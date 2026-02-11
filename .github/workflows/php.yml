@@ -12,35 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Echo Hello World
-        run: echo "The dummy job is running successfully!"
+      - uses: actions/checkout@v4
 
-    # steps:
-    #   - uses: actions/checkout@v4
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
 
-    #   - name: Validate composer.json and composer.lock
-    #     run: composer validate --strict
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
-    #   - name: Cache Composer packages
-    #     id: composer-cache
-    #     uses: actions/cache@v3
-    #     with:
-    #       path: vendor
-    #       key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-    #       restore-keys: |
-    #         ${{ runner.os }}-php-
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --ignore-platform-req=ext-redis
 
-    #   - name: Install dependencies
-    #     run: composer install --prefer-dist --no-progress --ignore-platform-req=ext-redis
+      - name: Run linter
+        run: composer lint
 
-    #   - name: Run linter
-    #     run: composer lint
+      - name: Run cs fixer
+        run: composer phpcbf
 
-    #   - name: Run cs fixer
-    #     run: composer phpcbf
-
-    #   - name: Run phpcs
-    #     run: composer phpcs
+      - name: Run phpcs
+        run: composer phpcs
 
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
