@@ -91,10 +91,10 @@ class UpdateService
         $connection = $this->entityManager->getConnection();
 
         try {
-            $connection->executeStatement('VACUUM ANALYZE shows');
+            $connection->executeStatement('ANALYZE shows');
         } catch (\Exception $e) {
             $errors += 1;
-            error_log('Failed to vacuum analyze shows table: ' . $e->getMessage());
+            error_log('Failed to analyze shows table: ' . $e->getMessage());
         }
 
         try {

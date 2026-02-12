@@ -14,6 +14,7 @@ docker exec -t tv-calendar-db bash -c "rm backup.sql.gz"
 curl -T backup.sql.gz "${ORACLE_PAR}backup.sql.gz"
 
 mega-put backup.sql.gz /Backups/TvShowCalendar
+mega-quit
 
 rm backup.sql.gz
 
