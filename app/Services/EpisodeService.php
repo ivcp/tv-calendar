@@ -22,8 +22,7 @@ class EpisodeService
     public function __construct(
         private readonly EntityManager $entityManager,
         private readonly Config $config
-    ) {
-    }
+    ) {}
 
     public function getEpisodesForMonth(
         DateTime $month,
@@ -42,7 +41,9 @@ class EpisodeService
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id';
         $sql .= $user && $type === 'user' ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
-        $sql .= ' WHERE (e.airstamp AT TIME ZONE ? BETWEEN ? AND ?)';
+        $sql .= ' WHERE e.airstamp BETWEEN 
+                  (?::timestamp AT TIME ZONE ?) AND 
+                  (?::timestamp AT TIME ZONE ?)';
         switch ($type) {
             case 'popular':
                 $sql .= ' AND s.weight >= ?';
@@ -54,12 +55,14 @@ class EpisodeService
         $sql .= ' ORDER BY e.show_id ASC, e.id ASC';
 
         $parameters = [
-            $timeZone,
             $month->format('Y-m-1'),
-            $month->format("Y-m-t 23:59")
+            $timeZone,
+            $month->format("Y-m-t 23:59"),
+            $timeZone
         ];
 
         $types = [
+            ParameterType::STRING,
             ParameterType::STRING,
             ParameterType::STRING,
             ParameterType::STRING,
