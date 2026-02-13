@@ -1,4 +1,18 @@
-{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{% extends 'layout.twig' %}
+{% block head_hints %}
+    <link 
+      rel="preconnect" 
+      media="(min-width:1025px)" 
+      href="{{show.imageOriginal | default(asset('build/images/no-img-lg.svg'))}}"
+    >
+    <link rel="preload" 
+          as="image" 
+          href="{{show.imageOriginal | default(asset('build/images/no-img-lg.svg'))}}"
+          media="(min-width:1025px)" 
+          fetchpriority="high"
+          >
+{% endblock %}
+{% block content %} {% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags('addRemoveShow') }}
 {{ encore_entry_script_tags('show') }}
@@ -134,6 +148,7 @@
           onload="this.classList.add('bg-base-200')"
           class="block w-max object-cover mx-auto rounded-lg"
           decoding="async"
+          fetchpriority="high"
         />
       </picture>
       <div
