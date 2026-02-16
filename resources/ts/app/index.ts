@@ -32,6 +32,15 @@ document.addEventListener('DOMContentLoaded', () => {
     themeToggle.checked = theme;
   }
 
+  themeToggle.addEventListener('change', () => {
+    const isLight = themeToggle.checked;
+    setTheme(isLight);
+    document.documentElement.setAttribute(
+      'data-theme',
+      isLight ? 'fantasy' : 'dim',
+    );
+  });
+
   const hasLocalShowlist = window.localStorage.getItem('showlist');
   if (!hasLocalShowlist) {
     setLocalShowList([]);
@@ -97,10 +106,5 @@ document.addEventListener('DOMContentLoaded', () => {
   searchInput.addEventListener('input', async ({ target }) => {
     const input = target as HTMLInputElement;
     debouncedSearch(input.value);
-  });
-
-  themeToggle.addEventListener('change', () => {
-    const isLight = themeToggle.checked;
-    setTheme(isLight);
   });
 });
