@@ -5,7 +5,7 @@ import { getCurrentYearMonth } from './helpers';
 
 function populateDates(episodes: Episode[]) {
   const airingTodayContainer = document.getElementById(
-    'airing-today-container'
+    'airing-today-container',
   );
   assertHtmlElement(airingTodayContainer);
   document.querySelectorAll('.card-body').forEach(e => e.replaceChildren());
@@ -93,9 +93,9 @@ function insertEpisode(episode: Episode, el: Element) {
           ${
             episode.showName
           }<span id="season-number" class="text-nowrap text-sm">S${
-      episode.seasonNumber
-    } E${episode.episodeNumber ?? 'sp'}</span>
-          </button>`
+            episode.seasonNumber
+          } E${episode.episodeNumber ?? 'sp'}</span>
+          </button>`,
   );
   const epBtn = el.querySelector(`#ep-${episode.id}`);
   epBtn?.addEventListener('click', () => openEpisodeModal(episode));
