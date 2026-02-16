@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full">
   <head>
+    <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('theme-light');
+        if (savedTheme !== null) {
+          const isLight = JSON.parse(savedTheme);
+            document.documentElement.setAttribute('data-theme', isLight ? 'fantasy' : 'dim');
+          }
+        } catch {
+          console.warn("Local storage access denied; defaulting to dark theme.");
+        }
+    })();
+  </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta id="csrfName" name="{{ csrf.keys.name }}" content="{{ csrf.name }}" />
@@ -43,7 +56,7 @@
       href="{{ asset('build/images/favicon.ico') }}"
       type="image/x-icon"
     />
-    {% block stylesheets %}
+       {% block stylesheets %}
     {{
       encore_entry_link_tags('app')
     }}
