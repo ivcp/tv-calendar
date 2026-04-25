@@ -37,4 +37,10 @@ export interface Pagination {
   sort?: string;
 }
 
+export interface Actor {
+  person: {
+    name: string;
+  };
+}
+
 export type notificationType = 'alert-info' | 'alert-error' | 'alert-success';
