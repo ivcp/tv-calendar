@@ -1,4 +1,4 @@
-import { Result } from '../types';
+import { Actor, Result } from '../types';
 
 async function addShow(showId: string): Promise<Result> {
   try {
@@ -149,6 +149,20 @@ async function sendTestDiscord(): Promise<Result> {
   }
 }
 
+async function getStarring(url: string): Promise<Result> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return { error: true, messages: ['something went wrong'] };
+    }
+    const json = await response.json();
+    const starring = json.slice(0, 3).map((actor: Actor) => actor.person.name);
+    return { error: false, messages: starring };
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
@@ -227,4 +241,5 @@ export {
   setNotificationEnabled,
   sendTestNtfy,
   sendTestDiscord,
+  getStarring,
 };
