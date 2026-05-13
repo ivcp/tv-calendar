@@ -71,5 +71,6 @@ return function (App $app) {
     $app->get('/about', [AboutController::class, 'about']);
     $app->get('/privacy-policy', [AboutController::class, 'privacy']);
     $app->get('/terms', [AboutController::class, 'terms']);
+    $app->get('/contact', [AboutController::class, 'contact']);
     $app->get('/get-notified', [AboutController::class, 'notifications']);
 };
