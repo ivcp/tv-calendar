@@ -477,8 +477,9 @@
     >
       <nav class="grid grid-flow-col gap-4 lg:row-start-1">
         <a href="/about" class="link link-hover">About</a>
-        <a href="/privacy-policy" class="link link-hover">Privacy Policy</a>
-        <a href="/terms" class="link link-hover">Terms of Use</a>
+        <a href="/contact" class="link link-hover">Contact</a>
+        <a href="/privacy-policy" class="link link-hover">Privacy</a>
+        <a href="/terms" class="link link-hover">Terms</a>
         <a href="/get-notified" class="link link-hover">Get Notified</a>
       </nav>
       <aside class="lg:row-start-1 lg:flex lg:gap-6 lg:place-self-end">
@@ -515,5 +516,27 @@
         >
       </div>
     </noscript>
+    <div 
+      role="alert" 
+      id="cookie-banner" 
+      class="alert fixed bottom-2 lg:bottom-10 left-0 right-0 z-50 p-4 max-w-2xl mx-auto shadow-lg hidden"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        class="stroke-info h-6 w-6 shrink-0">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span>We use cookies to serve ads. See our <a href="/privacy-policy" class="link">Privacy Policy</a>.</span>
+      <div>
+        <button id="reject-cookies" class="btn btn-sm">Reject</button>
+        <button id="accept-cookies" class="btn btn-sm btn-primary">Accept</button>
+      </div>
+    </div>
   </body>
 </html>
