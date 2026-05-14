@@ -43,4 +43,6 @@ export interface Actor {
   };
 }
 
+export type ConsentValue = 'accepted' | 'rejected';
+
 export type notificationType = 'alert-info' | 'alert-error' | 'alert-success';

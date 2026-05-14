@@ -1,11 +1,14 @@
 import '../../css/app.css';
 import {
+  assertButtonElement,
   assertHtmlElement,
   assertHtmlInputElement,
 } from '../utils/assertElement';
 import {
+  getCookieConsent,
   getLocalShowlist,
   getSavedTheme,
+  setCookieConsent,
   setLocalShowList,
   setMakeAccountSeen,
   setTheme,
@@ -26,6 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
   assertHtmlElement(searchResults);
   const themeToggle = document.getElementById('theme-toggle');
   assertHtmlInputElement(themeToggle);
+  const cookieBanner = document.getElementById('cookie-banner');
+  assertHtmlElement(cookieBanner);
+  const rejectCookiesBtn = document.getElementById('reject-cookies');
+  assertButtonElement(rejectCookiesBtn);
+  const acceptCookiesBtn = document.getElementById('accept-cookies');
+  assertButtonElement(acceptCookiesBtn);
 
   const theme = getSavedTheme();
   if (theme !== null) {
@@ -39,6 +48,31 @@ document.addEventListener('DOMContentLoaded', () => {
       'data-theme',
       isLight ? 'fantasy' : 'dim',
     );
+  });
+
+  const cookieConsent = getCookieConsent();
+
+  if (cookieConsent === null) {
+    cookieBanner.classList.remove('hidden');
+  } else if (cookieConsent === 'accepted') {
+    //TODO: add loadAdSense()
+    //console.log('lading adsense');
+  } else {
+    //TODO: add loadAdsenseNonPersonalized()
+    //console.log('lading non-personalized adsense');
+  }
+
+  rejectCookiesBtn.addEventListener('click', () => {
+    setCookieConsent('rejected');
+    cookieBanner.classList.add('hidden');
+    //TODO: add loadAdsenseNonPersonalized()
+    //console.log('lading non-personalized adsense');
+  });
+  acceptCookiesBtn.addEventListener('click', () => {
+    setCookieConsent('accepted');
+    cookieBanner.classList.add('hidden');
+    //TODO: add loadAdSense()
+    //console.log('lading adsense');
   });
 
   const hasLocalShowlist = window.localStorage.getItem('showlist');
