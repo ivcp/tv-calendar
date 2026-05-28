@@ -27,7 +27,7 @@ return function (App $app) {
 
     $app->get('/search', [ShowController::class, 'search']);
 
-    $app->get('/tv-shows-premiering-this-week', [ShowController::class, 'premieringThisWeek']);
+    // $app->get('/tv-shows-premiering-this-week', [ShowController::class, 'premieringThisWeek']);
 
 
     $app->get('/showlist', [ShowController::class, 'index']);
