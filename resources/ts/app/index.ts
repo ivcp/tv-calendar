@@ -5,10 +5,8 @@ import {
   assertHtmlInputElement,
 } from '../utils/assertElement';
 import {
-  getCookieConsent,
   getLocalShowlist,
   getSavedTheme,
-  setCookieConsent,
   setLocalShowList,
   setMakeAccountSeen,
   setTheme,
@@ -50,30 +48,28 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
-  const cookieConsent = getCookieConsent();
+  // const cookieConsent = getCookieConsent();
 
-  if (cookieConsent === null) {
-    cookieBanner.classList.remove('hidden');
-  } else if (cookieConsent === 'accepted') {
-    //TODO: add loadAdSense()
-    //console.log('lading adsense');
-  } else {
-    //TODO: add loadAdsenseNonPersonalized()
-    //console.log('lading non-personalized adsense');
-  }
+  // if (cookieConsent === null) {
+  //   cookieBanner.classList.remove('hidden');
+  // } else if (cookieConsent === 'accepted') {
+  //   //TODO: add loadAdSense()
+  // } else {
+  //   //TODO: add loadAdsenseNonPersonalized()
+  // }
 
-  rejectCookiesBtn.addEventListener('click', () => {
-    setCookieConsent('rejected');
-    cookieBanner.classList.add('hidden');
-    //TODO: add loadAdsenseNonPersonalized()
-    //console.log('lading non-personalized adsense');
-  });
-  acceptCookiesBtn.addEventListener('click', () => {
-    setCookieConsent('accepted');
-    cookieBanner.classList.add('hidden');
-    //TODO: add loadAdSense()
-    //console.log('lading adsense');
-  });
+  // rejectCookiesBtn.addEventListener('click', () => {
+  //   setCookieConsent('rejected');
+  //   cookieBanner.classList.add('hidden');
+  //   //TODO: add loadAdsenseNonPersonalized()
+  //   //console.log('loading non-personalized adsense');
+  // });
+  // acceptCookiesBtn.addEventListener('click', () => {
+  //   setCookieConsent('accepted');
+  //   cookieBanner.classList.add('hidden');
+  //   //TODO: add loadAdSense()
+  //   //console.log('lading adsense');
+  // });
 
   const hasLocalShowlist = window.localStorage.getItem('showlist');
   if (!hasLocalShowlist) {
