@@ -420,4 +420,24 @@ class ShowService
 
         return (int) $rows;
     }
+
+    public function slugify(string $name): string
+    {
+        $correctedSlug = mb_strtolower($name, 'UTF-8');
+
+        if (class_exists('Transliterator')) {
+            // Any-Latin converts Cyrillic to Latin; Latin-ASCII strips accents (e.g., č -> c)
+            $transliterator = \Transliterator::create('Any-Latin; Latin-ASCII');
+            if ($transliterator) {
+                $correctedSlug = $transliterator->transliterate($correctedSlug);
+            }
+        } else if (extension_loaded('iconv')) {
+            $correctedSlug = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $correctedSlug);
+        }
+
+        $correctedSlug = preg_replace('/[^a-z0-9]+/i', '-', $correctedSlug);
+        $correctedSlug = trim($correctedSlug, '-');
+
+        return preg_replace('/-+/', '-', $correctedSlug);
+    }
 }
