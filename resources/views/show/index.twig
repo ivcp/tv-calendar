@@ -370,8 +370,8 @@
                         {{ ep.episodeName }}
                       </button>
                     </td>
-                    <td class="">
-                      {{ ep.airstamp | date('M j, Y') }}
+                    <td class="ep-airstamp">
+                      {{ ep.airstamp ? ep.airstamp | date('M j, Y') : '' }}
                     </td>
                   </tr>
                   {% endfor %} {% for ep in specials %}
@@ -387,8 +387,8 @@
                         {{ ep.episodeName }}
                       </button>
                     </td>
-                    <td class="">
-                      {{ ep.airstamp | date('M j, Y') }}
+                    <td class="ep-airstamp">
+                       {{ ep.airstamp ? ep.airstamp | date('M j, Y') : '' }}
                     </td>
                   </tr>
                   {% endfor %}

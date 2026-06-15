@@ -11,6 +11,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   );
   const starringSpan = document.getElementById('starring');
   assertHtmlElement(starringSpan);
+  const airstampEl = document.getElementsByClassName('ep-airstamp');
+
+  for (const el of airstampEl) {
+    if (el.textContent && el.textContent.trim() !== '') {
+      const date = new Date(el.textContent.trim());
+      const format = date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+
+      el.textContent = format;
+    }
+  }
 
   episodeBtns.forEach(btn =>
     btn.addEventListener('click', function () {
