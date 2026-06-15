@@ -370,7 +370,7 @@
                         {{ ep.episodeName }}
                       </button>
                     </td>
-                    <td class="ep-airstamp">
+                    <td class="ep-airstamp" data-airstamp-ep="{{ep.airstamp}}">
                       {{ ep.airstamp ? ep.airstamp | date('M j, Y') : '' }}
                     </td>
                   </tr>
@@ -387,7 +387,7 @@
                         {{ ep.episodeName }}
                       </button>
                     </td>
-                    <td class="ep-airstamp">
+                    <td class="ep-airstamp" data-airstamp-ep="{{ep.airstamp}}">
                        {{ ep.airstamp ? ep.airstamp | date('M j, Y') : '' }}
                     </td>
                   </tr>
