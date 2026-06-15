@@ -14,14 +14,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const airstampEl = document.getElementsByClassName('ep-airstamp');
 
   for (const el of airstampEl) {
-    if (el.textContent && el.textContent.trim() !== '') {
-      const date = new Date(el.textContent.trim());
+    const element = el as HTMLElement;
+    if (element.textContent && element.dataset.airstampEp) {
+      const date = new Date(element.dataset.airstampEp);
       const format = date.toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric',
       });
-
       el.textContent = format;
     }
   }
