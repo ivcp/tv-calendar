@@ -8,6 +8,7 @@ use App\Controllers\CalendarController;
 use App\Controllers\PasswordResetController;
 use App\Controllers\ProfileController;
 use App\Controllers\ShowController;
+use App\Controllers\SitemapController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
 use App\Middleware\ValidateSignatureMiddleware;
@@ -23,9 +24,10 @@ return function (App $app) {
 
     $app->get('/discover', [ShowController::class, 'discover']);
 
-    $app->get('/shows/{showId:[0-9]+}', [ShowController::class, 'get']);
+    $app->get('/shows/{showId:[0-9]+}[-{slug}]', [ShowController::class, 'get']);
 
     $app->get('/search', [ShowController::class, 'search']);
+    $app->get('/sitemap.xml', [SitemapController::class, 'generate']);
 
     // $app->get('/tv-shows-premiering-this-week', [ShowController::class, 'premieringThisWeek']);
 

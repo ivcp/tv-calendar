@@ -13,6 +13,7 @@ export interface Show {
   id: number;
   name: string;
   imageMedium: string;
+  slug: string;
 }
 
 export interface Episode {

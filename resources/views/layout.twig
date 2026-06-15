@@ -22,17 +22,23 @@
       name="{{ csrf.keys.value }}"
       content="{{ csrf.value }}"
     />
+    {% if page_meta_desc is defined %}
     <meta
       name="description"
-      content="{{
-        app_name
-      }} helps you keep track of your favorite TV shows and streaming content with an easy-to-use calendar interface"
+      content="{{ page_meta_desc }}" 
     />
+    {% endif %}
+    
+    {% if page_canonical is defined %}
+    <link
+      rel="canonical"
+      href="{{ page_canonical }}" 
+    />
+    {% endif %}
     <meta
       name="keywords"
-      content="TV shows, TV series, streaming calendar, episode tracker, TV schedule, TVShowCalendar"
+      content="tv show calendar, episode tracker, air dates, tv schedule, track tv series, streaming calendar"
     />
-    <meta name="google-adsense-account" content="ca-pub-1895174123688814">
     <link
       rel="preload"
       href="{{ asset('build/fonts/rubik-v28-latin-regular.woff2') }}"
@@ -66,7 +72,7 @@
       encore_entry_script_tags('app')
     }}
     {% endblock %}
-    <title>{{ app_name }}</title>
+    <title>{% if page_title is defined %} {{ page_title }} {% endif %} TV Show Calendar</title>
     <link rel="preconnect" href="https://challenges.cloudflare.com" />
     <script
       src="https://challenges.cloudflare.com/turnstile/v0/api.js"

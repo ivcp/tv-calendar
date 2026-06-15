@@ -7,7 +7,7 @@ const renderShowList = (
   showGrid: HTMLElement,
   paginationElement: HTMLElement | null,
   nextPageBtn: HTMLElement | null,
-  event: Event
+  event: Event,
 ) => {
   showCountElement.textContent = `| ${body.pagination?.showCount}`;
 
@@ -33,7 +33,7 @@ const renderShowList = (
 
 const noShowsHtml = (
   isGenre: boolean,
-  body: { pagination: Pagination; shows: Show[] }
+  body: { pagination: Pagination; shows: Show[] },
 ) => `
            <p class="text-center lg:col-start-3 text-lg mt-12 uppercase">
             ${
@@ -64,11 +64,11 @@ const noShowsHtml = (
           `;
 
 const showCardHtml = (
-  show: Show
+  show: Show,
 ): string => `<article class="flex flex-col items-center lg:h-80 group">
               <a 
               class="card bg-base-100 image-full w-max rounded-lg before:hidden"  
-              href="/shows/${show.id}"
+              href="/shows/${show.id}-${show.slug}"
               >
                 <figure class="w-[210px] h-[295px] skeleton rounded-lg">
                   <img

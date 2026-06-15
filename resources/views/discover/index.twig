@@ -1,4 +1,10 @@
-{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{% extends 'layout.twig' %} 
+{% set page_title = 'Discover TV Shows & Series |' %} 
+
+{% set page_meta_desc = 'get notified desc' %}
+{% set page_canonical = app_url ~ current_url() %}
+
+{% block content %} {% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags("addRemoveShow") }}
 {% endblock %}
@@ -9,6 +15,7 @@
   {% endif %}
 >
   <div class="grow flex flex-col gap-6">
+   <h1 class="sr-only">Discover TV Shows</h1>
     <div
       class="navbar justify-around gap-4 lg:justify-center lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
     >

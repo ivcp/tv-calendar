@@ -64,7 +64,8 @@ class ShowController
         $shows = array_map(fn($show) => new ShowCardData(
             id: $show->getId(),
             name: $show->getName(),
-            imageMedium: $show->getImageMedium()
+            imageMedium: $show->getImageMedium(),
+            slug: $this->showService->slugify($show->getName())
         ), $showList->getShows());
 
         if ($this->requestService->isXhr($request) && !$user) {
@@ -106,6 +107,7 @@ class ShowController
             ->validate($args);
 
         $showId = (int) $params['showId'];
+        $slug = $params['slug'];
 
         try {
             $show = $this->showService->getById($showId);
@@ -115,6 +117,15 @@ class ShowController
         if (! $show) {
             throw new NotFoundException();
         }
+
+        $correctedSlug = $this->showService->slugify($show->getName());
+
+        if ($slug !== $correctedSlug) {
+            return $response
+                ->withHeader('Location', "/shows/{$show->getId()}-{$correctedSlug}")
+                ->withStatus(301);
+        }
+
 
         $user = $request->getAttribute('user');
         $userShows = [];
@@ -177,7 +188,8 @@ class ShowController
         $shows = array_map(fn($show) => new ShowCardData(
             id: $show->getId(),
             name: $show->getName(),
-            imageMedium: $show->getImageMedium()
+            imageMedium: $show->getImageMedium(),
+            slug: $this->showService->slugify($show->getName())
         ), $discover->getShows());
 
         return $this->twig->render(

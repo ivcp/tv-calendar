@@ -1,4 +1,10 @@
-{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{% extends 'layout.twig' %}
+
+{% set page_title = 'My Shows |' %} 
+{% set page_meta_desc = 'View your saved list of TV shows.' %}
+{% set page_canonical = app_url ~ current_url() %}
+
+{% block content %} {% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags("showlist") }}
 {% endblock %}
@@ -14,10 +20,11 @@
   %}
 >
   <div class="grow flex flex-col gap-6">
+   <h1 class="sr-only">My Shows</h1>
     <div
       class="navbar flex-col lg:flex-row justify-around gap-4 lg:justify-between lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
     >
-      <h1 class="text-xl font-bold uppercase">
+      <div class="text-xl font-bold uppercase">
         Show Count&nbsp;
         <span class="font-normal" data-show-count="{{ pagination.showCount }}"
           >| {{ pagination.showCount }}</span
@@ -27,7 +34,7 @@
           class="font-normal {{ pagination.genre is same as('All') or pagination.genre is same as(null) ? 'hidden' }}"
           >&nbsp;({{ pagination.genre }})</span
         >
-      </h1>
+      </div>
       <div class="flex flex-col lg:flex-row gap-4">
         {% include 'components/sort.twig' with {'sort':
         enum('App\\Enum\\ShowListSort')} %} {% if user %}{% include

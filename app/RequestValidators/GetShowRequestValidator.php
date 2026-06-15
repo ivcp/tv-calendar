@@ -25,6 +25,9 @@ class GetShowRequestValidator implements RequestValidatorInterface
             'min' => [
                 ['showId', 1]
             ],
+            'slug' => [
+                ['slug']
+            ],
         ]);
 
         if (! $v->validate()) {

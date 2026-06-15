@@ -31,7 +31,8 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql 
 RUN docker-php-ext-configure gd --with-jpeg --with-webp
-RUN docker-php-ext-install pdo pdo_pgsql pgsql gd opcache
+RUN docker-php-ext-configure intl
+RUN docker-php-ext-install pdo pdo_pgsql pgsql gd opcache intl
 
 
 RUN groupadd --force -g $GID $GROUP
