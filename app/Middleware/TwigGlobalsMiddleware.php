@@ -16,14 +16,18 @@ class TwigGlobalsMiddleware implements MiddlewareInterface
     public function __construct(
         private readonly Twig $twig,
         private readonly Config $config
-    ) {
-    }
+    ) {}
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
 
         $this->twig->getEnvironment()->addGlobal(
             'app_name',
             $this->config->get('app_name')
+        );
+
+        $this->twig->getEnvironment()->addGlobal(
+            'app_url',
+            $this->config->get('app_url')
         );
 
         $this->twig->getEnvironment()->addGlobal(

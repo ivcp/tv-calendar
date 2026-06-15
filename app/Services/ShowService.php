@@ -440,4 +440,18 @@ class ShowService
 
         return preg_replace('/-+/', '-', $correctedSlug);
     }
+
+
+    public function getSitemapShows(): array
+    {
+
+        return $this->entityManager->getRepository(Show::class)
+            ->createQueryBuilder('c')
+            ->select('c.id', 'c.name', 'c.updatedAt')
+            ->addOrderBy('c.weight', 'DESC')
+            ->addOrderBy('c.updatedAt', 'DESC')
+            ->setMaxResults(500)
+            ->getQuery()
+            ->getResult();
+    }
 }

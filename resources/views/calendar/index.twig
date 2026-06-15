@@ -1,4 +1,11 @@
-{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{% extends 'layout.twig' %} 
+
+{% set page_title = 'TV Schedule (' ~ month|date('F') ~ ' ' ~ month|date('Y') ~ ') |' %} 
+
+{% set page_meta_desc = 'View the TV show schedule and episode release dates for ' ~ month|date('F') ~ ' ' ~ month|date('Y') ~ '.' %}
+{% set page_canonical = app_url ~ current_url() %}
+
+{% block content %} {% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags("calendar") }}
 {% endblock %}
@@ -15,6 +22,7 @@
 >
   {% include 'components/episode-modal.twig' %}
   <div class="grow flex flex-col gap-12 lg:gap-0 mb-8">
+    <h1 class="sr-only">Tv Show Calendar for {{ month|date('F') }} {{month|date('Y')}}</h1>
     <div
       class="navbar flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
     >
@@ -39,10 +47,10 @@
           </svg>
           <span class="sr-only">previous month</span>
         </a>
-        <h1 class="text-xl font-bold uppercase">
+        <div class="text-xl font-bold uppercase">
           <span id="current-month">{{ month|date('F') }}</span>
           <span id="current-year" class="font-normal">| {{month|date('Y')}}</span>
-        </h1>
+        </div>
         <a
           id="next-month-btn"
           href="/{{ month|date_modify('+1 month')|date('Y-m') }}"

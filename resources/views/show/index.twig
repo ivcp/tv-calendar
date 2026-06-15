@@ -1,4 +1,10 @@
 {% extends 'layout.twig' %}
+
+{% set page_title = show.name ~ ' |' %} 
+
+{% set page_meta_desc = 'See info and episodes for ' ~ show.name ~ '. Add this show to your list to track seasons and find streaming platforms.' %}
+{% set page_canonical = app_url ~ current_url() %}
+
 {% block head_hints %}
     <link 
       rel="preconnect" 
