@@ -46,6 +46,13 @@ class SitemapController
         $xml .= '<priority>0.8</priority>';
         $xml .= '</url>';
 
+        // Notify Page
+        $xml .= '<url>';
+        $xml .= '<loc>' . $baseUrl . '/get-notified</loc>';
+        $xml .= '<changefreq>daily</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+
         // 6. Loop through the database results to append the 500 hybrid show URLs
         foreach ($shows as $show) {
             // Use the Cyrillic-safe slug utility function built previously
