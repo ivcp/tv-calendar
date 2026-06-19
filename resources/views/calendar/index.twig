@@ -1,9 +1,11 @@
 {% extends 'layout.twig' %} 
 
-{% set page_title = 'TV Schedule (' ~ month|date('F') ~ ' ' ~ month|date('Y') ~ ') |' %} 
+{% set page_title = current_url() == '/' ? 'TV Schedule for This Month |' : 'TV Schedule (' ~ month|date('F') ~ ' ' ~ month|date('Y') ~ ') |' %} 
 
-{% set page_meta_desc = 'View the monthly TV show schedule and episode release dates for ' ~ month|date('F') ~ ' ' ~ month|date('Y') ~ ' on our easy-to-use calendar interface.' %}
+{% set page_meta_desc = current_url() == '/' ? 'View the TV show schedule and episode release dates for the current month on our easy-to-use calendar interface.' : 'View the monthly TV show schedule and episode release dates for ' ~ month|date('F') ~ ' ' ~ month|date('Y') ~ ' on our easy-to-use calendar interface.' %}
 {% set page_canonical = app_url ~ current_url() %}
+
+{% set page_h1 = current_url() == '/' ? 'Tv Show Calendar for the current month' : 'Tv Show Calendar for ' ~  month|date('F') ~ ' ' ~ month|date('Y') ~'' %}
 
 {% block content %} {% block javascripts %}
 {{ parent() }}
@@ -22,7 +24,7 @@
 >
   {% include 'components/episode-modal.twig' %}
   <div class="grow flex flex-col gap-12 lg:gap-0 mb-8">
-    <h1 class="sr-only">Tv Show Calendar for {{ month|date('F') }} {{month|date('Y')}}</h1>
+    <h1 class="sr-only">{{page_h1}}</h1>
     <div
       class="navbar flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
     >
