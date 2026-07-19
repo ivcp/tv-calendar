@@ -21,8 +21,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.75'
-          memory: 1G
+          cpus: '1'
+          memory: 2G
         reservations:
           memory: 400M
 
@@ -53,8 +53,8 @@ services:
     deploy:
       resources:
         limits:
-          memory: 128M
-          cpus: '0.25'
+          memory: 256M
+          cpus: '0.5'
 
   tv_db:
     container_name: tv-calendar-db
@@ -74,8 +74,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.50'
-          memory: 768M
+          cpus: '1'
+          memory: 1G
         reservations:
           memory: 256M
 
