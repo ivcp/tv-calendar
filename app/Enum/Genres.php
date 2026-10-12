@@ -8,7 +8,7 @@ enum Genres: string
 {
     case Default = 'All';
     case Action = 'Action';
-    case Adult = 'Adult';
+        // case Adult = 'Adult';
     case Adventure = 'Adventure';
     case Anime = 'Anime';
     case Crime = 'Crime';
