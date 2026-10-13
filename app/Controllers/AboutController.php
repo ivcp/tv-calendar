@@ -38,4 +38,8 @@ class AboutController
     {
         return $this->twig->render($response, 'about/notifications.twig');
     }
+    public function vpnAffiliatePage(Request $request, Response $response): Response
+    {
+        return $this->twig->render($response, 'about/watch-while-traveling.twig');
+    }
 }
