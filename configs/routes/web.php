@@ -77,4 +77,5 @@ return function (App $app) {
     $app->get('/terms', [AboutController::class, 'terms']);
     $app->get('/contact', [AboutController::class, 'contact']);
     $app->get('/get-notified', [AboutController::class, 'notifications']);
+    $app->get('/watch-while-traveling', [AboutController::class, 'vpnAffiliatePage']);
 };
