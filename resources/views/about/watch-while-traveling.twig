@@ -17,8 +17,20 @@
 
   <div class="max-w-3xl text-lg space-y-8">
 
+    <figure class="space-y-2 lg:hidden">
+      <img
+      src="{{ asset('build/images/streaming-placeholder.jpg') }}"
+        alt="streaming platforms"
+        loading="lazy"
+        class="w-full h-auto rounded-lg"
+      />
+      <figcaption class="text-sm text-center opacity-70">
+        Your watchlist goes wherever your phone does.
+      </figcaption>
+    </figure>
+
    
-    <p class="text-sm rounded-lg p-4 text-base-content/70">
+    <p class="text-xs rounded-lg p-4 text-base-content/70">
       <strong>Advertisement.</strong> This page contains an affiliate link to
       NordVPN. If you sign up through it, {{ app_name }} may earn a commission
       at no extra cost to you.
@@ -48,8 +60,7 @@
         <p class="text-xs text-base-content/70">(Advertisement, opens NordVPN's website)</p>
     </div>
 
-   
-    <figure class="space-y-2">
+    <figure class="space-y-2 hidden lg:block">
       <img
       src="{{ asset('build/images/streaming-placeholder.jpg') }}"
         alt="streaming platforms"
@@ -60,7 +71,7 @@
         Your watchlist goes wherever your phone does.
       </figcaption>
     </figure>
-
+   
     <div class="space-y-4">
       <h2 class="text-base uppercase font-bold">What a VPN does</h2>
       <p>

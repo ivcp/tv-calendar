@@ -8,7 +8,7 @@ export function openEpisodeModal(episode: Episode) {
 
   const titleElement = modalElement.querySelector('#episode-modal-title');
   const showTitleElement = modalElement.querySelector(
-    '#episode-modal-show-name'
+    '#episode-modal-show-name',
   );
   const summaryElement = modalElement.querySelector('#episode-modal-summary');
   const imgElement = modalElement.querySelector('#episode-modal-img');
@@ -16,8 +16,9 @@ export function openEpisodeModal(episode: Episode) {
   const episodeElement = modalElement.querySelector('#episode-modal-number');
   const networkElement = modalElement.querySelector('#episode-modal-network');
   const webChannelElement = modalElement.querySelector(
-    '#episode-modal-web-channel'
+    '#episode-modal-web-channel',
   );
+  const vpnElement = modalElement.querySelector('#episode-modal-vpn');
 
   if (
     !titleElement ||
@@ -27,7 +28,8 @@ export function openEpisodeModal(episode: Episode) {
     !seasonElement ||
     !episodeElement ||
     !networkElement ||
-    !webChannelElement
+    !webChannelElement ||
+    !vpnElement
   ) {
     throw new Error(`Expected element not to be null`);
   }
@@ -50,6 +52,7 @@ export function openEpisodeModal(episode: Episode) {
   if (episode.episodeSummary) {
     summaryElement.textContent = strip(episode.episodeSummary);
   }
+  vpnElement.setAttribute('href', '/watch-while-traveling?from=ep-modal');
 
   if (episode.image) {
     imgElement.setAttribute('src', episode.image);
