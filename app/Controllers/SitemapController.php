@@ -42,14 +42,21 @@ class SitemapController
         // About Page
         $xml .= '<url>';
         $xml .= '<loc>' . $baseUrl . '/about</loc>';
-        $xml .= '<changefreq>daily</changefreq>';
+        $xml .= '<changefreq>yearly</changefreq>';
         $xml .= '<priority>0.8</priority>';
         $xml .= '</url>';
 
         // Notify Page
         $xml .= '<url>';
         $xml .= '<loc>' . $baseUrl . '/get-notified</loc>';
-        $xml .= '<changefreq>daily</changefreq>';
+        $xml .= '<changefreq>yearly</changefreq>';
+        $xml .= '<priority>0.8</priority>';
+        $xml .= '</url>';
+
+        // vpn Page
+        $xml .= '<url>';
+        $xml .= '<loc>' . $baseUrl . '/watch-while-traveling</loc>';
+        $xml .= '<changefreq>yearly</changefreq>';
         $xml .= '<priority>0.8</priority>';
         $xml .= '</url>';
 
