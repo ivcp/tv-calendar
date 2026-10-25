@@ -107,7 +107,7 @@ class ShowController
             ->validate($args);
 
         $showId = (int) $params['showId'];
-        $slug = $params['slug'];
+        $slug = $params['slug'] ?? null;
 
         try {
             $show = $this->showService->getById($showId);
