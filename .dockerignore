@@ -2,4 +2,10 @@ storage
 node_modules
 vendor
 tests
-
+.env
+.env.*
+.git
+_screenshots
+backup.sql.gz
+phpunit.xml
+docker-compose.yml

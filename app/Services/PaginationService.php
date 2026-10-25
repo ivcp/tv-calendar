@@ -13,7 +13,6 @@ use BackedEnum;
 
 class PaginationService
 {
-    private int $start = 0;
     private int $length = 20;
     private int $page = 1;
     private int $totalPages = 1;
@@ -35,7 +34,7 @@ class PaginationService
     public function getShows(): array
     {
         return $this->showService->getPaginatedShows(
-            $this->start,
+            ($this->page - 1) * $this->length,
             $this->length,
             $this->sort,
             $this->genre,
@@ -141,23 +140,18 @@ class PaginationService
 
     private function setStartAndPage(array $params): void
     {
-        if (isset($params['page'])) {
-            $pageNum = (int) $params['page'];
-            $this->start = ($pageNum - 1) * $this->length;
-            $this->page = $pageNum;
-        }
+        $this->page = max(1, (int) ($params['page'] ?? 1));
     }
     private function setSort(string $sort, array $params): void
     {
-        $this->sort = $sort::default();
-        if (isset($params['sort'])) {
-            $this->sort = $sort::tryFrom($params['sort']);
-        }
+        $this->sort = isset($params['sort'])
+            ? ($sort::tryFrom($params['sort']) ?? $sort::default())
+            : $sort::default();
     }
     private function setGenre(array $params): void
     {
         if (isset($params['genre'])) {
-            $this->genre = Genres::tryFrom($params['genre']);
+            $this->genre = Genres::tryFrom($params['genre']) ?? Genres::Default;
         }
     }
 }

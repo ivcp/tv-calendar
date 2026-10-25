@@ -89,6 +89,9 @@ class ShowService
         ?string $query,
         array $localList
     ): array {
+        $start = max(0, $start);
+        $length = max(1, $length);
+
         $qb = $this->entityManager->getRepository(Show::class)
             ->createQueryBuilder('c')
             ->setFirstResult($start)

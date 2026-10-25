@@ -41,6 +41,8 @@ RUN usermod -u $UID $USER
 
 COPY . .
 
+RUN test ! -e /var/www/.env && test ! -e /var/www/.git
+
 RUN chown -R $USER:$GROUP ./
 
 USER $USER

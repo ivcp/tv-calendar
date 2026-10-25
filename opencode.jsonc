@@ -1,0 +1,6 @@
+{
+  "permissions": [
+    { "action": "external_directory", "resource": "*", "effect": "ask" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+  ],
+}
