@@ -69,8 +69,8 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - 5432:5432
+    # ports:
+    #   - 5432:5432
     deploy:
       resources:
         limits:
@@ -85,7 +85,7 @@ services:
       - tv-internal-network
     restart: always
     ports:
-      - 8001:8080
+      - '127.0.0.1:8001:8080'
 
   tv_cron:
     container_name: tv-calendar-cron
