@@ -44,7 +44,10 @@ class GenerateAppKey extends Command
         $envFilePath = __DIR__ . '/../../.env';
 
         if (! file_exists($envFilePath)) {
-            throw new \RuntimeException('.env file not found');
+            $output->writeln('No .env file found. Add this to your deployment environment:');
+            $output->writeln('APP_KEY=' . $key);
+
+            return Command::SUCCESS;
         }
 
         $envFileContent = file_get_contents($envFilePath);

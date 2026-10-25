@@ -31,6 +31,7 @@ Run PHP tooling inside the `app` container. The host PHP (8.5) differs from the 
 ## Gotchas
 
 - `.env` is gitignored and blocked from reading by `opencode.jsonc`; use `.env.example`. `app:generate-key` rewrites `.env` and invalidates signed URLs.
+- Prod images exclude `.env`, `.git` (see `.dockerignore`); `prod.compose.yml` injects `.env` at runtime via `env_file`, and nginx mounts only `./public`. `app:generate-key` prints the key instead of writing when `.env` is absent.
 - `vendor/`, `node_modules/`, `storage/`, `public/build/`, `sessions/` are gitignored. A fresh clone needs composer/npm install, a build, and a writable `storage/`.
 - Code uses `declare(strict_types=1)` and Doctrine attribute mapping only (no XML/YAML mappings).
 - New frontend entry: add `addEntry()` in `webpack.config.js` and a `resources/ts/<entry>/index.ts`; otherwise the bundle is never built.
