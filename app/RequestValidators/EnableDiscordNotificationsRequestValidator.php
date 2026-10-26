@@ -6,6 +6,7 @@ namespace App\RequestValidators;
 
 use App\Contracts\RequestValidatorInterface;
 use App\Exception\ValidationException;
+use App\Services\DiscordWebhookUrlValidator;
 use Valitron\Validator;
 
 class EnableDiscordNotificationsRequestValidator implements RequestValidatorInterface
@@ -18,6 +19,12 @@ class EnableDiscordNotificationsRequestValidator implements RequestValidatorInte
         $v->rule('url', 'discordWebhookUrl')
             ->message("Url not valid");
         $v->rule('lengthMax', 'discordWebhookUrl', 500);
+        $v->rule(
+            static fn (string $field, mixed $value): bool => DiscordWebhookUrlValidator::isValid(
+                is_string($value) ? $value : null
+            ),
+            'discordWebhookUrl'
+        )->message('Url must be a Discord webhook URL (https://discord.com/api/webhooks/...)');
 
 
 
