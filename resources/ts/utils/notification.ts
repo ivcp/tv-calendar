@@ -36,10 +36,17 @@ const createNotificationElement = (
   );
   notificationElement.role = 'alert';
   notificationElement.insertAdjacentHTML('beforeend', notificationIcon(type));
-  notificationElement.insertAdjacentHTML(
-    'beforeend',
-    `<span class="row-start-1 row-end-1 place-self-start text-left first-letter:uppercase">${message}</span>`
+
+  const messageElement = document.createElement('span');
+  messageElement.classList.add(
+    'row-start-1',
+    'row-end-1',
+    'place-self-start',
+    'text-left',
+    'first-letter:uppercase'
   );
+  messageElement.textContent = message;
+  notificationElement.append(messageElement);
 
   return notificationElement;
 };

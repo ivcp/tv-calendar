@@ -1,5 +1,6 @@
 import { get } from '../utils/ajax';
 import { notification } from '../utils/notification';
+import { Pagination, Show } from '../types';
 
 function assertIsNode(e: EventTarget | null): asserts e is Node {
   if (!e || !('nodeType' in e)) {
@@ -15,6 +16,66 @@ const debounce = (fn: Function, delay: number = 400) => {
       fn(args);
     }, delay);
   };
+};
+
+const createNoMatch = (query: string): HTMLLIElement => {
+  const item = document.createElement('li');
+  item.className = 'bg-base-100 hover:bg-base-200 rounded-lg';
+
+  const message = document.createElement('p');
+  message.className = 'p-2';
+  message.textContent = `No match found for "${query}"`;
+
+  item.append(message);
+  return item;
+};
+
+const createSearchResult = (show: Show): HTMLLIElement => {
+  const item = document.createElement('li');
+  item.className = 'bg-base-100 hover:bg-base-200 rounded-lg';
+
+  const link = document.createElement('a');
+  link.className = 'flex justify-between p-2';
+  link.href = `/shows/${encodeURIComponent(String(show.id))}`;
+
+  const name = document.createElement('span');
+  name.className = 'max-w-80 truncate';
+  name.textContent = show.name;
+
+  const arrow = document.createElement('span');
+  arrow.textContent = '→';
+
+  link.append(name, arrow);
+  item.append(link);
+  return item;
+};
+
+const createPagination = (
+  pagination: Pagination,
+  onPage: (page: number) => void,
+): HTMLElement => {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'mt-1 join rounded-full text-lg justify-center gap-2';
+
+  const previous = document.createElement('button');
+  previous.type = 'button';
+  previous.id = 'search-prev-btn';
+  previous.className =
+    'join-item btn bg-base-100 hover:bg-base-200 min-h-10 h-10';
+  previous.textContent = '«';
+  previous.disabled = pagination.page <= 1;
+  previous.addEventListener('click', () => onPage(pagination.page - 1));
+
+  const next = document.createElement('button');
+  next.type = 'button';
+  next.id = 'search-next-btn';
+  next.className = 'join-item btn bg-base-100 hover:bg-base-200 min-h-10 h-10';
+  next.textContent = '»';
+  next.disabled = pagination.page >= pagination.totalPages;
+  next.addEventListener('click', () => onPage(pagination.page + 1));
+
+  wrapper.append(previous, next);
+  return wrapper;
 };
 
 const renderResults = async (
@@ -44,7 +105,9 @@ const renderResults = async (
   });
 
   const response = await get(
-    `/search?query=${value.trim()}${page ? '&page=' + page : ''}`
+    `/search?query=${encodeURIComponent(value.trim())}${
+      page ? `&page=${page}` : ''
+    }`
   );
   if (response.error) {
     notification(response.messages, 'alert-error');
@@ -57,55 +120,16 @@ const renderResults = async (
 
   if (shows && pagination) {
     if (shows.length === 0) {
-      searchResults.insertAdjacentHTML(
-        'beforeend',
-        `<li class="bg-base-100 hover:bg-base-200 rounded-lg">
-          <p class="p-2">
-          No match found for "${value.trim()}"
-          </p>
-          </li>
-          `
-      );
+      searchResults.replaceChildren(createNoMatch(value.trim()));
       return;
     }
-    shows.forEach(show => {
-      searchResults.insertAdjacentHTML(
-        'beforeend',
-        `<li class="bg-base-100 hover:bg-base-200 rounded-lg">
-          <a href="/shows/${show.id}" class="flex justify-between p-2">
-          <span class="max-w-80 truncate">${show.name}</span>
-          <span>&#8594;</span></a>
-          </li>
-          `
-      );
-    });
 
-    searchResults.insertAdjacentHTML(
-      'beforeend',
-      `<div class="mt-1 join rounded-full text-lg justify-center gap-2">
-        <button id="search-prev-btn" class="join-item btn bg-base-100 hover:bg-base-200 min-h-10 h-10" 
-        ${pagination.page <= 1 && 'disabled'}>
-          «
-        </button>
-        <button id="search-next-btn" class="join-item btn bg-base-100 hover:bg-base-200 min-h-10 h-10"
-        ${pagination.page === pagination.totalPages && 'disabled'}>
-          »
-        </button>
-      </div>
-        `
+    searchResults.replaceChildren(
+      ...shows.map(createSearchResult),
+      createPagination(pagination, nextPage =>
+        renderResults(value, searchResults, nextPage)
+      )
     );
-
-    searchResults
-      .querySelector('#search-next-btn')
-      ?.addEventListener('click', () => {
-        renderResults(value, searchResults, pagination.page + 1);
-      });
-
-    searchResults
-      .querySelector('#search-prev-btn')
-      ?.addEventListener('click', () => {
-        renderResults(value, searchResults, pagination.page - 1);
-      });
   }
 };
 

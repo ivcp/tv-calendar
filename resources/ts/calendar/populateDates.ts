@@ -71,34 +71,35 @@ function populateDates(episodes: Episode[]) {
     .forEach(e => e.classList.remove('skeleton'));
 }
 
-function insertEpisode(episode: Episode, el: Element) {
+function insertEpisode(episode: Episode, el: Element): void {
   const premiere = episode.episodeNumber === 1 && episode.seasonNumber === 1;
   const newSeasonStart =
     episode.episodeNumber === 1 && episode.seasonNumber > 1;
 
-  const premiereStyles =
-    'bg-warning/85 text-warning-content lg:hover:bg-warning';
-  const newSeasonStartStyles =
-    'bg-primary/85 text-primary-content lg:hover:bg-primary';
+  const btn = document.createElement('button');
+  btn.id = `ep-${episode.id}`;
+  btn.className = [
+    'bg-base-content/85 lg:hover:bg-base-content',
+    premiere ? 'bg-warning/85 text-warning-content lg:hover:bg-warning' : '',
+    newSeasonStart
+      ? 'bg-primary/85 text-primary-content lg:hover:bg-primary'
+      : '',
+    'rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between items-baseline overflow-hidden',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
-  el.insertAdjacentHTML(
-    'beforeend',
-    `<button id="ep-${
-      episode.id
-    }" class="bg-base-content/85 lg:hover:bg-base-content ${
-      premiere ? premiereStyles : ''
-    } ${
-      newSeasonStart ? newSeasonStartStyles : ''
-    }  rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between items-baseline overflow-hidden">
-          ${
-            episode.showName
-          }<span id="season-number" class="text-nowrap text-sm">S${
-            episode.seasonNumber
-          } E${episode.episodeNumber ?? 'sp'}</span>
-          </button>`,
-  );
-  const epBtn = el.querySelector(`#ep-${episode.id}`);
-  epBtn?.addEventListener('click', () => openEpisodeModal(episode));
+  const season = document.createElement('span');
+  season.id = 'season-number';
+  season.className = 'text-nowrap text-sm';
+  season.textContent = `S${episode.seasonNumber} E${
+    episode.episodeNumber ?? 'sp'
+  }`;
+
+  // string children become text nodes — no HTML parsing
+  btn.append(episode.showName, season);
+  btn.addEventListener('click', () => openEpisodeModal(episode));
+  el.append(btn);
 }
 
 export { populateDates };
