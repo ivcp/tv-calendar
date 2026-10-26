@@ -10,19 +10,23 @@ document.addEventListener('DOMContentLoaded', () => {
   assertHtmlElement(googleBtn);
 
   const localList = getLocalShowlist();
-  let inputs = '';
-  let shows = '';
+  const params = new URLSearchParams();
+
   localList.forEach(id => {
-    inputs += `<input type="hidden" name="shows[]" value="${id}" />`;
-    shows += `shows[]=${id}&`;
+    if (!/^\d+$/.test(id)) {
+      return;
+    }
+
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'shows[]';
+    input.value = id;
+    form.append(input);
+
+    params.append('shows[]', id);
   });
 
-  if (inputs) {
-    form.insertAdjacentHTML('beforeend', inputs);
-  }
-
   googleBtn.addEventListener('click', () => {
-    const params = new URLSearchParams(shows);
     window.location.href = `/google-oauth?${params.toString()}`;
   });
 });

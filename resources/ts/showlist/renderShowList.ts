@@ -15,15 +15,14 @@ const renderShowList = (
     const genre = body.pagination.genre;
     const isGenre = typeof genre === 'string' && genre !== 'All';
 
-    showGrid.innerHTML = noShowsHtml(isGenre, body);
+    showGrid.replaceChildren(noShowsFragment(isGenre, body));
     paginationElement?.remove();
     return;
   }
 
-  const showCards = body.shows.map(show => showCardHtml(show));
+  const showCards = body.shows.map(show => showCard(show));
 
-  showGrid.replaceChildren();
-  showGrid.innerHTML = showCards.join('');
+  showGrid.replaceChildren(...showCards);
   showGrid.dispatchEvent(event);
 
   if (body.pagination.totalPages === body.pagination.page && nextPageBtn) {
@@ -31,17 +30,21 @@ const renderShowList = (
   }
 };
 
-const noShowsHtml = (
+const noShowsFragment = (
   isGenre: boolean,
   body: { pagination: Pagination; shows: Show[] },
-) => `
-           <p class="text-center lg:col-start-3 text-lg mt-12 uppercase">
-            ${
-              isGenre
-                ? 'You have no shows in ' + body.pagination.genre + ' category'
-                : 'Your list is empty'
-            }
-          </p>
+): DocumentFragment => {
+  const fragment = document.createDocumentFragment();
+  const genre = body.pagination.genre;
+
+  const message = document.createElement('p');
+  message.className = 'text-center lg:col-start-3 text-lg mt-12 uppercase';
+  message.textContent = isGenre
+    ? `You have no shows in ${genre} category`
+    : 'Your list is empty';
+
+  const iconWrapper = document.createElement('div');
+  iconWrapper.innerHTML = `
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -56,36 +59,58 @@ const noShowsHtml = (
               d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125Z"
             />
           </svg>
-          <a
-            href="/discover${isGenre ? '?genre=' + body.pagination.genre : ''}"
-            class="text-center font-bold text-primary lg:col-start-3 text-lg"
-            >Add some
-            ${isGenre ? '' : 'shows'}</a>
           `;
 
-const showCardHtml = (
-  show: Show,
-): string => `<article class="flex flex-col items-center lg:h-80 group">
-              <a 
-              class="card bg-base-100 image-full w-max rounded-lg before:hidden"  
-              href="/shows/${show.id}-${show.slug}"
-              >
-                <figure class="w-[210px] h-[295px] skeleton rounded-lg">
-                  <img
-                    src="${show.imageMedium ?? NoEpImageSvgPath}"
-                    alt="${show.name}"
-                    loading="lazy"
-                    decoding="async"
-                    onload="this.classList.add('bg-base-200')"
-                    class="rounded-lg ${
-                      show.imageMedium ?? 'border-2 border-base-200'
-                    }"
-                  />
-                </figure>
-                <button
-                    class="btn btn-link btn-secondary justify-self-end p-2 hidden group-hover:block remove-show"
-                    data-show-id="${show.id}"
-                  >
+  const link = document.createElement('a');
+  link.className =
+    'text-center font-bold text-primary lg:col-start-3 text-lg';
+  link.href = isGenre
+    ? `/discover?${new URLSearchParams({ genre: genre ?? '' })}`
+    : '/discover';
+  link.textContent = isGenre ? 'Add some' : 'Add some shows';
+
+  if (iconWrapper.firstElementChild) {
+    fragment.append(message, iconWrapper.firstElementChild, link);
+  } else {
+    fragment.append(message, link);
+  }
+
+  return fragment;
+};
+
+const showCard = (show: Show): HTMLElement => {
+  const article = document.createElement('article');
+  article.className = 'flex flex-col items-center lg:h-80 group';
+
+  const link = document.createElement('a');
+  link.className = 'card bg-base-100 image-full w-max rounded-lg before:hidden';
+  link.href = `/shows/${encodeURIComponent(
+    String(show.id),
+  )}-${encodeURIComponent(show.slug)}`;
+
+  const figure = document.createElement('figure');
+  figure.className = 'w-[210px] h-[295px] skeleton rounded-lg';
+
+  const image = document.createElement('img');
+  image.src = show.imageMedium || NoEpImageSvgPath;
+  image.alt = show.name;
+  image.loading = 'lazy';
+  image.decoding = 'async';
+  image.className = show.imageMedium
+    ? 'rounded-lg'
+    : 'rounded-lg border-2 border-base-200';
+  image.addEventListener(
+    'load',
+    () => image.classList.add('bg-base-200'),
+    { once: true },
+  );
+  figure.append(image);
+
+  const removeButton = document.createElement('button');
+  removeButton.className =
+    'btn btn-link btn-secondary justify-self-end p-2 hidden group-hover:block remove-show';
+  removeButton.dataset.showId = String(show.id);
+  removeButton.innerHTML = `
                     <div class="tooltip" data-tip="Remove from my shows">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -102,14 +127,16 @@ const showCardHtml = (
                         />
                       </svg>
                     </div>
-                    <span class="sr-only">remove show</span>
-                </button>
-              </a>
-              <p
-                class="mt-1 text-center font-bold break-words max-w-[22ch] max-h-12 text-ellipsis overflow-clip"
-              >
-                ${show.name}
-              </p>
-            </article>`;
+                    <span class="sr-only">remove show</span>`;
+
+  const name = document.createElement('p');
+  name.className =
+    'mt-1 text-center font-bold break-words max-w-[22ch] max-h-12 text-ellipsis overflow-clip';
+  name.textContent = show.name;
+
+  link.append(figure, removeButton);
+  article.append(link, name);
+  return article;
+};
 
 export { renderShowList };

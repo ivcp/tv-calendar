@@ -50,7 +50,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     starringSpan.classList.remove('skeleton');
     const actors = starring.messages;
     if (actors.length > 0) {
-      starringSpan.innerHTML = `<strong>Starring: </strong> ${starring.messages.join(', ')}`;
+      const starringLabel = document.createElement('strong');
+      starringLabel.textContent = 'Starring: ';
+      starringSpan.replaceChildren(starringLabel, actors.join(', '));
     } else {
       starringSpan.remove();
     }
