@@ -23,7 +23,7 @@ $COMPOSE down --remove-orphans
 
 msg "Building containers"
 
-$COMPOSE up -d  tv_app tv_nginx tv_db tv_cron adminer --build
+$COMPOSE up -d  tv_app tv_nginx tv_db tv_cron tv_adminer --build
 docker cp tv-calendar-app:var/www/vendor .
 docker cp tv-calendar-app:var/www/public/build ./public/
 docker exec tv-calendar-app bash -c './bin/doctrine orm:generate-proxies'
