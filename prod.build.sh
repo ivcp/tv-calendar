@@ -9,19 +9,21 @@ msg () {
 
 source .env
 
+COMPOSE="docker compose -f prod.compose.yml"
+
 #msg "Update Cloudflare IPs"
 
 #source get_cloudflare_ips.sh
 
 msg "Stopping containers"
 
-docker stop tv-calendar-cron
-docker compose down --remove-orphans
+docker stop tv-calendar-cron 2>/dev/null || true
+$COMPOSE down --remove-orphans
 
 
 msg "Building containers"
 
-docker compose -f prod.compose.yml up -d  tv_app tv_nginx tv_db tv_cron --build
+$COMPOSE up -d  tv_app tv_nginx tv_db tv_cron adminer --build
 docker cp tv-calendar-app:var/www/vendor .
 docker cp tv-calendar-app:var/www/public/build ./public/
 docker exec tv-calendar-app bash -c './bin/doctrine orm:generate-proxies'

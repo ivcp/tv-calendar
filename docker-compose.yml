@@ -26,7 +26,7 @@ services:
           memory: 400M
 
   nginx:
-    image: nginx:1.19-alpine
+    image: nginx:1.30.6-alpine
     container_name: tv-calendar-nginx
     environment:
       - SERVER_NAME=${SERVER_NAME}
