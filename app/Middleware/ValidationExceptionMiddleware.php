@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Middleware;
 
 use App\Contracts\SessionInterface;
+use App\Exception\RateLimitException;
 use App\Exception\ValidationException;
 use App\ResponseFormatter;
 use App\Services\RequestService;
@@ -28,6 +29,21 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
     {
         try {
             return $handler->handle($request);
+        } catch (RateLimitException $e) {
+            $response = $this->responseFactory->createResponse();
+
+            if ($this->requestService->isXhr($request)) {
+                return $this->responseFormatter->asJSONMessage(
+                    $response
+                        ->withStatus(429)
+                        ->withHeader('Retry-After', (string) $e->retryAfter)
+                        ->withHeader('Cache-Control', 'no-store'),
+                    429,
+                    $e->getMessage()
+                );
+            }
+
+            return $this->redirectWithErrors($request, $response, $e->errors);
         } catch (ValidationException $e) {
             $response = $this->responseFactory->createResponse();
 
@@ -35,16 +51,23 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
                 return $this->responseFormatter->asJSONErrors($response->withStatus(422), $e->errors);
             }
 
-            $referer = $this->requestService->getReferer($request);
-            $oldData = $request->getParsedBody();
-            $sensitiveFields = ['password', 'confirm_password'];
-
-            $this->session->flash('errors', $e->errors);
-            $this->session->flash('old', array_diff_key($oldData, array_flip($sensitiveFields)));
-
-
-
-            return $response->withHeader('Location', $referer)->withStatus(302);
+            return $this->redirectWithErrors($request, $response, $e->errors);
         }
+    }
+
+    private function redirectWithErrors(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        array $errors
+    ): ResponseInterface {
+        $oldData = (array) $request->getParsedBody();
+        $sensitiveFields = ['password', 'confirm_password'];
+
+        $this->session->flash('errors', $errors);
+        $this->session->flash('old', array_diff_key($oldData, array_flip($sensitiveFields)));
+
+        return $response
+            ->withHeader('Location', $this->requestService->getReferer($request))
+            ->withStatus(302);
     }
 }
