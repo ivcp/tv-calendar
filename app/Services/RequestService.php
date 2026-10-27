@@ -34,4 +34,17 @@ class RequestService
     {
         return $request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
     }
+
+    /**
+     * The client address as forwarded by nginx, which already resolves
+     * CF-Connecting-IP for requests coming through the proxy (real_ip module).
+     * Do not read X-Forwarded-For/CF-Connecting-IP here: that would allow
+     * spoofing when the app is reached directly.
+     */
+    public function getClientIp(ServerRequestInterface $request): string
+    {
+        $ip = $request->getServerParams()['REMOTE_ADDR'] ?? '';
+
+        return is_string($ip) && $ip !== '' ? $ip : '0.0.0.0';
+    }
 }

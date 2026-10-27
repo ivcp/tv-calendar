@@ -63,5 +63,40 @@ return [
         'admin_token' => $_ENV['NTFY_ADMIN_TOKEN'],
     ],
     'webhook_url' => $_ENV['WEBHOOK_URL'],
-    'url_secret_key' => $_ENV['URL_SECRET_KEY']
+    'url_secret_key' => $_ENV['URL_SECRET_KEY'],
+    // Application-level rate limits, enforced by App\Middleware\RateLimitMiddleware.
+    // Keys are "<METHOD> <path>", each entry is a list of checks with:
+    //   by: ip|email|user, limit: max requests, window: seconds, field: form error key.
+    'rate_limit' => [
+        'enabled' => true,
+        'policies' => [
+            'POST /login' => [
+                ['by' => 'ip', 'limit' => 40, 'window' => 900, 'field' => 'password'],
+                ['by' => 'email', 'limit' => 20, 'window' => 900, 'field' => 'password'],
+            ],
+            'POST /register' => [
+                ['by' => 'ip', 'limit' => 5, 'window' => 3600, 'field' => 'email'],
+            ],
+            'POST /forgot-password' => [
+                ['by' => 'ip', 'limit' => 10, 'window' => 3600, 'field' => 'email'],
+                ['by' => 'email', 'limit' => 5, 'window' => 3600, 'field' => 'email'],
+                ['by' => 'email', 'limit' => 1, 'window' => 60, 'field' => 'email'],
+            ],
+            'POST /verify' => [
+                ['by' => 'user', 'limit' => 5, 'window' => 3600],
+                ['by' => 'user', 'limit' => 1, 'window' => 60],
+            ],
+            'GET /search' => [
+                ['by' => 'ip', 'limit' => 60, 'window' => 60],
+            ],
+            'POST /ntfy-test' => [
+                ['by' => 'user', 'limit' => 1, 'window' => 15],
+                ['by' => 'user', 'limit' => 10, 'window' => 3600],
+            ],
+            'POST /discord-test' => [
+                ['by' => 'user', 'limit' => 1, 'window' => 15],
+                ['by' => 'user', 'limit' => 10, 'window' => 3600],
+            ],
+        ],
+    ],
 ];

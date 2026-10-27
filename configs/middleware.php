@@ -7,6 +7,7 @@ use App\Middleware\BadRequestExceptionMiddleware;
 use App\Middleware\CsrfFieldsMiddleware;
 use App\Middleware\NotFoundExceptionMiddleware;
 use App\Middleware\OldFormDataMiddleware;
+use App\Middleware\RateLimitMiddleware;
 use App\Middleware\StartSessionsMiddleware;
 use App\Middleware\TwigGlobalsMiddleware;
 use App\Middleware\UserMiddleware;
@@ -26,6 +27,7 @@ return function (App $app) {
     $config    = $container->get(Config::class);
     $twig = $container->get(Twig::class);
 
+    $app->add(RateLimitMiddleware::class);
     $app->add(UserMiddleware::class);
     $app->add(MethodOverrideMiddleware::class);
     $app->add(TwigGlobalsMiddleware::class);
