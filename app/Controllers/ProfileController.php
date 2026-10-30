@@ -115,6 +115,10 @@ class ProfileController
 
     private function enableNtfyNotifications(Request $request, Response $response): Response
     {
+        if (! $this->isVerified($request)) {
+            return $this->unverifiedAccountResponse($response);
+        }
+
         $data = $this->requestValidatorFactory->make(EnableNtfyNotificationsRequestValidator::class)->validate(
             $request->getParsedBody()
         );
@@ -166,6 +170,10 @@ class ProfileController
 
     public function sendTestNtfyMessage(Request $request, Response $response): Response
     {
+        if (! $this->isVerified($request)) {
+            return $this->unverifiedAccountResponse($response);
+        }
+
         $user = $request->getAttribute('user');
 
         $topic = $user->getNtfyTopic();
@@ -189,5 +197,19 @@ class ProfileController
         );
 
         return $this->responseFormatter->asJSONMessage($response, 200, 'test notification sent');
+    }
+
+    private function isVerified(Request $request): bool
+    {
+        return $request->getAttribute('user')->getVerifiedAt() !== null;
+    }
+
+    private function unverifiedAccountResponse(Response $response): Response
+    {
+        return $this->responseFormatter->asJSONMessage(
+            $response,
+            403,
+            'Please verify your email to use notifications'
+        );
     }
 }
