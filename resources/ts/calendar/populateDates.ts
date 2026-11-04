@@ -3,7 +3,7 @@ import { assertHtmlElement } from '../utils/assertElement';
 import { openEpisodeModal } from '../utils/episodeModal';
 import { getCurrentYearMonth } from './helpers';
 
-function populateDates(episodes: Episode[]) {
+function populateDates(episodes: Episode[], premieres: boolean = false) {
   const airingTodayContainer = document.getElementById(
     'airing-today-container',
   );
@@ -61,9 +61,9 @@ function populateDates(episodes: Episode[]) {
     ) {
       airingTodayContainer.classList.remove('hidden');
       const body = airingTodayContainer.querySelector('#airing-today-body');
-      if (body) insertEpisode(episode, body);
+      if (body) insertEpisode(episode, body, premieres);
     }
-    insertEpisode(episode, cardBody);
+    insertEpisode(episode, cardBody, premieres);
   });
 
   document
@@ -71,7 +71,11 @@ function populateDates(episodes: Episode[]) {
     .forEach(e => e.classList.remove('skeleton'));
 }
 
-function insertEpisode(episode: Episode, el: Element): void {
+function insertEpisode(
+  episode: Episode,
+  el: Element,
+  isPremiere: boolean,
+): void {
   const premiere = episode.episodeNumber === 1 && episode.seasonNumber === 1;
   const newSeasonStart =
     episode.episodeNumber === 1 && episode.seasonNumber > 1;
@@ -92,9 +96,9 @@ function insertEpisode(episode: Episode, el: Element): void {
   const season = document.createElement('span');
   season.id = 'season-number';
   season.className = 'text-nowrap text-sm';
-  season.textContent = `S${episode.seasonNumber} E${
-    episode.episodeNumber ?? 'sp'
-  }`;
+  season.textContent = isPremiere
+    ? `S${episode.seasonNumber}`
+    : `S${episode.seasonNumber} E${episode.episodeNumber ?? 'sp'}`;
 
   // string children become text nodes — no HTML parsing
   btn.append(episode.showName, season);

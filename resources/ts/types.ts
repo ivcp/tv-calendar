@@ -46,4 +46,6 @@ export interface Actor {
 
 export type ConsentValue = 'accepted' | 'rejected';
 
+export type Schedule = 'user' | 'popular' | 'premieres';
+
 export type notificationType = 'alert-info' | 'alert-error' | 'alert-success';

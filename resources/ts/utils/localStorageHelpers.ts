@@ -1,4 +1,4 @@
-import { ConsentValue } from '../types';
+import { ConsentValue, Schedule } from '../types';
 
 const getLocalShowlist = (): string[] => {
   const showlist = window.localStorage.getItem('showlist');
@@ -36,6 +36,21 @@ const getSavedTheme = (): boolean | null => {
 const setTheme = (isLight: boolean) =>
   localStorage.setItem('theme-light', JSON.stringify(isLight));
 
+const getSchedule = (): Schedule | null => {
+  const schedule = window.localStorage.getItem('calendar-schedule');
+  if (
+    schedule === 'user' ||
+    schedule === 'popular' ||
+    schedule === 'premieres'
+  ) {
+    return schedule;
+  }
+  return null;
+};
+
+const setSchedule = (schedule: Schedule) =>
+  window.localStorage.setItem('calendar-schedule', schedule);
+
 const setCookieConsent = (cookieConsent: ConsentValue) =>
   window.localStorage.setItem('cookie_consent', JSON.stringify(cookieConsent));
 
@@ -54,6 +69,8 @@ export {
   isMakeAccountSeen,
   getSavedTheme,
   setTheme,
+  getSchedule,
+  setSchedule,
   setCookieConsent,
   getCookieConsent,
 };

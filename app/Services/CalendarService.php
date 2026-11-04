@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\DataObjects\EpisodeInfoData;
 use App\Entity\User;
+use App\Enum\ScheduleType;
 use DateTime;
 
 class CalendarService
@@ -14,7 +15,7 @@ class CalendarService
     {
     }
 
-    public function getSchedule(string $month, string $timeZone, string $type, ?User $user, array $localList): array
+    public function getSchedule(string $month, string $timeZone, ScheduleType $type, ?User $user, array $localList): array
     {
         $selectedMonth = new DateTime($month);
 
