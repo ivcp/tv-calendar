@@ -1,7 +1,10 @@
+import { Schedule } from '../types';
 import { assertHtmlElement } from '../utils/assertElement';
 import {
   getLocalShowlist,
+  getSchedule,
   setLocalShowList,
+  setSchedule,
 } from '../utils/localStorageHelpers';
 import { drawCalendar } from './drawCalendar';
 import { getCurrentYearMonth, getShows, markToday } from './helpers';
@@ -36,41 +39,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  const tabs = [userShowsBtn, popularShowsBtn, premieresShowsBtn];
+  const activateTab = (schedule: Schedule) => {
+    document.documentElement.dataset.schedule = schedule;
+  };
 
-  const activateTab = (activeTab: HTMLElement) => {
-    for (const tab of tabs) {
-      const isActive = tab === activeTab;
-      tab.classList.toggle('tab-active', isActive);
-      tab.classList.toggle('bg-primary', isActive);
-      tab.classList.toggle('text-primary-content', isActive);
-    }
+  const showSchedule = async (schedule: Schedule) => {
+    const episodes =
+      schedule === 'user'
+        ? await getShows(url, schedule, user, localShowlist)
+        : await getShows(url, schedule);
+    populateDates(episodes, schedule === 'premieres');
+    activateTab(schedule);
+    setSchedule(schedule);
   };
 
   const guestWithSavedShows = !user && localShowlist.length > 0;
+  const defaultSchedule: Schedule =
+    userShowsBtn.hasAttribute('active') || guestWithSavedShows
+      ? 'user'
+      : 'popular';
 
-  if (userShowsBtn.hasAttribute('active') || guestWithSavedShows) {
-    const episodes = await getShows(url, 'user', user, localShowlist);
-    populateDates(episodes);
-    activateTab(userShowsBtn);
-  } else {
-    const episodes = await getShows(url, 'popular');
-    populateDates(episodes);
-    activateTab(popularShowsBtn);
-  }
-  popularShowsBtn.addEventListener('click', async () => {
-    const episodes = await getShows(url, 'popular');
-    populateDates(episodes);
-    activateTab(popularShowsBtn);
-  });
-  premieresShowsBtn.addEventListener('click', async () => {
-    const episodes = await getShows(url, 'premieres');
-    populateDates(episodes, true);
-    activateTab(premieresShowsBtn);
-  });
-  userShowsBtn.addEventListener('click', async () => {
-    const episodes = await getShows(url, 'user', user, localShowlist);
-    populateDates(episodes);
-    activateTab(userShowsBtn);
-  });
+  const savedSchedule = getSchedule();
+  const canShowUserSchedule = user || localShowlist.length > 0;
+  const initialSchedule =
+    savedSchedule && (savedSchedule !== 'user' || canShowUserSchedule)
+      ? savedSchedule
+      : defaultSchedule;
+
+  await showSchedule(initialSchedule);
+
+  userShowsBtn.addEventListener('click', () => showSchedule('user'));
+  popularShowsBtn.addEventListener('click', () => showSchedule('popular'));
+  premieresShowsBtn.addEventListener('click', () => showSchedule('premieres'));
 });

@@ -1,4 +1,4 @@
-import { Episode } from '../types';
+import { Episode, Schedule } from '../types';
 import { get } from '../utils/ajax';
 import { assertHtmlElement } from '../utils/assertElement';
 import { notification } from '../utils/notification';
@@ -23,7 +23,7 @@ function markToday(): void {
 
 async function getShows(
   url: string,
-  schedule: 'user' | 'popular' | 'premieres',
+  schedule: Schedule,
   userIsActive?: boolean,
   localShowlist?: string[]
 ): Promise<Episode[]> {

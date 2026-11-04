@@ -21,6 +21,14 @@
   }
 }
 
+@layer components {
+  html[data-schedule='user'] #user-shows,
+  html[data-schedule='popular'] #popular-shows,
+  html[data-schedule='premieres'] #premieres-shows {
+    @apply bg-primary text-primary-content;
+  }
+}
+
 :root:has(
     :is(
         .modal-open,

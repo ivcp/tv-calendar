@@ -9,6 +9,30 @@
 
 {% block content %} {% block javascripts %}
 {{ parent() }}
+<script>
+  (function () {
+    var isLoggedIn = {% if user %}true{% else %}false{% endif %};
+    var hasSavedShows = false;
+    var savedSchedule = null;
+    try {
+      hasSavedShows =
+        JSON.parse(localStorage.getItem('showlist') || '[]').length > 0;
+      savedSchedule = localStorage.getItem('calendar-schedule');
+    } catch (e) {
+      console.warn('Local storage access denied; using default schedule.');
+    }
+    var schedules = ['user', 'popular', 'premieres'];
+    var schedule = schedules.includes(savedSchedule)
+      ? savedSchedule
+      : isLoggedIn || hasSavedShows
+        ? 'user'
+        : 'popular';
+    if (schedule === 'user' && !isLoggedIn && !hasSavedShows) {
+      schedule = 'popular';
+    }
+    document.documentElement.dataset.schedule = schedule;
+  })();
+</script>
 {{ encore_entry_script_tags("calendar") }}
 {% endblock %}
 <section
@@ -97,7 +121,7 @@
           </button>
           <button
             role="tab"
-            class="tab text-xs font-bold rounded-full transition-colors duration-250 tab-active bg-primary text-primary-content"
+            class="tab text-xs font-bold rounded-full transition-colors duration-250"
             id="popular-shows"
             {%
             if
