@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   premieresShowsBtn.addEventListener('click', async () => {
     const episodes = await getShows(url, 'premieres');
-    populateDates(episodes);
+    populateDates(episodes, true);
     activateTab(premieresShowsBtn);
   });
   userShowsBtn.addEventListener('click', async () => {
