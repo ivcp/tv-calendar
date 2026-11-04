@@ -23,7 +23,7 @@ function markToday(): void {
 
 async function getShows(
   url: string,
-  schedule: 'user' | 'popular',
+  schedule: 'user' | 'popular' | 'premieres',
   userIsActive?: boolean,
   localShowlist?: string[]
 ): Promise<Episode[]> {

@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Config;
 use App\DataObjects\EpisodeData;
 use App\Entity\User;
+use App\Enum\ScheduleType;
 use App\Services\Traits\ParamsTypesCases;
 use DateTime;
 use Doctrine\DBAL\ArrayParameterType;
@@ -27,7 +28,7 @@ class EpisodeService
     public function getEpisodesForMonth(
         DateTime $month,
         string $timeZone,
-        string $type,
+        ScheduleType $type,
         ?User $user,
         array $localList
     ): array {
@@ -40,21 +41,15 @@ class EpisodeService
                 s.web_channel_name as "webChannelName"
                 FROM episodes e
                 INNER JOIN shows s ON s.id = e.show_id';
-        $sql .= $user && $type === 'user' ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
+        $sql .= $user && $type === ScheduleType::User ? ' INNER JOIN users_shows us ON us.show_id = s.id' : '';
         $sql .= ' WHERE e.airstamp BETWEEN 
                   (?::timestamp AT TIME ZONE ?) AND 
                   (?::timestamp AT TIME ZONE ?)';
-        switch ($type) {
-            case 'popular':
-                $sql .= ' AND s.weight >= ?';
-                break;
-            case 'user':
-                $sql .= $user ? ' AND us.user_id = ? ' : ' AND e.show_id IN (?)';
-                break;
-            case 'premieres':
-                $sql .= ' AND e.number = 1 AND s.weight > ?';
-                break;
-        }
+        $sql .= match ($type) {
+            ScheduleType::Popular => ' AND s.weight >= ?',
+            ScheduleType::User => $user ? ' AND us.user_id = ? ' : ' AND e.show_id IN (?)',
+            ScheduleType::Premieres => ' AND e.number = 1 AND s.weight >= ?',
+        };
         $sql .= ' ORDER BY e.show_id ASC, e.id ASC';
 
         $parameters = [
@@ -71,25 +66,16 @@ class EpisodeService
             ParameterType::STRING,
         ];
 
-        switch ($type) {
-            case 'popular':
-                $parameters[] = $this->config->get('popular_weight');
-                $types[] = ParameterType::INTEGER;
-                break;
-            case 'user':
-                if (!$user) {
-                    $parameters[] = $localList;
-                    $types[] = ArrayParameterType::INTEGER;
-                } else {
-                    $parameters[] = $user->getId();
-                    $types[] = ParameterType::INTEGER;
-                }
-                break;
-            case 'premieres':
-                $parameters[] = 50;
-                $types[] = ParameterType::INTEGER;
-                break;
-        }
+        [$parameter, $parameterType] = match ($type) {
+            ScheduleType::Popular => [$this->config->get('popular_weight'), ParameterType::INTEGER],
+            ScheduleType::User => $user
+                ? [$user->getId(), ParameterType::INTEGER]
+                : [$localList, ArrayParameterType::INTEGER],
+            ScheduleType::Premieres => [$this->config->get('premieres_weight'), ParameterType::INTEGER],
+        };
+
+        $parameters[] = $parameter;
+        $types[] = $parameterType;
 
         return $conn->executeQuery($sql, $parameters, $types)->fetchAllAssociative();
     }

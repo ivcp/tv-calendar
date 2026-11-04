@@ -12,10 +12,12 @@ const path = window.location.pathname;
 const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  const popularShowsBtn = document.getElementById('popular-shows');
-  assertHtmlElement(popularShowsBtn);
   const userShowsBtn = document.getElementById('user-shows');
   assertHtmlElement(userShowsBtn);
+  const popularShowsBtn = document.getElementById('popular-shows');
+  assertHtmlElement(popularShowsBtn);
+  const premieresShowsBtn = document.getElementById('premieres-shows');
+  assertHtmlElement(premieresShowsBtn);
 
   const user = document.querySelector('section')?.hasAttribute('user');
   const localShowlist = getLocalShowlist();
@@ -34,15 +36,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  const activeClasses = ['tab-active', 'bg-primary', 'text-primary-content'];
+  const tabs = [userShowsBtn, popularShowsBtn, premieresShowsBtn];
 
-  const activateUserBtn = () => {
-    popularShowsBtn.classList.remove(...activeClasses);
-    userShowsBtn.classList.add(...activeClasses);
-  };
-  const activatePopularBtn = () => {
-    userShowsBtn.classList.remove(...activeClasses);
-    popularShowsBtn.classList.add(...activeClasses);
+  const activateTab = (activeTab: HTMLElement) => {
+    for (const tab of tabs) {
+      const isActive = tab === activeTab;
+      tab.classList.toggle('tab-active', isActive);
+      tab.classList.toggle('bg-primary', isActive);
+      tab.classList.toggle('text-primary-content', isActive);
+    }
   };
 
   const guestWithSavedShows = !user && localShowlist.length > 0;
@@ -50,20 +52,25 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (userShowsBtn.hasAttribute('active') || guestWithSavedShows) {
     const episodes = await getShows(url, 'user', user, localShowlist);
     populateDates(episodes);
-    activateUserBtn();
+    activateTab(userShowsBtn);
   } else {
     const episodes = await getShows(url, 'popular');
     populateDates(episodes);
-    activatePopularBtn();
+    activateTab(popularShowsBtn);
   }
   popularShowsBtn.addEventListener('click', async () => {
     const episodes = await getShows(url, 'popular');
     populateDates(episodes);
-    activatePopularBtn();
+    activateTab(popularShowsBtn);
+  });
+  premieresShowsBtn.addEventListener('click', async () => {
+    const episodes = await getShows(url, 'premieres');
+    populateDates(episodes);
+    activateTab(premieresShowsBtn);
   });
   userShowsBtn.addEventListener('click', async () => {
     const episodes = await getShows(url, 'user', user, localShowlist);
     populateDates(episodes);
-    activateUserBtn();
+    activateTab(userShowsBtn);
   });
 });

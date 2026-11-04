@@ -9,6 +9,7 @@ use App\Entity\Episode;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Enum\NotificationTime;
+use App\Enum\ScheduleType;
 use App\Services\EpisodeService;
 use DateTime;
 use DI\Container;
@@ -26,7 +27,8 @@ final class EpisodeServiceTest extends TestCase
     private Show $unpopularShow;
     private Show $guestShow;
     private Show $highWeightShow;
-    private Show $weightFiftyShow;
+    private Show $atThresholdShow;
+    private Show $aboveThresholdShow;
     private User $user;
     private User $otherUser;
 
@@ -34,6 +36,7 @@ final class EpisodeServiceTest extends TestCase
     private array $episodes = [];
 
     private int $popularWeight;
+    private int $premieresWeight;
 
     public function setUp(): void
     {
@@ -47,6 +50,7 @@ final class EpisodeServiceTest extends TestCase
         $this->em = $this->container->get(EntityManager::class);
         $this->config = $this->container->get(Config::class);
         $this->popularWeight = (int) $this->config->get('popular_weight');
+        $this->premieresWeight = (int) $this->config->get('premieres_weight');
 
         $this->popularShow = $this->createShow(1, 'Popular Show', $this->popularWeight, 'HBO', 'Max');
         $this->unpopularShow = $this->createShow(
@@ -58,7 +62,8 @@ final class EpisodeServiceTest extends TestCase
         );
         $this->guestShow = $this->createShow(3, 'Guest Show', 1);
         $this->highWeightShow = $this->createShow(4, 'High Weight Show', $this->popularWeight + 100);
-        $this->weightFiftyShow = $this->createShow(5, 'Weight Fifty Show', 50);
+        $this->atThresholdShow = $this->createShow(5, 'Threshold Show', $this->premieresWeight);
+        $this->aboveThresholdShow = $this->createShow(6, 'Above Threshold Show', $this->premieresWeight + 1);
 
         // UTC November: inside the month
         $this->episodes['popular-in-start'] = $this->createEpisode(
@@ -141,12 +146,20 @@ final class EpisodeServiceTest extends TestCase
             4,
             1
         );
-        $this->episodes['weight-fifty-in'] = $this->createEpisode(
-            $this->weightFiftyShow,
+        $this->episodes['at-threshold-in'] = $this->createEpisode(
+            $this->atThresholdShow,
             10,
-            'Weight Fifty Show S05E01',
+            'Threshold Show S05E01',
             new DateTime('2026-11-10T10:00:00+00:00'),
             5,
+            1
+        );
+        $this->episodes['above-threshold-in'] = $this->createEpisode(
+            $this->aboveThresholdShow,
+            11,
+            'Above Threshold Show S06E01',
+            new DateTime('2026-11-25T10:00:00+00:00'),
+            6,
             1
         );
 
@@ -168,7 +181,7 @@ final class EpisodeServiceTest extends TestCase
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'user',
+            ScheduleType::User,
             $this->user,
             []
         );
@@ -177,7 +190,7 @@ final class EpisodeServiceTest extends TestCase
         $episodesWithLocalList = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'user',
+            ScheduleType::User,
             $this->user,
             [$this->highWeightShow->getId()]
         );
@@ -197,7 +210,7 @@ final class EpisodeServiceTest extends TestCase
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'user',
+            ScheduleType::User,
             null,
             [$this->guestShow->getId(), $this->popularShow->getId(), 99999]
         );
@@ -218,7 +231,7 @@ final class EpisodeServiceTest extends TestCase
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'user',
+            ScheduleType::User,
             null,
             []
         );
@@ -231,7 +244,7 @@ final class EpisodeServiceTest extends TestCase
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'popular',
+            ScheduleType::Popular,
             null,
             []
         );
@@ -263,12 +276,12 @@ final class EpisodeServiceTest extends TestCase
         $this->assertSame($sortedEpisodeIds, $popularShowEpisodeIds);
     }
 
-    public function testGetPremieresReturnsOnlyPremieresOfShowsHeavierThanFifty(): void
+    public function testGetPremieresReturnsOnlyPremieresOfShowsAtOrAboveTheConfiguredWeight(): void
     {
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'premieres',
+            ScheduleType::Premieres,
             null,
             []
         );
@@ -280,19 +293,23 @@ final class EpisodeServiceTest extends TestCase
                 'Popular Show S01E01',
                 'Unpopular Show S02E01',
                 'High Weight Show S04E01',
+                'Threshold Show S05E01',
+                'Above Threshold Show S06E01',
             ],
             $episodeNames
         );
 
         // a season premiere counts as a premiere
         $this->assertContains('Unpopular Show S02E01', $episodeNames);
+        $this->assertContains('Above Threshold Show S06E01', $episodeNames);
         // mid-season episodes are not premieres
         $this->assertNotContains('Popular Show S01E02', $episodeNames);
         // episodes outside the selected month are never returned
         $this->assertNotContains('Popular Show S01E03', $episodeNames);
         $this->assertNotContains('Popular Show S01E05', $episodeNames);
-        // the show weight has to be over 50
-        $this->assertNotContains('Weight Fifty Show S05E01', $episodeNames);
+        // a show at exactly the configured weight is included
+        $this->assertContains('Threshold Show S05E01', $episodeNames);
+        // shows below the configured weight are excluded
         $this->assertNotContains('Guest Show S03E01', $episodeNames);
     }
 
@@ -301,7 +318,7 @@ final class EpisodeServiceTest extends TestCase
         $utcEpisodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'popular',
+            ScheduleType::Popular,
             null,
             []
         );
@@ -309,7 +326,7 @@ final class EpisodeServiceTest extends TestCase
         $newYorkEpisodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'America/New_York',
-            'popular',
+            ScheduleType::Popular,
             null,
             []
         );
@@ -337,7 +354,7 @@ final class EpisodeServiceTest extends TestCase
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-09-01'),
             'UTC',
-            'popular',
+            ScheduleType::Popular,
             null,
             []
         );
@@ -350,7 +367,7 @@ final class EpisodeServiceTest extends TestCase
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'user',
+            ScheduleType::User,
             null,
             [$this->unpopularShow->getId()]
         );
@@ -363,7 +380,7 @@ final class EpisodeServiceTest extends TestCase
         $episodes = $this->episodeService->getEpisodesForMonth(
             new DateTime('2026-11-01'),
             'UTC',
-            'user',
+            ScheduleType::User,
             null,
             [$this->popularShow->getId()]
         );

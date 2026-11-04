@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Contracts\RequestValidatorFactoryInterface;
+use App\Enum\ScheduleType;
 use App\RequestValidators\ScheduleRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CalendarService;
@@ -44,7 +45,7 @@ class CalendarController
             $episodes = $this->calendarService->getSchedule(
                 $month,
                 $args['tz'],
-                $args['schedule'],
+                ScheduleType::from($args['schedule']),
                 $user,
                 isset($args['shows']) ? $args['shows'] : []
             );

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\RequestValidators;
 
 use App\Contracts\RequestValidatorInterface;
+use App\Enum\ScheduleType;
 use App\Exception\BadRequestException;
 use Valitron\Validator;
 
@@ -27,7 +28,7 @@ class ScheduleRequestValidator implements RequestValidatorInterface
                 ['shows']
             ],
             'in' => [
-                ['schedule', ['user', 'popular']],
+                ['schedule', ScheduleType::values()],
             ]
         ]);
 
