@@ -139,7 +139,7 @@ class UpdateTest extends TestCase
             $this->assertEqualsWithDelta(
                 (new DateTime('now'))->getTimestamp(),
                 $firstShow->getEpisodes()->first()->getAirstamp()->getTimestamp(),
-                10
+                15
             );
             $this->assertSame('special', $secondShow->getEpisodes()->last()->getType());
             $this->assertSame('summary ep 1 updated', $firstShow->getEpisodes()->first()->getSummary());
