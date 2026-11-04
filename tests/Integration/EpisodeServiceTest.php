@@ -26,6 +26,7 @@ final class EpisodeServiceTest extends TestCase
     private Show $unpopularShow;
     private Show $guestShow;
     private Show $highWeightShow;
+    private Show $weightFiftyShow;
     private User $user;
     private User $otherUser;
 
@@ -57,6 +58,7 @@ final class EpisodeServiceTest extends TestCase
         );
         $this->guestShow = $this->createShow(3, 'Guest Show', 1);
         $this->highWeightShow = $this->createShow(4, 'High Weight Show', $this->popularWeight + 100);
+        $this->weightFiftyShow = $this->createShow(5, 'Weight Fifty Show', 50);
 
         // UTC November: inside the month
         $this->episodes['popular-in-start'] = $this->createEpisode(
@@ -137,6 +139,14 @@ final class EpisodeServiceTest extends TestCase
             'High Weight Show S04E01',
             new DateTime('2026-11-20T10:00:00+00:00'),
             4,
+            1
+        );
+        $this->episodes['weight-fifty-in'] = $this->createEpisode(
+            $this->weightFiftyShow,
+            10,
+            'Weight Fifty Show S05E01',
+            new DateTime('2026-11-10T10:00:00+00:00'),
+            5,
             1
         );
 
@@ -251,6 +261,39 @@ final class EpisodeServiceTest extends TestCase
         $sortedEpisodeIds = $popularShowEpisodeIds;
         sort($sortedEpisodeIds);
         $this->assertSame($sortedEpisodeIds, $popularShowEpisodeIds);
+    }
+
+    public function testGetPremieresReturnsOnlyPremieresOfShowsHeavierThanFifty(): void
+    {
+        $episodes = $this->episodeService->getEpisodesForMonth(
+            new DateTime('2026-11-01'),
+            'UTC',
+            'premieres',
+            null,
+            []
+        );
+
+        $episodeNames = $this->getEpisodeNames($episodes);
+
+        $this->assertSame(
+            [
+                'Popular Show S01E01',
+                'Unpopular Show S02E01',
+                'High Weight Show S04E01',
+            ],
+            $episodeNames
+        );
+
+        // a season premiere counts as a premiere
+        $this->assertContains('Unpopular Show S02E01', $episodeNames);
+        // mid-season episodes are not premieres
+        $this->assertNotContains('Popular Show S01E02', $episodeNames);
+        // episodes outside the selected month are never returned
+        $this->assertNotContains('Popular Show S01E03', $episodeNames);
+        $this->assertNotContains('Popular Show S01E05', $episodeNames);
+        // the show weight has to be over 50
+        $this->assertNotContains('Weight Fifty Show S05E01', $episodeNames);
+        $this->assertNotContains('Guest Show S03E01', $episodeNames);
     }
 
     public function testMonthBoundariesFollowTheRequestedTimeZone(): void

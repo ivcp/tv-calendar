@@ -51,6 +51,9 @@ class EpisodeService
             case 'user':
                 $sql .= $user ? ' AND us.user_id = ? ' : ' AND e.show_id IN (?)';
                 break;
+            case 'premieres':
+                $sql .= ' AND e.number = 1 AND s.weight > ?';
+                break;
         }
         $sql .= ' ORDER BY e.show_id ASC, e.id ASC';
 
@@ -81,6 +84,10 @@ class EpisodeService
                     $parameters[] = $user->getId();
                     $types[] = ParameterType::INTEGER;
                 }
+                break;
+            case 'premieres':
+                $parameters[] = 50;
+                $types[] = ParameterType::INTEGER;
                 break;
         }
 
