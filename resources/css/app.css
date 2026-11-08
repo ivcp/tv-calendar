@@ -34,16 +34,14 @@
   .surface {
     @apply shadow-sm ring-1 ring-base-content/5;
   }
+  .poster-icon {
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.7));
+  }
 }
 
 :root:has(
-    :is(
-        .modal-open,
-        .modal:target,
-        .modal-toggle:checked + .modal,
-        .modal[open]
-      )
-  ) {
+  :is(.modal-open, .modal:target, .modal-toggle:checked + .modal, .modal[open])
+) {
   overflow: unset;
 }
 
