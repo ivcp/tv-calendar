@@ -50,13 +50,13 @@
   <div class="grow flex flex-col gap-12 lg:gap-0 mb-8">
     <h1 class="sr-only">{{page_h1}}</h1>
     <div
-      class="navbar flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+      class="navbar lg:surface flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
     >
       <div class="flex-1 flex items-center">
         <a
           id="prev-month-btn"
           href="/{{ month|date_modify('-1 month')|date('Y-m') }}"
-          class="mr-4 btn btn-sm h-10 lg:btn-md"
+          class="mr-4 btn btn-ghost btn-sm h-10 lg:btn-md"
           ><svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -80,7 +80,7 @@
         <a
           id="next-month-btn"
           href="/{{ month|date_modify('+1 month')|date('Y-m') }}"
-          class="ml-4 btn btn-sm h-10 lg:btn-md"
+          class="ml-4 btn btn-ghost btn-sm h-10 lg:btn-md"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -102,7 +102,7 @@
       <div class="flex-none">
         <div
           role="tablist"
-          class="tabs tabs-sm border border-base-content rounded-badge py-1.5 px-2"
+          class="tabs tabs-sm border border-base-content/20 rounded-badge py-1.5 px-2"
         >
           <button
             role="tab"

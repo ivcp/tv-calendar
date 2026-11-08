@@ -5,7 +5,6 @@ import {
 } from '../utils/assertElement';
 import {
   getLocalShowlist,
-  getSavedTheme,
   setLocalShowList,
   setMakeAccountSeen,
   setTheme,
@@ -27,18 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const themeToggle = document.getElementById('theme-toggle');
   assertHtmlInputElement(themeToggle);
 
-  const theme = getSavedTheme();
-  if (theme !== null) {
-    themeToggle.checked = theme;
-  }
+  const root = document.documentElement;
+  const lightTheme = root.dataset.themeLight ?? 'tvlight';
+  const darkTheme = root.dataset.themeDark ?? 'dim';
+
+  themeToggle.checked = root.getAttribute('data-theme') === lightTheme;
 
   themeToggle.addEventListener('change', () => {
     const isLight = themeToggle.checked;
     setTheme(isLight);
-    document.documentElement.setAttribute(
-      'data-theme',
-      isLight ? 'fantasy' : 'dim',
-    );
+    root.setAttribute('data-theme', isLight ? lightTheme : darkTheme);
   });
 
   const hasLocalShowlist = window.localStorage.getItem('showlist');
