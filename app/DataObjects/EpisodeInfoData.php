@@ -10,6 +10,7 @@ class EpisodeInfoData
         public readonly int $id,
         public readonly int $showId,
         public readonly string $showName,
+        public readonly string $showSlug,
         public readonly string $episodeName,
         public readonly int $seasonNumber,
         public readonly ?int $episodeNumber,

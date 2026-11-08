@@ -143,6 +143,7 @@ class ShowController
             id: $episode->getId(),
             showId: $show->getId(),
             showName: $show->getName(),
+            showSlug: $correctedSlug,
             episodeName: $episode->getName(),
             seasonNumber: $episode->getSeason(),
             episodeNumber: $episode->getNumber(),

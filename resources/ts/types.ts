@@ -20,6 +20,7 @@ export interface Episode {
   id: number;
   showId: number;
   showName: string;
+  showSlug: string;
   episodeName: string;
   seasonNumber: number;
   episodeNumber: number;

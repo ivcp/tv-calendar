@@ -11,8 +11,10 @@ use DateTime;
 
 class CalendarService
 {
-    public function __construct(private readonly EpisodeService $episodeService)
-    {
+    public function __construct(
+        private readonly EpisodeService $episodeService,
+        private readonly ShowService $showService,
+    ) {
     }
 
     public function getSchedule(string $month, string $timeZone, ScheduleType $type, ?User $user, array $localList): array
@@ -47,6 +49,7 @@ class CalendarService
                 id: $episode['id'],
                 showId: $episode['showId'],
                 showName: $episode['showName'],
+                showSlug: $this->showService->slugify($episode['showName']),
                 episodeName: $episode['episodeName'],
                 seasonNumber: $episode['season'],
                 episodeNumber: $episode['number'],
