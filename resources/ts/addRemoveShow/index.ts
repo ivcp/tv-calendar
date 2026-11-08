@@ -5,6 +5,7 @@ import {
   setLocalShowList,
 } from '../utils/localStorageHelpers';
 import { getShowTitle, markAdded } from './helpers';
+import { confirmDialog } from '../utils/confirmDialog';
 import setNotificationIcon from '../utils/notificationIcons';
 import notificationBtnEventListener from '../utils/notificationBtnEventListener';
 
@@ -89,7 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (window.location.pathname.includes('/shows')) {
-          if (!confirm(`Remove show from your list?`)) {
+          const showTitle = getShowTitle(btn);
+          const confirmed = await confirmDialog({
+            title: showTitle
+              ? `Remove "${showTitle}"?`
+              : 'Remove this show from your list?',
+            message: 'It will be removed from your list.',
+            confirmLabel: 'Remove',
+            danger: true
+          });
+          if (!confirmed) {
             return;
           }
         }

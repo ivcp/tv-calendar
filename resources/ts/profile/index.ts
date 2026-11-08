@@ -16,6 +16,7 @@ import {
   assertButtonElement,
 } from '../utils/assertElement';
 import { notification } from '../utils/notification';
+import { confirmDialog } from '../utils/confirmDialog';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const deleteProfileBtn = document.getElementById('delete-account');
@@ -50,7 +51,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadingBars.classList.add('loading', 'loading-bars', 'loading-lg', 'mx-auto');
 
   deleteProfileBtn.addEventListener('click', async () => {
-    if (!confirm('Are you sure you want to delete your profile?')) {
+    const confirmed = await confirmDialog({
+      title: 'Delete your account?',
+      message:
+        'This permanently deletes your profile, your shows and your notification settings. It cannot be undone.',
+      confirmLabel: 'Delete account',
+      danger: true,
+    });
+    if (!confirmed) {
       return;
     }
     const result = await deleteProfile();
@@ -64,10 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (resendEmailBtn) {
     resendEmailBtn.addEventListener('click', async () => {
-      const email = resendEmailBtn.dataset.email;
-      if (!confirm(`Resend verification email to ${email}?`)) {
-        return;
-      }
       const response = await resendEmail();
       if (response.error) {
         notification(response.messages, 'alert-error');
@@ -118,34 +122,37 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (ntfyEnabled === 'true') {
       t.disabled = true;
-      if (
-        confirm(
-          `Are you sure you want to disable ntfy notifications?\n\nThis action will delete the current topic ID and notification credentials.`,
-        )
-      ) {
-        ntfyNotificationsSettingsContent?.insertAdjacentElement(
-          'beforeend',
-          loadingBars,
-        );
-        const response = await disableNtfyNotifications();
-        if (response.error) {
-          t.checked = true;
-          t.disabled = false;
-          ntfyNotificationsSettingsContent?.removeChild(loadingBars);
-          notification(response.messages, 'alert-error');
-          return;
-        }
-        ntfyNotificationsSettingsContent?.removeChild(loadingBars);
-        notification(response.messages, 'alert-success');
-        //sleep to show success message
-        new Promise(resolve => setTimeout(resolve, 250));
-        //refresh the page
-        window.location.reload();
+      const confirmed = await confirmDialog({
+        title: 'Disable ntfy notifications?',
+        message:
+          'This deletes the current topic ID and notification credentials.',
+        confirmLabel: 'Disable ntfy',
+        danger: true,
+      });
+      if (!confirmed) {
+        t.disabled = false;
+        t.checked = true;
         return;
       }
-      t.disabled = false;
-      t.checked = true;
-      return;
+
+      ntfyNotificationsSettingsContent?.insertAdjacentElement(
+        'beforeend',
+        loadingBars,
+      );
+      const response = await disableNtfyNotifications();
+      if (response.error) {
+        t.checked = true;
+        t.disabled = false;
+        ntfyNotificationsSettingsContent?.removeChild(loadingBars);
+        notification(response.messages, 'alert-error');
+        return;
+      }
+      ntfyNotificationsSettingsContent?.removeChild(loadingBars);
+      notification(response.messages, 'alert-success');
+      //sleep to show success message
+      new Promise(resolve => setTimeout(resolve, 250));
+      //refresh the page
+      window.location.reload();
     }
   });
 
@@ -164,30 +171,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (discordEnabled === 'true') {
       t.disabled = true;
-      if (confirm(`Are you sure you want to disable Discord notifications?`)) {
-        discordNotificationsSettingsContent?.insertAdjacentElement(
-          'beforeend',
-          loadingBars,
-        );
-        const response = await disableDiscordNotifications();
-        if (response.error) {
-          t.checked = true;
-          t.disabled = false;
-          discordNotificationsSettingsContent?.removeChild(loadingBars);
-          notification(response.messages, 'alert-error');
-          return;
-        }
-        discordNotificationsSettingsContent?.removeChild(loadingBars);
-        notification(response.messages, 'alert-success');
-        //sleep to show success message
-        new Promise(resolve => setTimeout(resolve, 250));
-        //refresh the page
-        window.location.reload();
+      const confirmed = await confirmDialog({
+        title: 'Disable Discord notifications?',
+        message: 'No more episode notifications will be sent to Discord.',
+        confirmLabel: 'Disable Discord',
+        danger: true,
+      });
+      if (!confirmed) {
+        t.disabled = false;
+        t.checked = true;
         return;
       }
-      t.disabled = false;
-      t.checked = true;
-      return;
+
+      discordNotificationsSettingsContent?.insertAdjacentElement(
+        'beforeend',
+        loadingBars,
+      );
+      const response = await disableDiscordNotifications();
+      if (response.error) {
+        t.checked = true;
+        t.disabled = false;
+        discordNotificationsSettingsContent?.removeChild(loadingBars);
+        notification(response.messages, 'alert-error');
+        return;
+      }
+      discordNotificationsSettingsContent?.removeChild(loadingBars);
+      notification(response.messages, 'alert-success');
+      //sleep to show success message
+      new Promise(resolve => setTimeout(resolve, 250));
+      //refresh the page
+      window.location.reload();
     }
   });
 

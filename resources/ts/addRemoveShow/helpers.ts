@@ -13,6 +13,11 @@ const markAdded = (btn: Element) => {
 };
 
 const getShowTitle = (btn: Element): string => {
+  const explicitTitle = btn.getAttribute('data-show-title')?.trim();
+  if (explicitTitle) {
+    return explicitTitle;
+  }
+
   const showListTitle =
     btn?.parentElement?.previousElementSibling?.textContent?.trim();
   const discoverTitle = btn.parentElement?.parentElement
