@@ -39,3 +39,16 @@
   ) {
   overflow: unset;
 }
+
+/* The show name is plain text when the modal is opened on that show's page. */
+#episode-modal-show-name[data-current],
+#episode-modal-show-name[data-current]:hover,
+#episode-modal-show-name[data-current]:focus {
+  color: inherit;
+  cursor: default;
+  text-decoration-line: none;
+}
+
+#episode-modal-show-name[data-current] svg {
+  display: none;
+}

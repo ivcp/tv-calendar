@@ -13,11 +13,29 @@
     >
       
     </div>
-    <a
-      id="episode-modal-show-name"
-      class="lg:truncate lg:max-w-full text-primary lg:text-base-content lg:hover:text-base-content/80 lg:col-span-1 lg:row-start-1 lg:place-self-start lg:justify-self-start lg:col-start-1 lg:text-lg lg:font-bold lg:uppercase"
+    <div
+      class="min-w-0 lg:max-w-full lg:col-span-1 lg:row-start-1 lg:col-start-1 lg:place-self-start lg:justify-self-start"
+    >
+      <a
+        id="episode-modal-show-name"
+        class="group inline-block max-w-full min-w-0 min-h-11 py-2 -my-2 text-primary underline decoration-primary/60 underline-offset-4 hover:decoration-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary focus-visible:rounded lg:inline-flex lg:items-center lg:min-h-0 lg:py-0 lg:my-0 lg:text-base-content lg:hover:text-base-content/80 lg:text-lg lg:font-bold lg:uppercase lg:no-underline lg:hover:underline lg:focus-visible:underline"
       >
-    </a>
+        <span id="episode-modal-show-name-text" class="lg:min-w-0 lg:truncate"></span>
+        <svg
+          id="episode-modal-show-chevron"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+          focusable="false"
+          class="ml-1 inline-block size-4 shrink-0 align-middle transition-transform group-hover:translate-x-0.5"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7" />
+        </svg>
+      </a>
+    </div>
     <div
       class="flex flex-col gap-1 mb-4 lg:mb-0 mt-4 lg:mt-8 lg:col-span-1 lg:row-start-1 lg:col-start-1 lg:place-self-center justify-self-end lg:justify-self-start"
     >
@@ -33,10 +51,30 @@
 
     <img
       id="episode-modal-img"
-      alt="placeholder"
-      src=""
-      class="mb-4 mx-auto lg:w-full border-base-300 lg:col-span-1 lg:col-start-1 lg:row-start-2 lg:justify-self-end rounded-lg lg:mt-1 lg:-mb-6"
+      alt=""
+      class="hidden mb-4 mx-auto lg:w-full lg:col-span-1 lg:col-start-1 lg:row-start-2 lg:justify-self-end rounded-lg lg:mt-1 lg:-mb-6"
     />
+    <div
+      id="episode-modal-placeholder"
+      class="hidden mb-4 mx-auto w-[300px] max-w-full aspect-video flex-col items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-base-200 to-base-300 ring-1 ring-base-300 lg:w-full lg:col-span-1 lg:col-start-1 lg:row-start-2 lg:justify-self-end lg:mt-1 lg:-mb-6 lg:pb-10"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-10 text-base-content/30"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+        />
+      </svg>
+      <p class="text-sm text-base-content/50">No preview available</p>
+    </div>
     <div
       class="stats mb-4 lg:mb-0 grid lg:inline-grid lg:col-start-2 lg:row-start-1 overflow-y-clip lg:place-self-start lg:justify-self-center"
     >

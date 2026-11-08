@@ -1,5 +1,4 @@
 import { Pagination, Show } from '../types';
-const NoEpImageSvgPath = require('../../images/no-img-ep.svg') as string;
 
 const renderShowList = (
   body: { pagination: Pagination; shows: Show[] },
@@ -89,22 +88,47 @@ const showCard = (show: Show): HTMLElement => {
   )}-${encodeURIComponent(show.slug)}`;
 
   const figure = document.createElement('figure');
-  figure.className = 'w-[210px] h-[295px] skeleton rounded-lg';
+  figure.className = 'w-[210px] h-[295px] rounded-lg';
 
-  const image = document.createElement('img');
-  image.src = show.imageMedium || NoEpImageSvgPath;
-  image.alt = show.name;
-  image.loading = 'lazy';
-  image.decoding = 'async';
-  image.className = show.imageMedium
-    ? 'rounded-lg'
-    : 'rounded-lg border-2 border-base-200';
-  image.addEventListener(
-    'load',
-    () => image.classList.add('bg-base-200'),
-    { once: true },
-  );
-  figure.append(image);
+  if (show.imageMedium) {
+    figure.classList.add('skeleton');
+
+    const image = document.createElement('img');
+    image.src = show.imageMedium;
+    image.alt = show.name;
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.className = 'rounded-lg';
+    image.addEventListener(
+      'load',
+      () => image.classList.add('bg-base-200'),
+      { once: true },
+    );
+    figure.append(image);
+  } else {
+    const placeholder = document.createElement('div');
+    placeholder.className =
+      'flex h-full w-full flex-col items-center justify-center gap-2 rounded-lg bg-gradient-to-br from-base-200 to-base-300 px-4 text-center ring-1 ring-base-300';
+    placeholder.innerHTML = `
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-10 text-base-content/30"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+        />
+      </svg>
+      <p class="text-sm text-base-content/50">No poster available</p>
+    `;
+    figure.append(placeholder);
+  }
 
   const removeButton = document.createElement('button');
   removeButton.className =
