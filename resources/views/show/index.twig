@@ -130,6 +130,7 @@
             %}
             class="btn {{ show.id in userShows ? 'btn-secondary' : 'btn-primary' }} h-10 min-h-10 uppercase add-show"
             data-show-id="{{ show.id }}"
+            data-show-title="{{ show.name }}"
           >
             {{ show.id in userShows ? 'Remove' : 'Add' }}
           </button>

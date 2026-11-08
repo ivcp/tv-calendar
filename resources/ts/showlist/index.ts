@@ -8,6 +8,7 @@ import {
 import { showCreateAccountPrompt, sortShows } from './helpers';
 import { renderShowList } from './renderShowList';
 import { assertHtmlElement } from '../utils/assertElement';
+import { confirmDialog } from '../utils/confirmDialog';
 
 const activeSortClasses = ['tab-active', 'bg-primary', 'text-primary-content'];
 
@@ -88,11 +89,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const deleteShow = async (el: Element) => {
     const showId = el.getAttribute('data-show-id');
-    const title = el.parentElement?.parentElement
-      ?.querySelector('p')
-      ?.textContent?.trim();
+    const title =
+      el.getAttribute('data-show-title')?.trim() ||
+      el.parentElement?.parentElement?.querySelector('p')?.textContent?.trim();
     if (showId) {
-      if (!confirm(`Remove "${title}" from your list?`)) {
+      const confirmed = await confirmDialog({
+        title: title
+          ? `Remove "${title}"?`
+          : 'Remove this show from your list?',
+        message: 'It will be removed from your list.',
+        confirmLabel: 'Remove',
+        danger: true
+      });
+      if (!confirmed) {
         return;
       }
 

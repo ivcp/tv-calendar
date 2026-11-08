@@ -1,6 +1,7 @@
 <button
   class="btn btn-link justify-self-end p-2 add-show"
   data-show-id="{{ show.id }}"
+  data-show-title="{{ show.name }}"
   {%
   if
   show.id
@@ -20,9 +21,11 @@
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"
-      stroke-width="1.2"
+      stroke-width="1"
       stroke="currentColor"
-      class="size-8 stroke-base-content lg:hover:fill-secondary {{ show.id in userShows ? 'fill-secondary' }}"
+      aria-hidden="true"
+      focusable="false"
+      class="size-8 poster-icon stroke-[#B2CCD6] lg:hover:fill-secondary {{ show.id in userShows ? 'fill-secondary' }}"
     >
       <path
         stroke-linecap="round"

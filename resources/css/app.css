@@ -27,6 +27,23 @@
   html[data-schedule='premieres'] #premieres-shows {
     @apply bg-primary text-primary-content;
   }
+
+  /* Shared long-form styling for the legal pages (privacy policy, terms). */
+  .legal {
+    @apply max-w-3xl text-lg space-y-6;
+  }
+  .legal h2 {
+    @apply text-lg font-bold border-b border-base-content/10 pb-2;
+  }
+  .legal h3 {
+    @apply text-base font-semibold uppercase tracking-wide text-base-content/70;
+  }
+  .legal ul {
+    @apply list-disc list-inside space-y-2;
+  }
+  .legal a {
+    @apply underline decoration-base-content/30 underline-offset-2 hover:text-primary hover:decoration-primary;
+  }
 }
 
 /* Light surfaces need a little elevation; dark tolerates it fine. */
@@ -34,16 +51,14 @@
   .surface {
     @apply shadow-sm ring-1 ring-base-content/5;
   }
+  .poster-icon {
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.7));
+  }
 }
 
 :root:has(
-    :is(
-        .modal-open,
-        .modal:target,
-        .modal-toggle:checked + .modal,
-        .modal[open]
-      )
-  ) {
+  :is(.modal-open, .modal:target, .modal-toggle:checked + .modal, .modal[open])
+) {
   overflow: unset;
 }
 

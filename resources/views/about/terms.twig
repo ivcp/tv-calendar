@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% set page_title = 'Terms of Use |' %} 
+{% set page_title = 'Terms of Use |' %}
 
 {% set page_canonical = app_url ~ current_url() %}
 
@@ -9,10 +9,12 @@
 <section
   class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
 >
-  <h1 class="text-center font-semibold tracking-tight text-xl">Terms of Use</h1>
+  <h1 class="text-center font-semibold tracking-tight text-xl">
+    Terms of Use
+  </h1>
 
-  <div class="max-w-3xl text-lg space-y-6 [&>h2]:font-bold">
-    <p class="text-sm">Last updated: 2025-10-10</p>
+  <div class="legal">
+    <p class="text-sm text-base-content/70">Last updated: 2026-11-08</p>
     <h2>1. About {{ app_name }}</h2>
     <p>
       {{ app_name }} is a website that helps users track their favorite TV
@@ -22,13 +24,12 @@
     </p>
 
     <h2>2. Eligibility</h2>
-    <p>
-      You must be at least 16 years old to use the Service.
-    </p>
+    <p>You must be at least 16 years old to use the Service.</p>
 
     <h2>3. Accounts and Authentication</h2>
     <p>
-      You may create an account using Google Sign-In or a username and password.
+      You may create an account using Google Sign-In or an email address and
+      password.
     </p>
     <p>
       You are responsible for keeping your login credentials secure and for any
@@ -38,12 +39,15 @@
 
     <h2>4. Acceptable Use</h2>
     <p>You agree <strong>not</strong> to:</p>
-    <ul class="list-disc list-inside">
+    <ul>
       <li>Use the Service for unlawful purposes</li>
       <li>Attempt to access accounts or data belonging to others</li>
       <li>Interfere with or disrupt the Website or its infrastructure</li>
       <li>Abuse, scrape, or overload our servers</li>
-      <li>Click on advertisements and affiliate links artificially or encourage others to do so</li>
+      <li>
+        Click on advertisements and affiliate links artificially or encourage
+        others to do so
+      </li>
     </ul>
     <p>We may suspend or terminate accounts that violate these Terms.</p>
 
@@ -85,8 +89,10 @@
       external websites or services.
     </p>
     <p>
-     Some links are affiliate links and we may earn a commission at no cost to the user. 
-     Purchases are between the user and that third party. 
+      Some links on {{ app_name }} are affiliate links, and we may earn a
+      commission at no extra cost to you. Such links are marked as
+      advertisements or sponsored. Any purchase is between you and that third
+      party.
     </p>
 
     <h2>8. Availability and Changes</h2>
@@ -100,22 +106,22 @@
       without notice.
     </p>
 
-    <h2>9. Data Storage and Backups</h2>
+    <h2>9. Data Storage</h2>
     <p>
       Show lists saved without an account are stored locally in your browser and
       may be lost if you clear your browser's local storage.
     </p>
     <p>
-      Accounts created with Google or username/password store data in our
+      Accounts created with Google or email/password store data in our
       database. We make reasonable efforts to keep your data safe, but we cannot
       guarantee against all possible loss or unauthorized access.
     </p>
     <p>
       Users who use the Service without creating an account may store up to 10
       shows in their browser’s local storage. Creating an account removes this
-      limit and stores your show list securely on our servers. During account
-      creation any existing show list will be automatically backed up in our
-      database.
+      limit and stores your show list securely on our servers. If you already
+      have a show list saved in your browser, it will automatically be imported
+      into your account when you create it.
     </p>
 
     <h2>10. Limitation of Liability</h2>
@@ -134,28 +140,28 @@
     </p>
     <p>
       You may delete your account at any time. Account deletion removes your
-      stored data from our database.
+      stored data from our database. You may also request a machine-readable
+      export of the data you provided at any time.
     </p>
 
     <h2>12. Governing Law</h2>
     <p>
-      These Terms are governed by the laws of the country where the data
-      controller of {{ app_name }} is located, unless local laws require
-      otherwise.
+      These Terms are governed by the laws of Montenegro. Nothing in these Terms
+      limits any mandatory consumer protection rights you have under the laws of
+      your country of residence.
     </p>
 
     <h2>13. Changes to These Terms</h2>
     <p>
       We may update these Terms occasionally. When changes are significant, we
-      will update the “Last updated” date at the top of this page. Your
-      continued use of the Service after updates means you accept the revised
-      Terms.
+      will update the “Last updated” date at the top of this page. Your continued
+      use of the Service after updates means you accept the revised Terms.
     </p>
 
-    <h2>14. Contact</h2>
+    <h2>14. Contact Us</h2>
+    <p>If you have questions, concerns, or requests, contact us at:</p>
     <p>
-      If you have questions, concerns, or requests, contact:<br />
-      <strong>Email:</strong> {{ app_email }}
+      <strong>Email: </strong><a href="mailto:{{ app_email }}">{{ app_email }}</a>
     </p>
   </div>
 </section>
