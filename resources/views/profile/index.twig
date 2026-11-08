@@ -1,26 +1,233 @@
 {% extends 'layout.twig' %}
-{% set page_title = 'Profile |' %} 
-{% block content %}{% block javascripts %}
+{% set page_title = 'Profile |' %}
+
+{% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags('profile') }}
 {% endblock %}
-<section
-  class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
->
-  <div class="grow flex flex-col gap-10">
+
+{% block content %}
+
+<section class="mt-8 mb-8 mx-4 lg:mx-auto lg:max-w-3xl flex flex-col gap-6">
+  <div class="flex items-center gap-3">
     <div
-      class="navbar gap-4 flex-col lg:flex-row lg:justify-between lg:py-4 lg:px-20 lg:bg-base-200 lg:h-20 lg:rounded-lg"
+      class="size-10 shrink-0 rounded-full bg-primary text-primary-content flex items-center justify-center font-bold uppercase"
     >
-      <h1
-        class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
+      {{ email|first }}
+    </div>
+    <div class="min-w-0">
+      <h1 class="font-semibold tracking-tight text-xl">Profile</h1>
+      <p class="text-sm text-base-content/70 break-all">{{ email }}</p>
+    </div>
+    {% if verified %}
+    <span class="badge badge-success gap-1 ml-auto shrink-0">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        class="size-4"
+        aria-hidden="true"
       >
-        Profile/Settings
-      </h1>
-      <div>
-        <div class="flex gap-2 items-center">
-          <p>{{ email }}</p>
+        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+      </svg>
+      Verified
+    </span>
+    {% else %}
+    <span class="badge badge-warning ml-auto shrink-0">Not verified</span>
+    {% endif %}
+  </div>
+
+  {% if not verified or passwordSet %}
+  <section class="card surface bg-base-200 p-6 space-y-4">
+    <h2 class="text-lg font-bold">Account</h2>
+    {% if verified %}
+    <p class="text-sm text-base-content/70">Your email address is verified.</p>
+    {% else %}
+    <p class="text-sm text-base-content/70">
+      Check your inbox to verify your email. Unverified accounts are deleted
+      after 5 days.
+    </p>
+    {% endif %}
+    <div class="flex flex-wrap gap-2">
+      {% if not verified %}
+      <button
+        id="email-resend"
+        data-email="{{ email }}"
+        class="btn btn-outline btn-sm"
+      >
+        Resend verification email
+      </button>
+      {% endif %}
+      {% if passwordSet %}
+      <a href="/update-password" class="btn btn-outline btn-sm">
+        Update password
+      </a>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="card surface bg-base-200 p-6 space-y-4 hidden lg:block">
+    <h2 class="text-lg font-bold">Calendar</h2>
+    <div class="flex items-center justify-between gap-4">
+      <label for="weekstart" class="cursor-pointer">
+        Start week with Sunday
+      </label>
+      <input
+        type="checkbox"
+        id="weekstart"
+        class="toggle"
+        {% if startOfWeekSunday %}checked{% endif %}
+      />
+    </div>
+  </section>
+
+  <section class="card surface bg-base-200 p-6 space-y-6">
+    <div class="space-y-1">
+      <h2 class="text-lg font-bold">Notifications</h2>
+      {% if not verified %}
+      <p class="text-sm text-base-content/70">
+        Verify your email to enable notifications.
+      </p>
+      {% endif %}
+    </div>
+
+    <div class="bg-base-100 rounded-lg p-4 space-y-4">
+      <div class="flex items-center justify-between gap-4">
+        <label for="ntfy-notifications-toggle" class="cursor-pointer">
+          Enable ntfy notifications
+        </label>
+        <div
+          {% if not verified %}
+          class="tooltip tooltip-left"
+          data-tip="Please verify your account to enable notifications"
+          {% endif %}
+        >
+          <input
+            type="checkbox"
+            id="ntfy-notifications-toggle"
+            data-ntfy-enabled="{{ ntfyTopic ? 'true' : 'false' }}"
+            class="toggle"
+            {% if not verified %}disabled{% endif %}
+            {% if ntfyTopic %}checked{% endif %}
+          />
+        </div>
+      </div>
+
+      <div
+        id="ntfy-notifications-settings-content"
+        class="{{ ntfyTopic ? '' : 'hidden' }} flex flex-col gap-4"
+      >
+        {% if ntfyTopic %}
+        <div class="bg-base-200 rounded-lg p-4 space-y-1">
+          <p class="text-xs uppercase text-base-content/80">Your topic ID</p>
+          <p class="text-xl break-all">{{ ntfyTopic }}</p>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <a
+            href="/get-notified#subscribe-ntfy"
+            class="link text-sm font-bold uppercase text-base-content/60"
+            >What do I do with this?</a
+          >
+          <button id="test-ntfy" class="btn btn-sm btn-outline">
+            Send test notification
+          </button>
+        </div>
+        {% else %}
+        <div class="flex flex-col lg:flex-row gap-4">
           {% if verified %}
-          <div class="tooltip" data-tip="Verified">
+          <div class="space-y-2 text-sm">
+            <p>
+              To enable notifications via <b>ntfy</b>, please set a password for
+              notifications. Remember it, as you will need to enter it in the
+              app later.
+            </p>
+            <p>
+              More info:
+              <a href="/get-notified#enable-ntfy" class="link">Get notified</a>
+            </p>
+          </div>
+          <form
+            method="post"
+            id="enable-ntfy-notifications-form"
+            class="flex flex-col gap-2 lg:w-1/2"
+          >
+            <input
+              type="password"
+              class="input input-bordered"
+              name="notificationsPassword"
+              placeholder="Password"
+              required
+              minlength="8"
+            />
+            <input
+              type="password"
+              class="input input-bordered"
+              name="confirmNotificationsPassword"
+              placeholder="Confirm password"
+              required
+              minlength="8"
+            />
+            <button
+              class="mt-2 btn btn-sm btn-outline self-start"
+              type="submit"
+              id="ntfy-submit-btn"
+            >
+              Enable
+            </button>
+          </form>
+          {% else %}
+          <p class="text-sm">
+            Please verify your account to enable notifications.
+          </p>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="bg-base-100 rounded-lg p-4 space-y-4">
+      <div class="flex items-center justify-between gap-4">
+        <label for="discord-notifications-toggle" class="cursor-pointer">
+          Enable Discord notifications
+        </label>
+        <div
+          {% if not verified %}
+          class="tooltip tooltip-left"
+          data-tip="Please verify your account to enable notifications"
+          {% endif %}
+        >
+          <input
+            type="checkbox"
+            id="discord-notifications-toggle"
+            data-discord-enabled="{{ discordWebhookUrl ? 'true' : 'false' }}"
+            class="toggle"
+            {% if not verified %}disabled{% endif %}
+            {% if discordWebhookUrl %}checked{% endif %}
+          />
+        </div>
+      </div>
+
+      <div
+        id="discord-notifications-settings-content"
+        class="{{ discordWebhookUrl ? '' : 'hidden' }} flex flex-col gap-4"
+      >
+        {% if discordWebhookUrl %}
+        <div class="bg-base-200 rounded-lg p-4 space-y-1">
+          <p class="text-xs uppercase text-base-content/80">
+            Discord webhook url
+          </p>
+          <p class="text-sm text-base-content/80 break-all">
+            {{ discordWebhookUrl }}
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div
+            class="tooltip tooltip-right"
+            data-tip="To change webhook url disable Discord notifications and enable again."
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -28,322 +235,93 @@
               stroke-width="1.5"
               stroke="currentColor"
               class="size-6"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
               />
             </svg>
           </div>
-          {% endif %}
+          <button id="test-discord-webhook" class="btn btn-sm btn-outline">
+            Send test notification
+          </button>
         </div>
-      </div>
-    </div>
-    <div class="mt-8 mb-6 mx-auto flex flex-col gap-4 w-[95%] lg:w-[40rem]">
-      <h2
-        class="hidden lg:block text-lg font-bold border-b border-neutral-content/40 pb-2"
-      >
-        Calendar
-      </h2>
-      <div class="hidden lg:flex items-center justify-end gap-4 pb-4 my-6">
-        <p class="">Start week with Sunday</p>
-        <input
-          type="checkbox"
-          id="weekstart"
-          class="toggle"
-          {%
-          if
-          startOfWeekSunday
-          %}
-          checked
-          {%
-          endif
-          %}
-        />
-      </div>
-      <h2
-        class="text-lg font-bold lg:mt-8 border-b border-neutral-content/40 pb-2"
-      >
-        Notifications
-      </h2>
-      <div class="flex flex-col justify-between gap-4 my-6 pb-4">
-        <div class="flex justify-end gap-4">
-          <p class="">Enable NTFY notifications</p>
-          <div
-            {%if
-            not
-            verified
-            %}class="tooltip tooltip-left"
-            data-tip="Please verify your account to enable notifications"
-            {%endif%}
+        {% else %}
+        <div class="flex flex-col lg:flex-row gap-4">
+          {% if verified %}
+          <div class="space-y-2 text-sm">
+            <p>
+              To enable notifications via <b>Discord</b>, please enter your
+              Discord webhook url.
+            </p>
+            <p>
+              More info:
+              <a href="/get-notified#discord" class="link">Get notified</a>
+            </p>
+          </div>
+          <form
+            method="post"
+            id="enable-discord-notifications-form"
+            class="flex flex-col gap-2 lg:w-1/2"
           >
             <input
-              type="checkbox"
-              id="ntfy-notifications-toggle"
-              data-ntfy-enabled="{{ ntfyTopic ? 'true' : 'false' }}"
-              class="toggle"
-              {%if
-              not
-              verified
-              %}disabled
-              {%endif%}
-              {%
-              if
-              ntfyTopic
-              %}
-              checked
-              {%
-              endif
-              %}
+              type="text"
+              class="input input-bordered"
+              name="discordWebhookUrl"
+              placeholder="Discord Webhook Url"
+              required
             />
-          </div>
-        </div>
-        <div
-          id="ntfy-notifications-settings-content"
-          class="{{ ntfyTopic ? '' : 'hidden' }} flex flex-col"
-        >
-          {% if ntfyTopic %}
-          <div class="flex flex-col gap-4 my-4">
-            <div class="bg-base-200 h-20 p-2 rounded-lg grid">
-              <p
-                class="text-xs row-start-1 col-start-1 uppercase text-base-content/80"
-              >
-                Your topic ID
-              </p>
-              <p
-                class="text-xl place-self-center row-start-1 row-end-2 col-start-1 col-end-2"
-              >
-                {{ ntfyTopic }}
-              </p>
-            </div>
-            <a
-              href="/get-notified#subscribe-ntfy"
-              class="text-xs font-bold text-base-content/60 -mt-3 cursor-pointer hover:underline uppercase"
-              >What do I do with this?</a
+            <button
+              class="mt-2 btn btn-sm btn-outline self-start"
+              type="submit"
+              id="discord-submit-btn"
             >
-            <div class="self-end flex flex-col gap-6 mt-2">              
-              <button
-                id="test-ntfy"
-                class="btn btn-sm uppercase btn-outline w-fit self-end"
-              >
-                Send test notification
-              </button>
-            </div>
-          </div>
+              Enable
+            </button>
+          </form>
           {% else %}
-          <div
-            class="flex flex-col lg:flex-row gap-6 bg-base-200 p-4 my-4 lg:p-6 rounded-lg"
-          >
-            {% if verified%}
-            <div class="space-y-4">
-              <p>
-                To enable notifications via <b>ntfy</b>, please set a password
-                for notifications. Remember it, as you will need to enter it in
-                the app later.
-              </p>
-              <p>
-                More info:
-                <a href="/get-notified#enable-ntfy" class="text-primary font-bold"
-                  >Get notified</a
-                >
-              </p>
-            </div>
-            <form
-              method="post"
-              id="enable-ntfy-notifications-form"
-              class="flex flex-col gap-2 lg:w-1/2"
-            >
-              <input
-                type="password"
-                class="input input-bordered"
-                name="notificationsPassword"
-                placeholder="Password"
-                required
-                minlength="8"
-              />
-              <input
-                type="password"
-                class="input input-bordered"
-                name="confirmNotificationsPassword"
-                placeholder="Confirm password"
-                required
-                minlength="8"
-              />
-              <button
-                class="mt-2 btn btn-sm btn-outline self-center"
-                type="submit"
-                id="ntfy-submit-btn"
-              >
-                Enable
-              </button>
-            </form>
-            {% else %}
-            <p>Please verify your account to enable notifications.</p>
-            {% endif %}
-          </div>
-          {% endif %}
-        </div> 
-
-      </div>
-      <div class="flex flex-col justify-between gap-4 my-6 pb-4">
-        <div class="flex justify-end gap-4">
-          <p class="">Enable Discord notifications</p>
-          <div
-            {%if
-            not
-            verified
-            %}class="tooltip tooltip-left"
-            data-tip="Please verify your account to enable notifications"
-            {%endif%}
-          >
-            <input
-              type="checkbox"
-              id="discord-notifications-toggle"
-              data-discord-enabled="{{ discordWebhookUrl ? 'true' : 'false' }}"
-              class="toggle"
-              {%if
-              not
-              verified
-              %}disabled
-              {%endif%}
-              {%
-              if
-              discordWebhookUrl
-              %}
-              checked
-              {%
-              endif
-              %}
-            />
-          </div>
-        </div>
-        <div
-          id="discord-notifications-settings-content"
-          class="{{ discordWebhookUrl ? '' : 'hidden' }} flex flex-col gap-4"
-        >
-          {% if discordWebhookUrl %}
-
-            <div class="bg-base-200 h-36 lg:h-24 p-2 rounded-lg grid">
-              <p
-                class="text-xs row-start-1 col-start-1 uppercase text-base-content/80"
-              >
-                Discord webhook url
-              </p>
-              <p
-                class="text-base-content/80 text-sm break-all place-self-center mt-1 row-start-1 row-end-2 col-start-1 col-end-2"
-              >
-                {{ discordWebhookUrl }}
-              </p>
-
-              <div class="place-self-end row-start-1 row-end-2 col-start-2 col-end-3 tooltip tooltip-left" data-tip="To change webhook url disable Discord notifications and enable again.">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
-                </svg>
-              </div>
-
-            </div>
-          
-              <button
-                id="test-discord-webhook"
-                class="btn btn-sm uppercase btn-outline w-fit self-end"
-              >
-                Send test notification
-              </button>
-          
-          {% else %}
-          <div
-            class="flex flex-col lg:flex-row gap-6 bg-base-200 p-4 my-4 lg:p-6 rounded-lg"
-          >
-            {% if verified%}
-            <div class="space-y-4">
-              <p>
-                To enable notifications via <b>Discord</b>, please enter your Discord webhook url.
-              </p>
-              <p>
-                More info:
-                <a href="/get-notified#discord" class="text-primary font-bold"
-                  >Get notified</a
-                >
-              </p>
-            </div>
-            <form
-              method="post"
-              id="enable-discord-notifications-form"
-              class="flex flex-col gap-2 lg:w-1/2"
-            >
-              <input
-                type="text"
-                class="input input-bordered"
-                name="discordWebhookUrl"
-                placeholder="Discord Webhook Url"
-                required
-              />            
-              <button
-                class="mt-2 btn btn-sm btn-outline self-center"
-                type="submit"
-                id="discord-submit-btn"
-              >
-                Enable
-              </button>
-            </form>
-            {% else %}
-            <p>Please verify your account to enable notifications.</p>
-            {% endif %}
-          </div>
+          <p class="text-sm">
+            Please verify your account to enable notifications.
+          </p>
           {% endif %}
         </div>
-        
-      </div>
-       {% if ntfyTopic or discordWebhookUrl %}
-        <div class="self-end space-x-2">
-            <label>Notification time</label>
-            <select
-              class="select select-bordered select-sm"
-              id="notification-time"
-            >
-              <option disabled selected>
-                {{ notificationTime | split('_') | join(' ') | capitalize }}
-              </option>
-              {% for case in enum('App\\Enum\\NotificationTime').cases %}
-              <option value="{{ case.value }}">
-                {{ case.value | split('_') | join(' ') | capitalize}}
-              </option>
-              {% endfor %}
-            </select>
-        </div>
         {% endif %}
-      <h2
-        class="text-lg font-bold mt-4 border-b border-neutral-content/40 pb-2"
-      >
-        Profile
-      </h2>
-      <div class="flex flex-col gap-6 my-6">
-        {% if not verified %}
-        <button
-          id="email-resend"
-          data-email="{{ email }}"
-          class="btn btn-outline btn-sm rounded-lg self-end uppercase"
-        >
-          Resend verification email
-        </button>
-        {% endif %} {% if passwordSet %}
-
-        <a
-          href="/update-password"
-          class="btn btn-outline btn-sm rounded-lg self-end uppercase"
-          >Update password</a
-        >
-        {% endif %}
-
-        <button
-          id="delete-account"
-          class="btn btn-outline btn-error btn-sm rounded-lg self-end uppercase"
-        >
-          Delete account
-        </button>
       </div>
     </div>
-  </div>
+
+    {% if ntfyTopic or discordWebhookUrl %}
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <label for="notification-time" class="text-sm">Notification time</label>
+      <select
+        class="select select-bordered select-sm"
+        id="notification-time"
+      >
+        {% for case in enum('App\\Enum\\NotificationTime').cases %}
+        <option
+          value="{{ case.value }}"
+          {% if case.value == notificationTime %}selected{% endif %}
+        >
+          {{ case.value | split('_') | join(' ') | capitalize }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+  </section>
+
+  <section class="card surface bg-base-200 p-6 space-y-3">
+    <h2 class="text-lg font-bold text-error">Danger zone</h2>
+    <p class="text-sm text-base-content/70">
+      Deleting your account permanently removes your profile, your shows and
+      your notification settings. It cannot be undone.
+    </p>
+    <div class="flex">
+      <button id="delete-account" class="btn btn-outline btn-error btn-sm">
+        Delete account
+      </button>
+    </div>
+  </section>
 </section>
 {% endblock %}
