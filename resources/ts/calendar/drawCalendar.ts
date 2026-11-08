@@ -64,7 +64,7 @@ function dateCard(date: Date, firstDay: number) {
   const dateNumber = date.getDate();
   return `<div
         id="date-${dateNumber}"
-        class="skeleton lg:min-h-52 card gap-6 bg-base-300 rounded-lg p-2 lg:p-0
+        class="skeleton lg:min-h-52 card surface gap-6 bg-base-300 rounded-lg p-2 lg:p-0
         ${dateNumber === 1 ? 'lg:col-start-' + firstDay : ''}
         ${isToday ? ' outline outline-2 outline-warning -outline-offset-2' : ''}
         "
@@ -77,7 +77,7 @@ function dateCard(date: Date, firstDay: number) {
             dateNumber,
           )}</span>
         </p>
-        <div class="card-body justify-end gap-2 lg:gap-1 p-2 text-base-300">
+        <div class="card-body justify-end gap-2 lg:gap-1 p-2">
         </div>
         </div>`;
 }

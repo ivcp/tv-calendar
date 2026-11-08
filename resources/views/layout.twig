@@ -1,17 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html
+  lang="en"
+  class="h-full"
+  data-theme-light="tvlight"
+  data-theme-dark="dim"
+>
   <head>
     <script>
     (function() {
+      var root = document.documentElement;
+      var theme = root.getAttribute('data-theme-dark');
       try {
-        const savedTheme = localStorage.getItem('theme-light');
+        var savedTheme = localStorage.getItem('theme-light');
         if (savedTheme !== null) {
-          const isLight = JSON.parse(savedTheme);
-            document.documentElement.setAttribute('data-theme', isLight ? 'fantasy' : 'dim');
-          }
-        } catch {
-          console.warn("Local storage access denied; defaulting to dark theme.");
+          theme = JSON.parse(savedTheme)
+            ? root.getAttribute('data-theme-light')
+            : root.getAttribute('data-theme-dark');
         }
+      } catch {
+        console.warn("Local storage access denied; defaulting to dark theme.");
+      }
+      root.setAttribute('data-theme', theme);
     })();
   </script>
     <meta charset="UTF-8" />
@@ -90,7 +99,7 @@
     ></div>
     <header>
       <nav
-        class="navbar justify-between items-center bg-base-200 rounded-b-lg min-h-20"
+        class="navbar surface justify-between items-center bg-base-200 rounded-b-lg min-h-20"
       >
         <details class="dropdown lg:hidden">
           <summary
@@ -443,8 +452,7 @@
                     <input
                       id="theme-toggle"
                       type="checkbox"
-                      value="fantasy"
-                      class="toggle theme-controller"
+                      class="toggle"
                     />
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -480,7 +488,7 @@
     </header>
     <main class="flex-[1_0_auto]">{% block content %}{% endblock %}</main>
     <footer
-      class="shrink-0 mt-4 footer gap-4 footer-center lg:place-items-start bg-base-200 text-base-content rounded-lg p-6 lg:p-7"
+      class="shrink-0 mt-4 footer surface gap-4 footer-center lg:place-items-start bg-base-200 text-base-content rounded-lg p-6 lg:p-7"
     >
       <div class="lg:hidden">
         <a href="/watch-while-traveling?from=footer" class="btn btn-neutral">✈️ Traveling? Keep your subscriptions working.</a>

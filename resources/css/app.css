@@ -29,6 +29,13 @@
   }
 }
 
+/* Light surfaces need a little elevation; dark tolerates it fine. */
+@layer utilities {
+  .surface {
+    @apply shadow-sm ring-1 ring-base-content/5;
+  }
+}
+
 :root:has(
     :is(
         .modal-open,

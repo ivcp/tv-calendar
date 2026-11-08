@@ -29,14 +29,33 @@ module.exports = {
   plugins: [require('daisyui')],
 
   daisyui: {
+    // `dim` stays first so dark remains the default for visitors with no saved
+    // preference. `tvlight` mirrors dim's hues, darkened for light surfaces.
     themes: [
       'dim',
       {
-        fantasy: {
-          ...require('daisyui/src/theming/themes')['fantasy'],
-          'base-100': '#f7f7f7',
-          'base-content': '#293649',
-          warning: '#d68708',
+        tvlight: {
+          'color-scheme': 'light',
+          'base-100': '#f8f9fb',
+          'base-200': '#e9edf3',
+          'base-300': '#dbe1e9',
+          'base-content': '#26303c',
+          primary: '#2f7d4f',
+          'primary-content': '#f2fbf4',
+          secondary: '#b34a2c',
+          'secondary-content': '#fff5f1',
+          accent: '#7b4fae',
+          'accent-content': '#f8f1ff',
+          neutral: '#26303c',
+          'neutral-content': '#e6edf2',
+          info: '#1d4ed8',
+          'info-content': '#eff6ff',
+          success: '#15803d',
+          'success-content': '#f0fdf4',
+          warning: '#b45309',
+          'warning-content': '#fff8e6',
+          error: '#b3261e',
+          'error-content': '#fff5f5',
         },
       },
     ],

@@ -88,6 +88,7 @@ function insertEpisode(
     newSeasonStart
       ? 'bg-primary/85 text-primary-content lg:hover:bg-primary'
       : '',
+    !premiere && !newSeasonStart ? 'text-base-100' : '',
     'rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between items-baseline overflow-hidden',
   ]
     .filter(Boolean)
