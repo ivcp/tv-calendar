@@ -1,7 +1,7 @@
 {% extends 'layout.twig' %}
-{% set page_title = 'Contact |' %} 
+{% set page_title = 'Contact |' %}
 
-{% set page_meta_desc = 'Contact page for TvShowCalendar.' %}
+{% set page_meta_desc = 'Get in touch with TvShowCalendar about bugs, feature ideas, account help, or data requests.' %}
 {% set page_canonical = app_url ~ current_url() %}
 
 {% block content %}
@@ -9,17 +9,62 @@
 <section
   class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
 >
-  <h1 class="text-center font-semibold tracking-tight text-xl">
-    Contact Us
-  </h1>
-
-  <div class="max-w-3xl text-lg space-y-6">
-    <p>
-      Have a question, suggestion, or just want to get in touch? We'd love to hear from you.
+  <div class="flex flex-col items-center gap-2 text-center">
+    <h1 class="font-semibold tracking-tight text-xl">Contact Us</h1>
+    <p class="text-base-content/70">
+      Questions, bugs, or ideas. We read every message.
     </p>
-    <p>
-        <strong>Email:</strong> <a href="mailto:info@tvshowcalendar.com">info@tvshowcalendar.com</a>
-    
+  </div>
+
+  <div
+    class="card surface bg-base-200 w-full max-w-xl p-6 lg:p-8 gap-4 text-center"
+  >
+    <p class="text-lg">Email is the fastest way to reach us:</p>
+    <a
+      href="mailto:{{ app_email }}"
+      class="btn btn-primary btn-lg gap-2 self-center"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-5"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+        />
+      </svg>
+      {{ app_email }}
+    </a>
+    <p class="text-sm text-base-content/70">
+      We usually reply within 2–3 business days.
+    </p>
+  </div>
+
+  <div class="grid gap-4 sm:grid-cols-3 w-full max-w-3xl text-sm">
+    <div class="rounded-lg bg-base-200/60 p-4">
+      <p class="font-bold">Bug reports</p>
+      <p class="text-base-content/70">
+        Tell us what you clicked and what went wrong.
+      </p>
+    </div>
+    <div class="rounded-lg bg-base-200/60 p-4">
+      <p class="font-bold">Feature ideas</p>
+      <p class="text-base-content/70">
+        Have a suggestion what to add or improve? Say so.
+      </p>
+    </div>
+    <div class="rounded-lg bg-base-200/60 p-4">
+      <p class="font-bold">Account &amp; data</p>
+      <p class="text-base-content/70">
+        Deletion and exports are covered in the
+        <a href="/privacy-policy" class="link">privacy policy</a>.
+      </p>
+    </div>
   </div>
 </section>
 {% endblock %}
