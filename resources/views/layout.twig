@@ -309,7 +309,13 @@
             </button>
           </div>
           <details class="dropdown dropdown-end">
-            <summary tabindex="0" role="button" class="btn btn-ghost px-0">
+            <summary
+              tabindex="0"
+              role="button"
+              class="btn btn-ghost px-0 tooltip tooltip-bottom inline-flex"
+              data-tip="{{ user ? 'Account' : 'Log in' }}"
+              aria-label="{{ user ? 'Account menu' : 'Log in or register' }}"
+            >
               <div
                 class="w-13 min-[365px]:w-14 h-full flex justify-center items-center"
               >
@@ -318,6 +324,10 @@
                   verified %}
                   <span
                     class="indicator-item badge px-0 w-2 h-2 badge-warning text-xs"
+                  ></span>
+                  {% elseif user %}
+                  <span
+                    class="indicator-item badge px-0 w-2 h-2 badge-primary text-xs"
                   ></span>
                   {% endif %}
                   <svg
@@ -475,11 +485,13 @@
               </li>
               {% if user and user.verifiedAt is same as(null) and not verified
               %}
-              <div class="border border-warning rounded-lg p-2">
-                <p class="text-sm w-full">
-                  Please, check your email to activate your account.
-                </p>
-              </div>
+              <li class="p-2">
+                <div class="border border-warning rounded-lg p-2">
+                  <p class="text-sm w-full">
+                    Please check your email to activate your account.
+                  </p>
+                </div>
+              </li>
               {% endif %}
             </ul>
           </details>
