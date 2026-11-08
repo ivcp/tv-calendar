@@ -1,45 +1,120 @@
 {% extends 'layout.twig' %}
 
-{% set page_title = 'Get Notified |' %} 
+{% set page_title = 'Get Notified |' %}
 
 {% set page_meta_desc = 'Get TV show release notifications via ntfy and Discord. Learn how to set up phone push alerts, Discord webhooks, and customize your episode timing.' %}
 {% set page_canonical = app_url ~ current_url() %}
-
 
 {% block content %}
 
 <section
   class="mt-16 mb-16 flex flex-col gap-8 lg:gap-10 mx-4 lg:items-center lg:mx-0"
 >
-  <h1 class="text-center font-semibold tracking-tight text-xl">
-    Get Notified When New Episodes Come Out
-  </h1>
-
-  <div class="max-w-3xl text-lg space-y-8">
-    <p>
-      {{ app_name }} supports notifications via <strong>ntfy</strong> and <strong>Discord</strong>.    
-      
+  <div class="flex flex-col items-center gap-2 text-center">
+    <h1 class="font-semibold tracking-tight text-xl">
+      Get Notified When New Episodes Come Out
+    </h1>
+    <p class="text-base-content/70 max-w-3xl">
+      {{ app_name }} supports notifications via ntfy and Discord. Pick a
+      channel below. You can use one or both.
     </p>
+  </div>
 
-    <ul class="list-decimal list-inside space-y-2">
-      <p>Table of contents:</p>
-      <li><a class="text-primary font-bold" href="#install-ntfy">Ntfy</a></li>
-      <li><a class="text-primary font-bold" href="#discord">Discord</a></li>
-      <li><a class="text-primary font-bold" href="#customize">Customize notifications</a></li>
-    </ul>
+  <div class="w-full max-w-3xl text-lg space-y-8">
+    <div class="grid gap-4 lg:grid-cols-2">
+      <a
+        href="#ntfy"
+        class="card surface bg-base-200 p-6 hover:bg-base-300 transition-colors"
+      >
+        <p class="font-bold">ntfy</p>
+        <p class="text-sm text-base-content/70">
+          Free push notifications on your phone through the open-source ntfy
+          app.
+        </p>
+      </a>
+      <a
+        href="#discord"
+        class="card surface bg-base-200 p-6 hover:bg-base-300 transition-colors"
+      >
+        <p class="font-bold">Discord</p>
+        <p class="text-sm text-base-content/70">
+          Post a message into a channel on your own Discord server using a
+          webhook.
+        </p>
+      </a>
+    </div>
 
-    <h2 class="text-xl uppercase font-bold">NTFY</h2>
+    <div class="card surface bg-base-200 p-6 text-sm">
+      <p class="font-bold mb-2">Contents</p>
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div>
+          <p class="font-bold mb-1">ntfy</p>
+          <ul class="space-y-1">
+            <li>
+              <a class="link link-hover" href="#install-ntfy"
+                >Install the ntfy app</a
+              >
+            </li>
+            <li>
+              <a class="link link-hover" href="#enable-ntfy"
+                >Enable ntfy in your profile</a
+              >
+            </li>
+            <li>
+              <a class="link link-hover" href="#subscribe-ntfy"
+                >Subscribe in the app</a
+              >
+            </li>
+            <li>
+              <a class="link link-hover" href="#test-ntfy"
+                >Send a test notification</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-bold mb-1">Discord</p>
+          <ul class="space-y-1">
+            <li>
+              <a class="link link-hover" href="#discord-webhook"
+                >Create a webhook</a
+              >
+            </li>
+            <li>
+              <a class="link link-hover" href="#discord-profile"
+                >Connect it in your profile</a
+              >
+            </li>
+          </ul>
+          <p class="font-bold mt-3 mb-1">Timing</p>
+          <ul class="space-y-1">
+            <li>
+              <a class="link link-hover" href="#customize"
+                >Customize notifications</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
 
-    <h3 id="install-ntfy" class="text-xl uppercase">
-       Install the ntfy App
-    </h3>
-    <div>
+    <div class="space-y-4">
+      <h2 id="ntfy" class="text-xl uppercase font-bold">Ntfy</h2>
       <p>
-        Ntfy is a free and open-source app that allows you to receive push
-        notifications directly to your phone.
+        Ntfy is a free and open-source app that delivers push notifications
+        straight to your phone. It is the simplest option if you only need
+        alerts on your phone.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <h3 id="install-ntfy" class="text-lg font-semibold">
+        Install the ntfy App
+      </h3>
+      <p>
         Before setting up notifications, install the ntfy app on your device:
       </p>
-      <ul class="list-disc list-inside">
+      <ul class="list-disc list-inside space-y-2">
         <li>
           <strong>Android:</strong> Download the app from the
           <a
@@ -68,133 +143,171 @@
       </ul>
     </div>
 
-    <h3 id="enable-ntfy" class="text-xl uppercase ">
-       Enable Ntfy Notifications
-    </h3>
-    <ol class="list-decimal list-inside space-y-2">
-      <li>
-        Go to your
-        <a href="/profile" class="font-bold hover:underline">profile</a> on
-        {{ app_name }}.
-      </li>
-      <li>Select "<strong>Enable NTFY notifications</strong>".</li>
-      <li>
-        A form will appear asking for a <strong>password</strong>. This password
-        is required to set up notifications.
-        <strong>Remember this password</strong>, as you will need it to
-        configure the app on your phone.
-      </li>
-      <li>
-        After entering the password, a <strong>topic ID</strong> will appear.
-        You will need this topic ID, your email, and the password you just set
-        to complete the setup.
-      </li>
-    </ol>
-
-    <h3 id="subscribe-ntfy" class="text-xl uppercase ">
-       Subscribe to Notifications in the ntfy App
-    </h3>
-    <ol class="list-decimal list-inside space-y-2">
-      <li>Open the <strong>ntfy app</strong> on your phone.</li>
-      <li>
-        Tap the <strong>+</strong> button at the bottom to subscribe to a new
-        topic.
-      </li>
-      <li>
-        In the <strong>topic name</strong> field, enter the
-        <strong>topic ID</strong> provided by {{ app_name }}.
-      </li>
-      <li>Check the "<strong>Use another server</strong>" option.</li>
-      <li>
-        Enter the server address for {{ app_name }}:
-        <strong><code>https://ntfy.tvshowcalendar.com</code></strong
-        >.
-      </li>
-      <li>
-        You will be prompted to enter a <strong>username</strong> and
-        <strong>password</strong>:
-      </li>
-      <ul class="list-disc list-inside">
+    <div class="space-y-4">
+      <h3 id="enable-ntfy" class="text-lg font-semibold">
+        Enable Ntfy Notifications
+      </h3>
+      <ol class="list-decimal list-inside space-y-2">
         <li>
-          <strong>Username:</strong> Enter the email address you used to create
-          your {{ app_name }} account.
+          Go to your
+          <a href="/profile" class="font-bold hover:underline">profile</a> on
+          {{ app_name }}.
+        </li>
+        <li>Select "<strong>Enable NTFY notifications</strong>".</li>
+        <li>
+          A form will appear asking for a <strong>password</strong>. This
+          password is required to set up notifications.
         </li>
         <li>
-          <strong>Password:</strong> Enter the password you set for
+          After entering the password, a <strong>topic ID</strong> will appear.
+        </li>
+      </ol>
+      <div class="bg-base-200 rounded-lg p-4">
+        <p class="font-bold">Keep both handy</p>
+        <p class="text-base-content/70">
+          You will need the password and the topic ID, together with your
+          account email, to finish the setup in the ntfy app.
+        </p>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <h3 id="subscribe-ntfy" class="text-lg font-semibold">
+        Subscribe to Notifications in the ntfy App
+      </h3>
+      <ol class="list-decimal list-inside space-y-2">
+        <li>Open the <strong>ntfy app</strong> on your phone.</li>
+        <li>
+          Tap the <strong>+</strong> button at the bottom to subscribe to a new
+          topic.
+        </li>
+        <li>
+          In the <strong>topic name</strong> field, enter the
+          <strong>topic ID</strong> provided by {{ app_name }}.
+        </li>
+        <li>
+          Check the "<strong>Use another server</strong>" option and enter the
+          server address:
+          <div class="bg-base-200 rounded-lg p-4 mt-2">
+            <code class="text-base">https://ntfy.tvshowcalendar.com</code>
+          </div>
+        </li>
+        <li>
+          You will be prompted to enter a <strong>username</strong> and
+          <strong>password</strong>:
+          <ul class="list-disc list-inside space-y-1 mt-2">
+            <li>
+              <strong>Username:</strong> Enter the email address you used to
+              create your {{ app_name }} account.
+            </li>
+            <li>
+              <strong>Password:</strong> Enter the password you set for
+              notifications.
+            </li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <div class="space-y-4">
+      <h3 id="test-ntfy" class="text-lg font-semibold">
+        Send a Test Notification
+      </h3>
+      <p>
+        To ensure everything is working, go to your
+        <a href="/profile" class="font-bold hover:underline">profile</a> on
+        {{ app_name }} and press "<strong>Send test notification</strong>". You
+        should receive a push notification on your phone. If you do, your setup
+        is complete!
+      </p>
+      <p>
+        <a
+          href="https://ntfy.sh/"
+          target="_blank"
+          rel="noopener"
+          class="font-bold hover:underline"
+          >Ntfy</a
+        >
+        is a fantastic free and open-source project. If you enjoy using the app,
+        consider supporting them.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <h2 id="discord" class="text-xl uppercase font-bold">Discord</h2>
+      <p>
+        <strong>Discord</strong> notifications about episodes will be sent to
+        you via a Discord webhook. A webhook is a unique URL where services like
+        {{ app_name }} can "post" information the moment an event occurs, such
+        as when an episode airs.
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      <h3 id="discord-webhook" class="text-lg font-semibold">
+        Create a Discord Webhook
+      </h3>
+      <ol class="list-decimal list-inside space-y-2">
+        <li>
+          Go to your <strong>Discord server</strong> and find the channel where
+          you want messages to appear. Typically, you would create a new channel
+          specifically for receiving {{ app_name }} notifications.
+        </li>
+        <li>
+          Click the little <strong>gear icon</strong> next to the channel name
+          to open the settings. Look for a tab labeled
+          <strong>Integrations</strong> and click the Webhooks option.
+        </li>
+        <li>
+          From there, just hit the <strong>New Webhook</strong> button. You can
+          give your webhook a name and a profile picture if you like, then click
+          <strong>Copy Webhook URL</strong>. This link is the "address" you will
+          paste into {{ app_name }} so it knows exactly where to send
           notifications.
         </li>
-      </ul>
-    </ol>
+      </ol>
+    </div>
 
-    <h3 id="test-ntfy" class="text-xl uppercase ">
-       Test Your Setup
-    </h3>
-    <p>
-      To ensure everything is working, go to your
-      <a href="/profile" class="font-bold hover:underline">profile</a> on
-      {{ app_name }}. Press "<strong>Send test notification</strong>". You
-      should receive a push notification on your phone. If you do, your setup is
-      complete!
-    </p> 
+    <div class="space-y-4">
+      <h3 id="discord-profile" class="text-lg font-semibold">
+        Connect It in Your Profile
+      </h3>
+      <ol class="list-decimal list-inside space-y-2">
+        <li>
+          Go to your {{ app_name }}
+          <a href="/profile" class="font-bold hover:underline">profile</a> and
+          select "<strong>Enable Discord notifications</strong>".
+        </li>
+        <li>
+          Paste your Discord webhook URL into the provided field and click
+          "<strong>Enable</strong>".
+        </li>
+        <li>
+          If the setup is successful, your webhook URL will appear on the
+          screen. Verify the connection by clicking the
+          "<strong>Send test notification</strong>" button.
+        </li>
+      </ol>
+    </div>
 
-    <p>
-      <a href="https://ntfy.sh/" target="_blank" class="font-bold">Ntfy</a> is a
-      fantastic free and open-source project. If you enjoy using the app,
-      consider supporting them.
-    </p>
-
-    <h2 id="discord" class="text-xl uppercase font-bold">Discord</h2>
-
-    <h3 id="install-ntfy" class="text-xl uppercase">
-       Setup Discord webhook
-    </h3>
-    <p>
-        <strong>Discord</strong> notifications about episodes will be sent to you via a Discord webhook. Discord webhooks function as 
-        a unique URL where services like {{app_name}} can "post" information the moment an event occurs, like when an episode airs.
-
-      </p>
-      <ul class="list-inside list-decimal space-y-2">
-        <li>Go to your <strong>Discord server</strong> and find the channel where you want 
-          messages to appear. Typically, you would create a new 
-        channel specifically for receiving {{app_name}} notifications.</li>
-        <li>Click the little <strong>gear icon</strong> next to the channel name to open the settings. 
-        Look for a tab labeled <strong>Integrations</strong> and click the Webhooks option.</li>
-        <li>From there, just hit the <strong>New Webhook</strong> button. You can give your webhook a name and a profile picture if you like, 
-        then click <strong>Copy Webhook URL</strong>.
-        This link is the "address" you will paste into {{app_name}}
-        so it knows exactly where to send notifications.</li>        
-    </ul>
-
-
-    <h3 id="install-ntfy" class="text-xl uppercase">
-       Profile setup  
-    </h3>
-
-    <p>
-       Go to your {{app_name}} <a href="/profile" class="font-bold">profile</a> and select <strong>Enable Discord notifications</strong>. 
-       Paste your Discord webhook URL into the provided 
-       field and click <strong>Enable</strong>. If the setup is successful, your webhook URL will appear on the screen. 
-       You can then verify the connection by clicking the <strong>Send test message</strong> button.      
-      </p>
-     
-
-    <h2 id="customize" class="text-xl uppercase font-bold">Customize Notifications</h2>
-       
-    <div>
+    <div class="space-y-4">
+      <h2 id="customize" class="text-xl uppercase font-bold">
+        Customize Notifications
+      </h2>
       <p>You can choose when to receive notifications:</p>
-      <ul class="list-disc list-inside">
+      <ul class="list-disc list-inside space-y-2">
         <li>At the episode airtime (default)</li>
         <li>One hour before the episode airs</li>
         <li>One hour after the episode airs</li>
       </ul>
-    </div>
-
-    <div>
-      <p>
-        Notifications are enabled by default for all shows in your list. To
-        manage them individually, visit the show page and click the bell icon to
-        toggle notifications on or off.
-      </p>
+      <div class="bg-base-200 rounded-lg p-4">
+        <p class="font-bold">Per-show control</p>
+        <p class="text-base-content/70">
+          Notifications are enabled by default for all shows in your list. To
+          manage them individually, visit the show page and click the bell icon
+          to toggle notifications on or off.
+        </p>
+      </div>
     </div>
   </div>
 </section>
