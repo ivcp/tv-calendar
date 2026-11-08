@@ -132,17 +132,20 @@ const showCard = (show: Show): HTMLElement => {
 
   const removeButton = document.createElement('button');
   removeButton.className =
-    'btn btn-link btn-secondary justify-self-end p-2 hidden group-hover:block remove-show';
+    'btn btn-link btn-secondary justify-self-end p-2 hidden lg:group-hover:block remove-show';
   removeButton.dataset.showId = String(show.id);
+  removeButton.dataset.showTitle = show.name;
   removeButton.innerHTML = `
                     <div class="tooltip" data-tip="Remove from my shows">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
-                        stroke-width="1.5"
+                        stroke-width="1.15"
                         stroke="currentColor"
-                        class="size-7 stroke-base-content"
+                        aria-hidden="true"
+                        focusable="false"
+                        class="size-8 poster-icon stroke-[#FF7D5C]"
                       >
                         <path
                           stroke-linecap="round"
