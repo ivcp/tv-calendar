@@ -1,17 +1,15 @@
 <div
   id="date-{{i}}"
-  class="skeleton lg:min-h-52 card surface gap-6 bg-base-300 rounded-lg p-2 lg:p-0
+  class="date-card skeleton
   {%set day = month|date('N') %}
   {% if i == 1 and not user.startOfWeekSunday %} lg:col-start-{{ day }}{% endif %}
   {% if i == 1 and user.startOfWeekSunday %} lg:col-start-{{  day == 7 ? 1 : day + 1 }}{% endif %}"
 >
-  <p class="self-end px-3 py-1 text-sm lg:text-base font-semibold">
+  <p class="date-number self-start px-1 py-1 text-sm font-semibold lg:text-base">
     {% set today = month|date('Y-m-' ~ i) %}
-    <span class="font-normal lg:hidden">{{ today|date("l") }},</span>   
+    <span class="font-normal lg:hidden">{{ today|date("l") }},</span>
     {{ i }}<span class="text-xs lg:hidden">{{today|date("S")}}</span>
-  </p>  
-  <div class="card-body justify-end gap-2 lg:gap-1 p-2"> 
-  </div>  
+  </p>
+  <div class="card-body justify-start gap-2 p-1 lg:gap-1">
+  </div>
 </div>
-
-

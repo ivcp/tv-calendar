@@ -10,15 +10,17 @@ function getCurrentYearMonth(): string {
   return `${year}-${month}`;
 }
 
+const TODAY_CARD_CLASSES =
+  'outline outline-1 outline-warning/40 -outline-offset-2 bg-warning/10';
+
 function markToday(): void {
   const todayCard = document.getElementById(`date-${new Date().getDate()}`);
   assertHtmlElement(todayCard);
-  todayCard.classList.add(
-    'outline',
-    'outline-2',
-    'outline-warning',
-    '-outline-offset-2'
-  );
+  todayCard.classList.add(...TODAY_CARD_CLASSES.split(' '));
+  todayCard.setAttribute('aria-current', 'date');
+  todayCard
+    .querySelector('.date-number')
+    ?.classList.add('text-warning', 'font-bold');
 }
 
 async function getShows(
@@ -48,4 +50,4 @@ async function getShows(
   return episodes;
 }
 
-export { getCurrentYearMonth, getShows, markToday };
+export { getCurrentYearMonth, getShows, markToday, TODAY_CARD_CLASSES };

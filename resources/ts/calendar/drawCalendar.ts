@@ -1,4 +1,5 @@
 import { assertAnchorElement, assertHtmlElement } from '../utils/assertElement';
+import { TODAY_CARD_CLASSES } from './helpers';
 
 function drawCalendar(): void {
   const calendarElement = document.getElementById('calendar');
@@ -64,20 +65,23 @@ function dateCard(date: Date, firstDay: number) {
   const dateNumber = date.getDate();
   return `<div
         id="date-${dateNumber}"
-        class="skeleton lg:min-h-52 card surface gap-6 bg-base-300 rounded-lg p-2 lg:p-0
+        class="date-card skeleton
         ${dateNumber === 1 ? 'lg:col-start-' + firstDay : ''}
-        ${isToday ? ' outline outline-2 outline-warning -outline-offset-2' : ''}
+        ${isToday ? TODAY_CARD_CLASSES : ''}
         "
+        ${isToday ? 'aria-current="date"' : ''}
         >
-        <p class="self-end px-3 py-1 text-sm lg:text-base font-semibold">
+        <p class="date-number self-start px-1 py-1 text-sm font-semibold lg:text-base${
+          isToday ? ' text-warning font-bold' : ''
+        }">
           <span class="font-normal lg:hidden">${date.toLocaleString('en-us', {
             weekday: 'long',
-          })}, </span></span>
+          })}, </span>
           ${dateNumber}<span class="text-xs lg:hidden">${nthNumber(
             dateNumber,
           )}</span>
         </p>
-        <div class="card-body justify-end gap-2 lg:gap-1 p-2">
+        <div class="card-body justify-start gap-2 p-1 lg:gap-1">
         </div>
         </div>`;
 }

@@ -28,6 +28,19 @@
     @apply bg-primary text-primary-content;
   }
 
+  /* Day cell shell shared by the server-rendered and client-drawn calendars. */
+  .date-card {
+    @apply relative flex min-w-0 flex-col gap-2 rounded-lg bg-base-300 p-2 shadow-sm ring-1 ring-base-content/5 lg:min-h-40;
+  }
+
+  /* Days with nothing airing read as quieter placeholders once loading ends. */
+  #calendar
+    > .date-card:not(.skeleton):not(:has(.card-body > *)):not(
+      [aria-current='date']
+    ) {
+    @apply bg-base-300/50 text-base-content/60;
+  }
+
   /* Shared long-form styling for the legal pages (privacy policy, terms). */
   .legal {
     @apply max-w-3xl text-lg space-y-6;
