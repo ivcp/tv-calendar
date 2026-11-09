@@ -137,9 +137,9 @@ class UpdateTest extends TestCase
             $this->assertSame(6, $firstShow->getEpisodes()->first()->getSeason());
             $this->assertSame(12, $firstShow->getEpisodes()->first()->getNumber());
             $this->assertEqualsWithDelta(
-                (new DateTime('now'))->getTimestamp(),
+                $episodes[3][0]->airstamp->getTimestamp(),
                 $firstShow->getEpisodes()->first()->getAirstamp()->getTimestamp(),
-                15
+                1
             );
             $this->assertSame('special', $secondShow->getEpisodes()->last()->getType());
             $this->assertSame('summary ep 1 updated', $firstShow->getEpisodes()->first()->getSummary());
