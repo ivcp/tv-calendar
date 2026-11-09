@@ -17,6 +17,7 @@ function populateDates(episodes: Episode[], premieres: boolean = false) {
 
   let currentShowId: number, currentDate: number, firstEpId: number;
   let sameDayEps = 1;
+  let airingTodayCount = 0;
   episodes.forEach((episode, i) => {
     const date = new Date(episode.airstamp).getDate();
     const cardBody = document
@@ -61,10 +62,18 @@ function populateDates(episodes: Episode[], premieres: boolean = false) {
     ) {
       airingTodayContainer.classList.remove('hidden');
       const body = airingTodayContainer.querySelector('#airing-today-body');
-      if (body) insertEpisode(episode, body, premieres);
+      if (body) {
+        insertEpisode(episode, body, premieres);
+        airingTodayCount++;
+      }
     }
     insertEpisode(episode, cardBody, premieres);
   });
+
+  const airingTodayCountEl = document.getElementById('airing-today-count');
+  if (airingTodayCountEl) {
+    airingTodayCountEl.textContent = String(airingTodayCount);
+  }
 
   document
     .querySelectorAll('.skeleton')
@@ -89,20 +98,26 @@ function insertEpisode(
       ? 'bg-primary/85 text-primary-content lg:hover:bg-primary'
       : '',
     !premiere && !newSeasonStart ? 'text-base-100' : '',
-    'rounded-md p-4 lg:p-2 lg:px-2 text-left transition-colors flex justify-between items-baseline overflow-hidden',
+    'flex items-center justify-between gap-2 overflow-hidden rounded-md px-3 py-2 text-left text-sm transition-colors ring-1 ring-inset ring-base-content/10 lg:py-1.5',
   ]
     .filter(Boolean)
     .join(' ');
 
+  const name = document.createElement('span');
+  name.className = 'min-w-0 truncate';
+  name.textContent = episode.showName;
+  name.title = episode.showName;
+
   const season = document.createElement('span');
   season.id = 'season-number';
-  season.className = 'text-nowrap text-sm';
+  season.className =
+    'shrink-0 text-nowrap text-xs font-semibold tracking-wide opacity-80';
   season.textContent = isPremiere
     ? `S${episode.seasonNumber}`
     : `S${episode.seasonNumber} E${episode.episodeNumber ?? 'sp'}`;
 
   // string children become text nodes — no HTML parsing
-  btn.append(episode.showName, season);
+  btn.append(name, season);
   btn.addEventListener('click', () => openEpisodeModal(episode));
   el.append(btn);
 }

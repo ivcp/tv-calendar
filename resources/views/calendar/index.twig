@@ -47,10 +47,10 @@
   %}
 >
   {% include 'components/episode-modal.twig' %}
-  <div class="grow flex flex-col gap-12 lg:gap-0 mb-8">
+  <div class="grow flex flex-col gap-6 lg:gap-0 mb-8">
     <h1 class="sr-only">{{page_h1}}</h1>
     <div
-      class="navbar lg:surface flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 h-20 lg:rounded-lg"
+      class="navbar lg:surface flex-col gap-4 mt-2 lg:flex-row lg:mt-0 lg:gap-0 lg:py-4 lg:px-20 lg:bg-base-200 min-h-20 lg:h-20 lg:rounded-lg"
     >
       <div class="flex-1 flex items-center">
         <a
@@ -106,7 +106,7 @@
         >
           <button
             role="tab"
-            class="tab text-xs font-bold rounded-full transition-colors duration-250"
+            class="tab text-xs font-bold rounded-full transition-colors duration-200"
             id="user-shows"
             {%
             if
@@ -121,7 +121,7 @@
           </button>
           <button
             role="tab"
-            class="tab text-xs font-bold rounded-full transition-colors duration-250"
+            class="tab text-xs font-bold rounded-full transition-colors duration-200"
             id="popular-shows"
             {%
             if
@@ -137,7 +137,7 @@
           </button>
           <button
             role="tab"
-            class="tab text-xs font-bold rounded-full transition-colors duration-250"
+            class="tab text-xs font-bold rounded-full transition-colors duration-200"
             id="premieres-shows"
           >
             Premieres
@@ -145,13 +145,13 @@
         </div>
       </div>
     </div>
-    <div id="airing-today-container" class="hidden lg:hidden -mb-8 px-2">
+    <div id="airing-today-container" class="hidden lg:hidden px-2">
       {% include 'calendar/airing-today.twig' %}
     </div>
     <div class="mt-2 bg-base-100 px-2 lg:px-0">
       <div
         id="days"
-        class="hidden font-bold py-3 lg:grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:justify-items-center"
+        class="hidden py-3 text-xs font-semibold uppercase tracking-widest text-base-content/60 lg:grid lg:grid-flow-row lg:grid-cols-7 lg:gap-1.5 lg:justify-items-start [&>span]:pl-3"
         {%
         if
         user.startOfWeekSunday
@@ -176,7 +176,7 @@
       </div>
       <div
         id="calendar"
-        class="mt-2 grid gap-4 lg:grid-flow-row lg:grid-cols-7 lg:gap-1.5 lg:auto-rows-auto"
+        class="mt-2 grid grid-cols-1 gap-4 lg:grid-flow-row lg:grid-cols-7 lg:gap-1.5 lg:auto-rows-auto"
       >
         {% if month %} {% set daysInMonth = month|date('t') %} {% for i in
         1..daysInMonth %} {% include 'calendar/date-card.twig' with {'i': i,
