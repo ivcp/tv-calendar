@@ -11,10 +11,12 @@ use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\RequestValidatorInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\Entity\User;
+use App\Exception\ValidationException;
 use App\Mail\VerificatonEmail;
 use App\ResponseFormatter;
 use App\Services\UserShowsService;
 use DateTime;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
@@ -177,6 +179,65 @@ class AuthControllerTest extends TestCase
         $this->assertSame('/login', $callbackResponse->getHeaderLine('Location'));
         $this->auth->expects($this->never())->method('login');
         $this->userProvider->expects($this->never())->method('getByCredentials');
+    }
+
+    public function testTurnsAConcurrentDuplicateEmailIntoAValidationError(): void
+    {
+        $controller = $this->makeController();
+
+        $this->auth->method('register')->willThrowException($this->uniqueConstraintViolation());
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('POST', 'https://tv-calendar.test/register')
+            ->withParsedBody(['email' => 'user@example.com', 'password' => 'password123']);
+
+        try {
+            $controller->register($request, new Response());
+            $this->fail('Expected a ValidationException.');
+        } catch (ValidationException $e) {
+            $this->assertArrayHasKey('email', $e->errors);
+            $this->assertSame(
+                ['Account with that email already exists.'],
+                $e->errors['email']
+            );
+        }
+    }
+
+    public function testRedirectsToLoginWhenAGoogleSignUpLosesTheDuplicateEmailRace(): void
+    {
+        $controller = $this->makeController([
+            new GuzzleResponse(200, [], json_encode(['access_token' => 'access-token'])),
+            new GuzzleResponse(
+                200,
+                [],
+                json_encode(['email' => 'user@example.com', 'email_verified' => true])
+            ),
+        ]);
+
+        $state = $this->locationQuery(
+            $controller->googleOauth($this->request([]), new Response())
+        )['state'];
+
+        $this->userProvider->method('getByCredentials')->willReturn(null);
+        $this->auth->method('register')->willThrowException($this->uniqueConstraintViolation());
+        $this->auth->expects($this->never())->method('login');
+
+        $callbackResponse = $controller->googleOauth(
+            $this->request(['code' => 'authorization-code', 'state' => $state]),
+            new Response()
+        );
+
+        $this->assertSame(302, $callbackResponse->getStatusCode());
+        $this->assertSame('/login', $callbackResponse->getHeaderLine('Location'));
+    }
+
+    private function uniqueConstraintViolation(): UniqueConstraintViolationException
+    {
+        return new class extends UniqueConstraintViolationException {
+            public function __construct()
+            {
+            }
+        };
     }
 
     private function makeController(array $guzzleResponses = []): AuthController
