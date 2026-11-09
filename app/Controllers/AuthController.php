@@ -17,6 +17,7 @@ use App\RequestValidators\OauthRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
 use App\ResponseFormatter;
 use App\Services\UserShowsService;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -61,12 +62,16 @@ class AuthController
             ->make(RegisterUserRequestValidator::class)
             ->validate($request->getParsedBody());
 
-        $user = $this->auth->register(
-            new RegisterUserData(
-                email: $data['email'],
-                password: $data['password']
-            )
-        );
+        try {
+            $user = $this->auth->register(
+                new RegisterUserData(
+                    email: $data['email'],
+                    password: $data['password']
+                )
+            );
+        } catch (UniqueConstraintViolationException) {
+            throw new ValidationException(['email' => ['Account with that email already exists.']]);
+        }
 
         if (isset($data['shows'])) {
             $this->importLocalShows($data['shows'], $user);
@@ -74,7 +79,6 @@ class AuthController
 
         return $response->withHeader('Location', '/')->withStatus(302);
     }
-
 
     public function login(Request $request, Response $response): Response
     {
@@ -218,12 +222,16 @@ class AuthController
             $this->auth->login($user);
         } else {
             // `register()` also logs the newly created user in.
-            $user = $this->auth->register(
-                new RegisterUserData(
-                    email: $profile['email'],
-                    verified: true
-                )
-            );
+            try {
+                $user = $this->auth->register(
+                    new RegisterUserData(
+                        email: $profile['email'],
+                        verified: true
+                    )
+                );
+            } catch (UniqueConstraintViolationException) {
+                return $this->redirectToLogin($response);
+            }
         }
 
         if (! $user->getVerifiedAt()) {

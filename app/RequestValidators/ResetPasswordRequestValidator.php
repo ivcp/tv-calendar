@@ -19,6 +19,10 @@ class ResetPasswordRequestValidator implements RequestValidatorInterface
         ->message("Password and Confirm password must match.");
         $v->rule('lengthMin', 'password', 8);
         $v->rule('lengthMin', 'confirm_password', 8);
+        $v->rule(
+            fn ($field, $value) => is_string($value) && strlen($value) <= 72,
+            'password'
+        )->message('Password must not exceed 72 bytes.');
 
         if (! $v->validate()) {
             throw new ValidationException($v->errors());

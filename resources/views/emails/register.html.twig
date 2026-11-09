@@ -1,7 +1,23 @@
-<p>Thank you for signing up for {{ appName }}!</p>
-<p>
-  <a href="{{ activationLink }}">Activate your account</a>
-  (this link is valid for the next 48 hours)
+{% extends 'emails/layout.html.twig' %}
+{% import 'emails/_button.html.twig' as ui %}
+
+{% block title %}Confirm your email address | {{ appName }}{% endblock %}
+
+{% block preheader %}Confirm your email address to activate your {{ appName }} account.{% endblock %}
+
+{% block content %}
+<h1
+  style="margin:0 0 16px;font-size:22px;line-height:1.3;font-weight:700;color:#26303c;"
+>
+  Confirm your email address
+</h1>
+<p style="margin:0 0 16px;">
+  Thanks for signing up for {{ appName }}. Confirm your email address to
+  activate your account and start tracking your shows.
 </p>
-<p>If you have any feedback or suggestions, we'd love to hear from you!</p>
-<p>Happy watching!</p>
+{{ ui.button(activationLink, 'Activate my account') }}
+<p style="margin:0;font-size:14px;line-height:1.5;color:#64748b;">
+  This link expires in 48 hours. If you didn't create an account, you can safely
+  ignore this email.
+</p>
+{% endblock %}

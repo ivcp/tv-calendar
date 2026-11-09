@@ -1,7 +1,22 @@
-<p>Thank you for signing up for {{ appName }}!</p>
-<p>
-  <a href="{{ website }}">Get started</a> by adding your favorite shows to your
-  calendar.
+{% extends 'emails/layout.html.twig' %}
+{% import 'emails/_button.html.twig' as ui %}
+
+{% block title %}Welcome to {{ appName }}{% endblock %}
+
+{% block preheader %}Your {{ appName }} account is ready. Start tracking your shows.{% endblock %}
+
+{% block content %}
+<h1
+  style="margin:0 0 16px;font-size:22px;line-height:1.3;font-weight:700;color:#26303c;"
+>
+  Welcome to {{ appName }}
+</h1>
+<p style="margin:0 0 16px;">
+  Your account is ready. Add your favorite shows to your calendar and never
+  miss an episode.
 </p>
-<p>If you have any feedback or suggestions, we'd love to hear from you!</p>
-<p>Happy watching!</p>
+{{ ui.button(website, 'Start tracking shows') }}
+<p style="margin:0;font-size:14px;line-height:1.5;color:#64748b;">
+  If you have any feedback or suggestions, we'd love to hear from you!
+</p>
+{% endblock %}

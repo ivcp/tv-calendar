@@ -17,6 +17,10 @@ class UpdatePasswordRequestValidator implements RequestValidatorInterface
         $v->rule('required', ['password', 'new_password']);
         $v->rule('lengthMin', 'password', 8);
         $v->rule('lengthMin', 'new_password', 8);
+        $v->rule(
+            fn ($field, $value) => is_string($value) && strlen($value) <= 72,
+            'new_password'
+        )->message('Password must not exceed 72 bytes.');
 
         if (! $v->validate()) {
             throw new ValidationException($v->errors());

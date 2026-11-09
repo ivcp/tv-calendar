@@ -109,8 +109,21 @@ class ValidationExceptionMiddlewareTest extends TestCase
         $this->assertSame(302, $response->getStatusCode());
         $this->assertSame('https://tv-calendar.test/login', $response->getHeaderLine('Location'));
         $this->assertSame(['Invalid email.'], $this->session->getFlashed('errors')['email']);
-        $this->assertSame('user@example.com', $this->session->getFlashed('old')['email']);
-        $this->assertArrayNotHasKey('password', $this->session->getFlashed('old'));
+
+        $old = $this->session->getFlashed('old');
+        $this->assertSame('user@example.com', $old['email']);
+        $this->assertArrayHasKey('shows', $old);
+
+        foreach ([
+            'password',
+            'confirm_password',
+            'new_password',
+            'notificationsPassword',
+            'confirmNotificationsPassword',
+            'cf-turnstile-response',
+        ] as $sensitiveField) {
+            $this->assertArrayNotHasKey($sensitiveField, $old);
+        }
     }
 
     private function request(): ServerRequestInterface
@@ -119,9 +132,14 @@ class ValidationExceptionMiddlewareTest extends TestCase
             ->createServerRequest('POST', 'https://tv-calendar.test/login')
             ->withHeader('Referer', 'https://tv-calendar.test/login')
             ->withParsedBody([
-                'email' => 'user@example.com',
-                'password' => 'secret',
-                'confirm_password' => 'secret',
+                'email'                        => 'user@example.com',
+                'password'                     => 'secret',
+                'confirm_password'             => 'secret',
+                'new_password'                 => 'new-secret',
+                'notificationsPassword'        => 'ntfy-secret',
+                'confirmNotificationsPassword' => 'ntfy-secret',
+                'cf-turnstile-response'        => 'token',
+                'shows'                        => ['1', '2'],
             ]);
     }
 

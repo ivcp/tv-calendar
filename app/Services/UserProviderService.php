@@ -25,7 +25,38 @@ class UserProviderService implements UserProviderServiceInterface
 
     public function getByCredentials(array $credentials): ?UserInterface
     {
-        return $this->entityManager->getRepository(User::class)->findOneBy(['email' => $credentials['email']]);
+        $email = $this->normalizeEmail($credentials['email'] ?? null);
+
+        if ($email === '') {
+            return null;
+        }
+
+        return $this->entityManager
+            ->getRepository(User::class)
+            ->createQueryBuilder('u')
+            ->where('LOWER(u.email) = :email')
+            ->setParameter('email', $email)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function emailExists(string $email): bool
+    {
+        $email = $this->normalizeEmail($email);
+
+        if ($email === '') {
+            return false;
+        }
+
+        return (bool) $this->entityManager
+            ->getRepository(User::class)
+            ->createQueryBuilder('u')
+            ->select('COUNT(u.id)')
+            ->where('LOWER(u.email) = :email')
+            ->setParameter('email', $email)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function getByNtfyTopic(string $topic): ?UserInterface
@@ -36,7 +67,7 @@ class UserProviderService implements UserProviderServiceInterface
     public function createUser(RegisterUserData $data): UserInterface
     {
         $user = new User();
-        $user->setEmail($data->email);
+        $user->setEmail($this->normalizeEmail($data->email));
         $user->setStartOfWeekSunday($data->startOfWeekSunday);
         $user->setNtfyTopic($data->ntfyTopic);
         $user->setNotificationTime($data->notificationTime);
@@ -84,5 +115,10 @@ class UserProviderService implements UserProviderServiceInterface
     private function hashPassword($password)
     {
         return password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
+    }
+
+    private function normalizeEmail(mixed $email): string
+    {
+        return is_string($email) ? mb_strtolower(trim($email), 'UTF-8') : '';
     }
 }

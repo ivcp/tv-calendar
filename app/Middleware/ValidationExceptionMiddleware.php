@@ -17,6 +17,15 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class ValidationExceptionMiddleware implements MiddlewareInterface
 {
+    private const SENSITIVE_FIELDS = [
+        'password',
+        'confirm_password',
+        'new_password',
+        'notificationsPassword',
+        'confirmNotificationsPassword',
+        'cf-turnstile-response',
+    ];
+
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly SessionInterface $session,
@@ -61,10 +70,9 @@ class ValidationExceptionMiddleware implements MiddlewareInterface
         array $errors
     ): ResponseInterface {
         $oldData = (array) $request->getParsedBody();
-        $sensitiveFields = ['password', 'confirm_password'];
 
         $this->session->flash('errors', $errors);
-        $this->session->flash('old', array_diff_key($oldData, array_flip($sensitiveFields)));
+        $this->session->flash('old', array_diff_key($oldData, array_flip(self::SENSITIVE_FIELDS)));
 
         return $response
             ->withHeader('Location', $this->requestService->getReferer($request))

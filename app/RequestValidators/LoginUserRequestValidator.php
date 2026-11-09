@@ -12,6 +12,10 @@ class LoginUserRequestValidator implements RequestValidatorInterface
 {
     public function validate(array $data): array
     {
+        $data['email'] = is_string($data['email'] ?? null)
+            ? mb_strtolower(trim($data['email']), 'UTF-8')
+            : '';
+
         $v = new Validator($data);
 
         $v->rule('required', ['email', 'password']);
