@@ -29,6 +29,11 @@ docker cp tv-calendar-app:var/www/public/build ./public/
 docker exec tv-calendar-app bash -c './bin/doctrine orm:generate-proxies'
 docker exec tv-calendar-app bash -c './bin/doctrine migrations:migrate --no-interaction'
 
+msg "Clearing template cache"
+
+docker exec tv-calendar-cron sh -c 'rm -rf /var/www/storage/cache/templates/*'
+docker exec tv-calendar-app sh -c 'rm -rf storage/cache/templates/*'
+
 msg "Removing stale images"
 
 docker image prune -f
