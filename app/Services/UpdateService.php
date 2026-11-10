@@ -280,7 +280,7 @@ class UpdateService
                 } catch (\Throwable $e) {
                     $errors += 1;
                     error_log("ERROR updateEpisodes for $show->tvMazeId: " . $e->getMessage());
-                    return;
+                    continue;
                 }
             }
             $episodesToInsert = array_filter(
@@ -296,7 +296,7 @@ class UpdateService
                 } catch (\Throwable $e) {
                     $errors += 1;
                     error_log("ERROR update insertEpisodes for $show->tvMazeId: " . $e->getMessage());
-                    return;
+                    continue;
                 }
             }
 
@@ -308,7 +308,7 @@ class UpdateService
                 } catch (\Throwable $e) {
                     $errors += 1;
                     error_log("ERROR update removeEpisodes: $show->tvMazeId: " . $e->getMessage());
-                    return;
+                    continue;
                 }
             }
         }
