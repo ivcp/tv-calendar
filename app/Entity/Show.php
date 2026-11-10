@@ -55,6 +55,12 @@ class Show
     private ?string $webChannelName;
     #[Column(name: 'web_channel_country', type: 'string', nullable: true)]
     private ?string $webChannelCountry;
+    /**
+     * TVMaze "updated" timestamp of the last fully synced payload.
+     * bigint, so the database driver may hand back an int|string.
+     */
+    #[Column(name: 'tv_maze_updated_at', type: 'bigint', nullable: true)]
+    private int|string|null $tvMazeUpdatedAt = null;
 
 
     #[OneToMany(mappedBy: 'show', targetEntity: Episode::class, cascade: ['persist', 'remove'])]
@@ -307,6 +313,26 @@ class Show
         if ($webChannelName) {
             $this->webChannelName = $webChannelName;
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the TVMaze "updated" timestamp of the last fully synced payload
+     */
+    public function getTvMazeUpdatedAt(): ?int
+    {
+        return $this->tvMazeUpdatedAt === null ? null : (int) $this->tvMazeUpdatedAt;
+    }
+
+    /**
+     * Set the TVMaze "updated" timestamp of the last fully synced payload
+     *
+     * @return  self
+     */
+    public function setTvMazeUpdatedAt(?int $tvMazeUpdatedAt): Show
+    {
+        $this->tvMazeUpdatedAt = $tvMazeUpdatedAt;
 
         return $this;
     }

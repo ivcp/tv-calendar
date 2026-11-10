@@ -33,6 +33,14 @@ return [
         'retries' => 3,
         'timeout' => 3.0
     ],
+    'tvmaze' => [
+        'user_agent' => sprintf(
+            '%s/%s',
+            $_ENV['APP_NAME'] ?? 'tv-calendar',
+            $_ENV['APP_VERSION'] ?? '1.0'
+        ) . (($_ENV['APP_URL'] ?? '') !== '' ? ' (+' . $_ENV['APP_URL'] . ')' : ''),
+        'timeout' => 10.0,
+    ],
     'session' => [
         'name' => $appName . '_session',
         'flash_name' => $appName . '_flash',
@@ -63,7 +71,7 @@ return [
         'base_url' => $_ENV['NTFY_BASE_URL'],
         'admin_token' => $_ENV['NTFY_ADMIN_TOKEN'],
     ],
-    'webhook_url' => $_ENV['WEBHOOK_URL'],
+    'webhook_url' => $_ENV['WEBHOOK_URL'] ?? '',
     'url_secret_key' => $_ENV['URL_SECRET_KEY'],
     // Application-level rate limits, enforced by App\Middleware\RateLimitMiddleware.
     // Keys are "<METHOD> <path>", each entry is a list of checks with:

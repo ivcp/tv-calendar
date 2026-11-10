@@ -308,13 +308,22 @@ class ShowService
                 $show->imageOriginal,
                 ParameterType::STRING
             );
+            // Advanced only after the show's episodes are synced successfully
+            $this->setParameterAndType(
+                $params,
+                $types,
+                $paramsIterator,
+                null,
+                ParameterType::INTEGER
+            );
         }
 
         try {
             $rows = $conn->executeStatement('INSERT INTO shows 
             (tv_maze_id, imdb_id, genres, status, premiered, ended, official_site, 
             weight, network_name, network_country, web_channel_name, web_channel_country,
-            summary, name, runtime, image_medium, image_original, created_at, updated_at) 
+            summary, name, runtime, image_medium, image_original, tv_maze_updated_at,
+            created_at, updated_at) 
           VALUES ' . implode(',', $values), $params->toArray(), $types->toArray());
         } catch (Exception $e) {
             throw $e;
@@ -422,6 +431,20 @@ class ShowService
         }
 
         return (int) $rows;
+    }
+
+    /**
+     * Store the TVMaze updated timestamp of a successfully synced show
+     *
+     * @return int number of shows updated
+     **/
+    public function updateTvMazeUpdatedAt(int $tvMazeId, int $updatedAt): int
+    {
+        return (int) $this->entityManager->getConnection()->executeStatement(
+            'UPDATE shows SET tv_maze_updated_at = ? WHERE tv_maze_id = ?',
+            [$updatedAt, $tvMazeId],
+            [ParameterType::INTEGER, ParameterType::INTEGER]
+        );
     }
 
     public function slugify(string $name): string

@@ -44,7 +44,7 @@ class UpdateTest extends TestCase
     public function testUpdateMain($updatedShows, $shows, $episodes, $fromFile): void
     {
         $tvMazeService = $this->createStub(TvMazeService::class);
-        $tvMazeService->method('getUpdatedShowIDs')->willReturn(...$updatedShows);
+        $tvMazeService->method('getUpdatedShows')->willReturn(...$updatedShows);
         $tvMazeService->method('getShows')->willReturn(...$shows);
         $tvMazeService->method('getEpisodes')->willReturn(...$episodes);
         $webhookService = $this->createStub(WebhookService::class);
@@ -161,6 +161,285 @@ class UpdateTest extends TestCase
 
 
 
+    public function testEpisodesAreNotRemovedWhenEpisodeFetchFails(): void
+    {
+        [$show1, $show2, $episodes1, $episodes2] = $this->getSimpleShowData();
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 100, 2 => 100]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes1, $episodes2);
+
+        $this->runUpdate($tvMazeService);
+        $this->assertSame(4, $this->countEpisodes());
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 200, 2 => 200]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn(null);
+
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $this->runUpdate($tvMazeService);
+
+        $this->assertSame(0, $showInsertCount);
+        $this->assertSame(0, $epInsertCount);
+        $this->assertSame(2, $showUpdatedCount);
+        $this->assertSame(0, $epUpdatedCount);
+        $this->assertSame(0, $epRemovedCount);
+        $this->assertSame(4, $this->countEpisodes());
+    }
+
+    public function testEmptyEpisodeListDoesNotRemoveExistingEpisodes(): void
+    {
+        [$show1, $show2, $episodes1, $episodes2] = $this->getSimpleShowData();
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 100, 2 => 100]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes1, $episodes2);
+
+        $this->runUpdate($tvMazeService);
+        $this->assertSame(4, $this->countEpisodes());
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 200, 2 => 200]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn([]);
+
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $this->runUpdate($tvMazeService);
+
+        $this->assertSame(0, $showInsertCount);
+        $this->assertSame(0, $epInsertCount);
+        $this->assertSame(2, $showUpdatedCount);
+        $this->assertSame(0, $epUpdatedCount);
+        $this->assertSame(0, $epRemovedCount);
+        $this->assertSame(4, $this->countEpisodes());
+    }
+
+    public function testRunHandlesFailedUpdatedShowsFetch(): void
+    {
+        $tvMazeService = $this->createMock(TvMazeService::class);
+        $tvMazeService->expects($this->once())->method('getUpdatedShows')->willReturn(null);
+        $tvMazeService->expects($this->never())->method('getShows');
+        $tvMazeService->expects($this->never())->method('getEpisodes');
+
+        $webhookService = $this->createMock(WebhookService::class);
+        $webhookService->expects($this->once())->method('send');
+
+        $counts = $this->runUpdate($tvMazeService, $webhookService);
+
+        $this->assertSame([0, 0, 0, 0, 0], $counts);
+    }
+
+    public function testUnchangedShowsAreNotRefetched(): void
+    {
+        [$show1, $show2, $episodes1, $episodes2] = $this->getSimpleShowData();
+        $feed = [1 => 100, 2 => 100];
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn($feed);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes1, $episodes2);
+
+        $this->runUpdate($tvMazeService);
+        $this->assertSame(4, $this->countEpisodes());
+
+        $tvMazeService = $this->createMock(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn($feed);
+        $tvMazeService->expects($this->never())->method('getShows');
+        $tvMazeService->expects($this->never())->method('getEpisodes');
+
+        $this->assertSame([0, 0, 0, 0, 0], $this->runUpdate($tvMazeService));
+    }
+
+    public function testNewerFeedTimestampRefetchesOnlyThatShow(): void
+    {
+        [$show1, $show2, $episodes1, $episodes2] = $this->getSimpleShowData();
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 100, 2 => 100]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes1, $episodes2);
+        $this->runUpdate($tvMazeService);
+
+        $tvMazeService = $this->createMock(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 200, 2 => 100]);
+        $tvMazeService->expects($this->once())->method('getShows')->with([1])->willReturn([$show1]);
+        $tvMazeService->expects($this->once())->method('getEpisodes')->with(1)->willReturn($episodes1);
+
+        $this->runUpdate($tvMazeService);
+    }
+
+    public function testFailedEpisodeFetchDoesNotAdvanceTimestamp(): void
+    {
+        [$show1, $show2] = $this->getSimpleShowData();
+        $feed = [1 => 100, 2 => 100];
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn($feed);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn(null);
+        $this->runUpdate($tvMazeService);
+
+        $this->entityManager->clear();
+        $this->assertNull($this->entityManager->find(Show::class, 1)->getTvMazeUpdatedAt());
+
+        $tvMazeService = $this->createMock(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn($feed);
+        $tvMazeService->expects($this->once())->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->expects($this->exactly(2))->method('getEpisodes')->willReturn(null);
+
+        $this->runUpdate($tvMazeService);
+    }
+
+    public function testSuccessfulSyncStoresTimestamp(): void
+    {
+        [$show1, $show2, $episodes1, $episodes2] = $this->getSimpleShowData();
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 100, 2 => 100]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes1, $episodes2);
+        $this->runUpdate($tvMazeService);
+
+        $this->entityManager->clear();
+        $this->assertSame(100, $this->entityManager->find(Show::class, 1)->getTvMazeUpdatedAt());
+        $this->assertSame(100, $this->entityManager->find(Show::class, 2)->getTvMazeUpdatedAt());
+    }
+
+    public function testStoredTimestampUsesPayloadNotFeed(): void
+    {
+        $show = new ShowData(
+            tvMazeId: 1,
+            status: 'running',
+            weight: 100,
+            name: 'test show 1',
+            updated: 100,
+        );
+        $episodes = [
+            new EpisodeData(
+                tvMazeShowId: 1,
+                tvMazeEpisodeId: 1,
+                episodeName: 'test E1',
+            ),
+        ];
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 200]);
+        $tvMazeService->method('getShows')->willReturn([$show]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes);
+        $this->runUpdate($tvMazeService);
+
+        $this->entityManager->clear();
+        $this->assertSame(100, $this->entityManager->find(Show::class, 1)->getTvMazeUpdatedAt());
+    }
+
+    public function testNullTimestampIsRetried(): void
+    {
+        [$show1] = $this->getSimpleShowData();
+        (new ShowService($this->entityManager))->insertShows([$show1]);
+        $this->entityManager->clear();
+
+        $tvMazeService = $this->createMock(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShows')->willReturn([1 => 1]);
+        $tvMazeService->expects($this->once())->method('getShows')->willReturn([$show1]);
+        $tvMazeService->expects($this->once())->method('getEpisodes')->willReturn([]);
+
+        $this->runUpdate($tvMazeService);
+    }
+
+    private function runUpdate(TvMazeService $tvMazeService, ?WebhookService $webhookService = null): array
+    {
+        return (new UpdateService(
+            new ShowService($this->entityManager),
+            new EpisodeService($this->entityManager, $this->config),
+            $tvMazeService,
+            $this->entityManager,
+            $webhookService ?? $this->createStub(WebhookService::class),
+            $this->config
+        ))->run();
+    }
+
+    private function countEpisodes(): int
+    {
+        $this->entityManager->clear();
+
+        return (int) $this->entityManager
+            ->createQuery('SELECT COUNT(e) FROM App\Entity\Episode e')
+            ->getSingleScalarResult();
+    }
+
+    private function getSimpleShowData(): array
+    {
+        $show1 = new ShowData(
+            tvMazeId: 1,
+            status: 'running',
+            weight: 100,
+            name: 'test show 1',
+            summary: 'test 1 summary',
+            genres: ['Comedy', 'Drama'],
+        );
+        $show2 = new ShowData(
+            tvMazeId: 2,
+            status: 'running',
+            weight: 100,
+            name: 'test show 2',
+            summary: 'test 2 summary',
+            genres: ['Comedy', 'Drama'],
+        );
+
+        $episodes1 = [
+            new EpisodeData(
+                tvMazeShowId: 1,
+                tvMazeEpisodeId: 1,
+                episodeName: 'test E1',
+                seasonNumber: 1,
+                episodeNumber: 1,
+                airstamp: new DateTime('now'),
+            ),
+            new EpisodeData(
+                tvMazeShowId: 1,
+                tvMazeEpisodeId: 2,
+                episodeName: 'test E2',
+                seasonNumber: 1,
+                episodeNumber: 2,
+                airstamp: new DateTime('now'),
+            ),
+        ];
+        $episodes2 = [
+            new EpisodeData(
+                tvMazeShowId: 2,
+                tvMazeEpisodeId: 3,
+                episodeName: 'test E3',
+                seasonNumber: 1,
+                episodeNumber: 1,
+                airstamp: new DateTime('now'),
+            ),
+            new EpisodeData(
+                tvMazeShowId: 2,
+                tvMazeEpisodeId: 4,
+                episodeName: 'test E4',
+                seasonNumber: 1,
+                episodeNumber: 2,
+                airstamp: new DateTime('now'),
+            ),
+        ];
+
+        return [$show1, $show2, $episodes1, $episodes2];
+    }
+
+
     public static function dataProvider(): array
     {
 
@@ -176,6 +455,7 @@ class UpdateTest extends TestCase
                 name: "test show $i",
                 summary: "test $i summary",
                 genres: ['Comedy', 'Drama'],
+                updated: 100,
             );
         }
 
@@ -199,6 +479,7 @@ class UpdateTest extends TestCase
                 runtime: 60,
                 imageMedium: 'image.medium',
                 imageOriginal: 'image.original',
+                updated: 200,
             );
         }
 
@@ -241,7 +522,7 @@ class UpdateTest extends TestCase
 
         return [
             'test simple' => [
-                [[1, 2], [1, 2, 3]],
+                [[1 => 100, 2 => 100], [1 => 200, 2 => 200, 3 => 200]],
                 [$testShowsSimple, $testShowsSimpleUpdate],
                 [
                     [
@@ -329,7 +610,10 @@ class UpdateTest extends TestCase
                 false
             ],
             'test 1000 shows, 40 eps each' => [
-                [$testUdatedIds1000, $testUdatedIds1000],
+                [
+                    array_fill_keys($testUdatedIds1000, 100),
+                    array_fill_keys($testUdatedIds1000, 200),
+                ],
                 [$testShows1000, $testShows1000],
                 [...$testEpArrays1000, ...$testEpArrays1000],
                 true
