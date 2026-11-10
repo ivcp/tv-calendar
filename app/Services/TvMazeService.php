@@ -24,7 +24,8 @@ class TvMazeService
     public function __construct(
         private readonly Client $client,
         private readonly int $retryDelaySeconds = 1,
-        private readonly string $userAgent = 'tv-calendar/1.0'
+        private readonly string $userAgent = 'tv-calendar/1.0',
+        private readonly float $timeout = 10.0
     ) {}
 
 
@@ -180,6 +181,7 @@ class TvMazeService
             try {
                 $response = $this->client->get($url, [
                     'http_errors' => false,
+                    'timeout' => $this->timeout,
                     'headers' => ['User-Agent' => $this->userAgent],
                 ]);
             } catch (GuzzleException $e) {

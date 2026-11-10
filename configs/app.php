@@ -39,6 +39,7 @@ return [
             $_ENV['APP_NAME'] ?? 'tv-calendar',
             $_ENV['APP_VERSION'] ?? '1.0'
         ) . (($_ENV['APP_URL'] ?? '') !== '' ? ' (+' . $_ENV['APP_URL'] . ')' : ''),
+        'timeout' => 10.0,
     ],
     'session' => [
         'name' => $appName . '_session',

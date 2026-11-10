@@ -35,6 +35,21 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
+    public function testSendsConfiguredTimeout(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{}')
+        ]);
+        $history = [];
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push(Middleware::history($history));
+        $client = new Client(['handler' => $handlerStack]);
+
+        (new TvMazeService($client, 0, timeout: 7.5))->getUpdatedShows();
+
+        $this->assertSame(7.5, $history[0]['options']['timeout']);
+    }
+
     public function testUpdatedShowsUsesWeekWindow(): void
     {
         $mock = new MockHandler([

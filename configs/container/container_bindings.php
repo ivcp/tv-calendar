@@ -127,7 +127,8 @@ return [
 
         return new TvMazeService(
             $container->get(Client::class),
-            userAgent: $config->get('tvmaze.user_agent', 'tv-calendar/1.0')
+            userAgent: $config->get('tvmaze.user_agent', 'tv-calendar/1.0'),
+            timeout: (float) $config->get('tvmaze.timeout', 10.0)
         );
     },
     UpdateService::class => function (ContainerInterface $container) {
