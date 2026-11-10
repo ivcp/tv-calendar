@@ -203,6 +203,7 @@ class UpdateService
 
         $showInsertCount += $insertedShows;
 
+        $syncedShows = [];
         foreach ($showsToInsert as $show) {
             try {
                 $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
@@ -227,10 +228,14 @@ class UpdateService
                 continue;
             }
 
-            $this->advanceUpdatedAt($show, $feedTimestamps, $errors);
+            $syncedShows[] = $show;
         }
 
         $this->episodeService->connectEpisodesWithShows();
+
+        foreach ($syncedShows as $show) {
+            $this->advanceUpdatedAt($show, $feedTimestamps, $errors);
+        }
     }
 
     private function updateShowsAndEpisodes(
@@ -254,6 +259,7 @@ class UpdateService
         }
 
 
+        $syncedShows = [];
         foreach ($showsToUpdate as $showId => $show) {
             try {
                 $episodes = $this->tvMazeService->getEpisodes($show->tvMazeId);
@@ -314,7 +320,6 @@ class UpdateService
                 try {
                     $insertedEpisodes = $this->episodeService->insertEpisodes($episodesToInsert);
                     $epInsertCount += $insertedEpisodes;
-                    $this->episodeService->connectEpisodesWithShows();
                 } catch (\Throwable $e) {
                     $errors += 1;
                     error_log("ERROR update insertEpisodes for $show->tvMazeId: " . $e->getMessage());
@@ -334,6 +339,12 @@ class UpdateService
                 }
             }
 
+            $syncedShows[] = $show;
+        }
+
+        $this->episodeService->connectEpisodesWithShows();
+
+        foreach ($syncedShows as $show) {
             $this->advanceUpdatedAt($show, $feedTimestamps, $errors);
         }
     }
