@@ -15,6 +15,8 @@ class TvMazeService
 {
     private const MAX_ATTEMPTS = 4;
 
+    private const UPDATES_WINDOW = 'week';
+
     private string $baseUri = 'https://api.tvmaze.com';
 
     private int $pause = 1;
@@ -27,13 +29,16 @@ class TvMazeService
 
 
     /**
-     * Get list of updated shows ids
+     * Get updated shows with their TVMaze updated timestamps
      *
-     * @return int[]|null null when the request failed
+     * @return array<int, int>|null tvMazeId => updated timestamp, null when the request failed
      **/
-    public function getUpdatedShowIDs(): ?array
+    public function getUpdatedShows(): ?array
     {
-        $response = $this->request($this->baseUri . '/updates/shows?since=day', __METHOD__);
+        $response = $this->request(
+            $this->baseUri . '/updates/shows?since=' . self::UPDATES_WINDOW,
+            __METHOD__
+        );
 
         if (!$response) {
             return null;
@@ -46,7 +51,14 @@ class TvMazeService
             return null;
         }
 
-        return array_keys($data);
+        $updates = [];
+        foreach ($data as $id => $updated) {
+            if (is_int($updated)) {
+                $updates[(int) $id] = $updated;
+            }
+        }
+
+        return $updates;
     }
 
 
@@ -106,7 +118,8 @@ class TvMazeService
             name: $data->name,
             runtime: $data?->runtime,
             imageMedium: $data?->image?->medium,
-            imageOriginal: $data?->image?->original
+            imageOriginal: $data?->image?->original,
+            updated: isset($data->updated) ? (int) $data->updated : null
         );
     }
 

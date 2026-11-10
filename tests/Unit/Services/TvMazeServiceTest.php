@@ -30,11 +30,40 @@ class TvMazeServiceTest extends TestCase
         $tvMazeService = $this->getTvMazeService([
             new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{"1" : 123, "2": 456}')
         ]);
-        $updated = $tvMazeService->getUpdatedShowIDs();
-        $this->assertCount(2, $updated);
-        $this->assertSame(1, $updated[0]);
-        $this->assertSame(2, $updated[1]);
+        $updated = $tvMazeService->getUpdatedShows();
+        $this->assertSame([1 => 123, 2 => 456], $updated);
         $this->assertSame(1, $tvMazeService->getPause());
+    }
+
+    public function testUpdatedShowsUsesWeekWindow(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{}')
+        ]);
+        $history = [];
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push(Middleware::history($history));
+        $client = new Client(['handler' => $handlerStack]);
+
+        (new TvMazeService($client, 0))->getUpdatedShows();
+
+        $this->assertStringContainsString(
+            '/updates/shows?since=week',
+            (string) $history[0]['request']->getUri()
+        );
+    }
+
+    public function testUpdatedShowsSkipsNonIntegerTimestamps(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(
+                200,
+                ['Content-Type' => 'application/json; charset=UTF-8'],
+                '{"1": 123, "2": "456", "3": null}'
+            )
+        ]);
+
+        $this->assertSame([1 => 123], $tvMazeService->getUpdatedShows());
     }
 
     public function testSendsConfiguredUserAgent(): void
@@ -48,7 +77,7 @@ class TvMazeServiceTest extends TestCase
         $client = new Client(['handler' => $handlerStack]);
 
         $tvMazeService = new TvMazeService($client, 0, 'TvShowCalendar/1.0 (+https://example.com)');
-        $tvMazeService->getUpdatedShowIDs();
+        $tvMazeService->getUpdatedShows();
 
         $this->assertSame(
             'TvShowCalendar/1.0 (+https://example.com)',
@@ -65,9 +94,9 @@ class TvMazeServiceTest extends TestCase
             new Response(500, [], ''),
             new Response(500, [], ''),
         ]);
-        $updated = $tvMazeService->getUpdatedShowIDs();
+        $updated = $tvMazeService->getUpdatedShows();
         $this->assertNull($updated);
-        $updated = $tvMazeService->getUpdatedShowIDs();
+        $updated = $tvMazeService->getUpdatedShows();
         $this->assertNull($updated);
     }
 
@@ -78,7 +107,7 @@ class TvMazeServiceTest extends TestCase
             new Response(503, [], ''),
             new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{"1" : 123, "2": 456}'),
         ]);
-        $updated = $tvMazeService->getUpdatedShowIDs();
+        $updated = $tvMazeService->getUpdatedShows();
         $this->assertCount(2, $updated);
         $this->assertSame(1, $tvMazeService->getPause());
     }
@@ -88,7 +117,7 @@ class TvMazeServiceTest extends TestCase
         $tvMazeService = $this->getTvMazeService([
             new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], 'not json'),
         ]);
-        $this->assertNull($tvMazeService->getUpdatedShowIDs());
+        $this->assertNull($tvMazeService->getUpdatedShows());
     }
 
     public function testUpdatedShowsRetriesOn429(): void
@@ -97,7 +126,7 @@ class TvMazeServiceTest extends TestCase
             new Response(429, [], ''),
             new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{"1" : 123, "2": 456}'),
         ]);
-        $updated = $tvMazeService->getUpdatedShowIDs();
+        $updated = $tvMazeService->getUpdatedShows();
         $this->assertCount(2, $updated);
         $this->assertSame(1, $tvMazeService->getPause());
     }
@@ -108,7 +137,7 @@ class TvMazeServiceTest extends TestCase
             new Response(429, [], ''),
             new Response(404, [], ''),
         ]);
-        $updated = $tvMazeService->getUpdatedShowIDs();
+        $updated = $tvMazeService->getUpdatedShows();
         $this->assertNull($updated);
         $this->assertSame(1, $tvMazeService->getPause());
     }
@@ -121,7 +150,7 @@ class TvMazeServiceTest extends TestCase
             new Response(429, [], ''),
             new Response(429, [], ''),
         ]);
-        $this->assertNull($tvMazeService->getUpdatedShowIDs());
+        $this->assertNull($tvMazeService->getUpdatedShows());
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
@@ -154,6 +183,7 @@ class TvMazeServiceTest extends TestCase
                 },
                 "summary": "test summary",
                 "runtime": 60,
+                "updated": 1789071819,
                 "image": {
                     "medium": "medium.link",
                     "original": null
@@ -167,6 +197,7 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(100, $show->weight);
         $this->assertSame('medium.link', $show->imageMedium);
         $this->assertNull($show->imageOriginal);
+        $this->assertSame(1789071819, $show->updated);
     }
 
     public function testGetShowReturnsNullOn500and404(): void

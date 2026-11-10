@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Config;
+use App\DataObjects\ShowData;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use GuzzleHttp\Exception\GuzzleException;
@@ -27,22 +28,24 @@ class UpdateService
         $epInsertCount = 0;
         $epUpdatedCount = 0;
         $epRemovedCount = 0;
+        $showsSkipped = 0;
         $errors = 0;
 
-        $updatedShowIDs = $this->tvMazeService->getUpdatedShowIDs();
+        $updatedShows = $this->tvMazeService->getUpdatedShows();
 
-        if ($updatedShowIDs === null) {
+        if ($updatedShows === null) {
             $errors += 1;
-            error_log('ERROR getUpdatedShowIDs: request failed');
+            error_log('ERROR getUpdatedShows: request failed');
         }
 
-        if (!$updatedShowIDs) {
+        if (!$updatedShows) {
             $this->report(
                 $showInsertCount,
                 $epInsertCount,
                 $showUpdatedCount,
                 $epUpdatedCount,
                 $epRemovedCount,
+                $showsSkipped,
                 $errors
             );
 
@@ -55,45 +58,56 @@ class UpdateService
             ];
         }
 
-        $updatedShowsData = $this->tvMazeService->getShows($updatedShowIDs);
+        $showsInDB = $this->showService->getShowsByTvMazeId(array_keys($updatedShows));
 
-        $showsInDB = $this->showService->getShowsByTvMazeId($updatedShowIDs);
+        $showsInDBByTvMazeId = [];
+        foreach ($showsInDB as $show) {
+            $showsInDBByTvMazeId[$show->getTvMazeId()] = $show;
+        }
 
-        $showsInDBIds = $showsInDB ? array_map(fn($show) => $show->getTvMazeId(), $showsInDB) : [];
+        $idsToFetch = [];
+        foreach ($updatedShows as $tvMazeId => $feedUpdatedAt) {
+            $local = $showsInDBByTvMazeId[$tvMazeId] ?? null;
 
-        $showsToInsert = array_values(
-            array_filter($updatedShowsData, fn($show) => !in_array($show->tvMazeId, $showsInDBIds))
-        );
+            if (
+                $local === null
+                || $local->getTvMazeUpdatedAt() === null
+                || $feedUpdatedAt > $local->getTvMazeUpdatedAt()
+            ) {
+                $idsToFetch[] = $tvMazeId;
+            }
+        }
 
+        $updatedShowsData = $idsToFetch ? $this->tvMazeService->getShows($idsToFetch) : [];
+        $showsSkipped = count($updatedShows) - count($idsToFetch);
 
+        $showsToInsert = [];
+        $showsToUpdate = [];
 
+        foreach ($updatedShowsData as $showData) {
+            $local = $showsInDBByTvMazeId[$showData->tvMazeId] ?? null;
+
+            if ($local === null) {
+                $showsToInsert[] = $showData;
+            } else {
+                $showsToUpdate[$local->getId()] = $showData;
+            }
+        }
 
         if ($showsToInsert) {
             $this->insertShowsAndEpisodes(
                 $showsToInsert,
+                $updatedShows,
                 $showInsertCount,
                 $epInsertCount,
                 $errors
             );
         }
 
-        $showsToUpdate = [];
-
-        foreach ($showsInDB as $show) {
-            $showData = null;
-            foreach ($updatedShowsData as $updatedData) {
-                if ($updatedData->tvMazeId === $show->getTvMazeId()) {
-                    $showData = $updatedData;
-                }
-            }
-            if ($showData) {
-                $showsToUpdate[$show->getId()] = $showData;
-            }
-        }
-
         if ($showsToUpdate) {
             $this->updateShowsAndEpisodes(
                 $showsToUpdate,
+                $updatedShows,
                 $epInsertCount,
                 $showUpdatedCount,
                 $epUpdatedCount,
@@ -125,6 +139,7 @@ class UpdateService
             $showUpdatedCount,
             $epUpdatedCount,
             $epRemovedCount,
+            $showsSkipped,
             $errors
         );
 
@@ -143,6 +158,7 @@ class UpdateService
         int $showUpdatedCount,
         int $epUpdatedCount,
         int $epRemovedCount,
+        int $showsSkipped,
         int $errors
     ): void {
         $dateTime = (new DateTime())->format('Y-m-d H:i:s');
@@ -153,6 +169,7 @@ class UpdateService
         SHOWS INSERTED: $showInsertCount 
         EPISODES INSERTED:  $epInsertCount 
         SHOWS UPDATED: $showUpdatedCount 
+        SHOWS SKIPPED: $showsSkipped 
         EPISODES UPDATED: $epUpdatedCount 
         EPISODES REMOVED:  $epRemovedCount
         ERRORS: $errors
@@ -170,6 +187,7 @@ class UpdateService
 
     private function insertShowsAndEpisodes(
         array $showsToInsert,
+        array $feedTimestamps,
         int &$showInsertCount,
         int &$epInsertCount,
         int &$errors
@@ -206,7 +224,10 @@ class UpdateService
             } catch (\Throwable $e) {
                 $errors += 1;
                 error_log("ERROR insert episodes for $show->tvMazeId: " . $e->getMessage());
+                continue;
             }
+
+            $this->advanceUpdatedAt($show, $feedTimestamps, $errors);
         }
 
         $this->episodeService->connectEpisodesWithShows();
@@ -214,6 +235,7 @@ class UpdateService
 
     private function updateShowsAndEpisodes(
         array $showsToUpdate,
+        array $feedTimestamps,
         int &$epInsertCount,
         int &$showUpdatedCount,
         int &$epUpdatedCount,
@@ -311,6 +333,37 @@ class UpdateService
                     continue;
                 }
             }
+
+            $this->advanceUpdatedAt($show, $feedTimestamps, $errors);
+        }
+    }
+
+    /**
+     * Timestamp of the payload that was actually received. Falls back to the
+     * updates feed value when the show payload does not carry one.
+     **/
+    private function resolveUpdatedAt(ShowData $show, array $feedTimestamps): ?int
+    {
+        return $show->updated ?? $feedTimestamps[$show->tvMazeId] ?? null;
+    }
+
+    /**
+     * Record a show as synced. Only called after every operation for that show
+     * succeeded, so failures are retried on the next run.
+     **/
+    private function advanceUpdatedAt(ShowData $show, array $feedTimestamps, int &$errors): void
+    {
+        $updatedAt = $this->resolveUpdatedAt($show, $feedTimestamps);
+
+        if ($updatedAt === null) {
+            return;
+        }
+
+        try {
+            $this->showService->updateTvMazeUpdatedAt($show->tvMazeId, $updatedAt);
+        } catch (\Throwable $e) {
+            $errors += 1;
+            error_log("ERROR update tv_maze_updated_at for $show->tvMazeId: " . $e->getMessage());
         }
     }
 }
