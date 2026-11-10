@@ -21,7 +21,8 @@ class TvMazeService
 
     public function __construct(
         private readonly Client $client,
-        private readonly int $retryDelaySeconds = 1
+        private readonly int $retryDelaySeconds = 1,
+        private readonly string $userAgent = 'tv-calendar/1.0'
     ) {}
 
 
@@ -164,7 +165,10 @@ class TvMazeService
     {
         for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; $attempt++) {
             try {
-                $response = $this->client->get($url, ['http_errors' => false]);
+                $response = $this->client->get($url, [
+                    'http_errors' => false,
+                    'headers' => ['User-Agent' => $this->userAgent],
+                ]);
             } catch (GuzzleException $e) {
                 $this->resetPause();
                 error_log("$method transport error: " . $e->getMessage());

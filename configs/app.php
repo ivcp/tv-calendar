@@ -33,6 +33,13 @@ return [
         'retries' => 3,
         'timeout' => 3.0
     ],
+    'tvmaze' => [
+        'user_agent' => sprintf(
+            '%s/%s',
+            $_ENV['APP_NAME'] ?? 'tv-calendar',
+            $_ENV['APP_VERSION'] ?? '1.0'
+        ) . (($_ENV['APP_URL'] ?? '') !== '' ? ' (+' . $_ENV['APP_URL'] . ')' : ''),
+    ],
     'session' => [
         'name' => $appName . '_session',
         'flash_name' => $appName . '_flash',

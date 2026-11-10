@@ -11,6 +11,7 @@ use DateTime;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 
@@ -34,6 +35,25 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(1, $updated[0]);
         $this->assertSame(2, $updated[1]);
         $this->assertSame(1, $tvMazeService->getPause());
+    }
+
+    public function testSendsConfiguredUserAgent(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{}')
+        ]);
+        $history = [];
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push(Middleware::history($history));
+        $client = new Client(['handler' => $handlerStack]);
+
+        $tvMazeService = new TvMazeService($client, 0, 'TvShowCalendar/1.0 (+https://example.com)');
+        $tvMazeService->getUpdatedShowIDs();
+
+        $this->assertSame(
+            'TvShowCalendar/1.0 (+https://example.com)',
+            $history[0]['request']->getHeaderLine('User-Agent')
+        );
     }
 
     public function testUpdatedShowsReturnsNullOn404and500(): void

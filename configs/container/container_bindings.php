@@ -122,6 +122,14 @@ return [
             'handler' => $stack
         ]);
     },
+    TvMazeService::class => function (ContainerInterface $container) {
+        $config = $container->get(Config::class);
+
+        return new TvMazeService(
+            $container->get(Client::class),
+            userAgent: $config->get('tvmaze.user_agent', 'tv-calendar/1.0')
+        );
+    },
     UpdateService::class => function (ContainerInterface $container) {
         $showService = $container->get(ShowService::class);
         $episodeService = $container->get(EpisodeService::class);
