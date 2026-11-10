@@ -8,39 +8,44 @@ use App\DataObjects\EpisodeData;
 use App\DataObjects\ShowData;
 use DateTime;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
 
 class TvMazeService
 {
+    private const MAX_ATTEMPTS = 4;
+
     private string $baseUri = 'https://api.tvmaze.com';
 
     private int $pause = 1;
 
-    public function __construct(private readonly Client $client) {}
+    public function __construct(
+        private readonly Client $client,
+        private readonly int $retryDelaySeconds = 1
+    ) {}
 
 
     /**
      * Get list of updated shows ids
      *
+     * @return int[]|null null when the request failed
      **/
-    public function getUpdatedShowIDs(): array
+    public function getUpdatedShowIDs(): ?array
     {
-        $url = $this->baseUri . '/updates/shows?since=day';
-        $response = $this->get($url);
+        $response = $this->request($this->baseUri . '/updates/shows?since=day', __METHOD__);
 
-        if ($response->getStatusCode() === 429) {
-            $this->pauseAndIncrease();
-            return $this->getUpdatedShowIDs();
+        if (!$response) {
+            return null;
         }
 
-        if (!$this->statusOK($response, __METHOD__)) {
-            $this->resetPause();
-            return [];
+        $data = json_decode((string)$response->getBody(), true);
+
+        if (!is_array($data)) {
+            $this->logError(__METHOD__, $response->getStatusCode(), 'Malformed updates payload');
+            return null;
         }
 
-        $updatedShows = array_keys(json_decode((string)$response->getBody(), true));
-        $this->resetPause();
-        return $updatedShows;
+        return array_keys($data);
     }
 
 
@@ -70,23 +75,18 @@ class TvMazeService
      **/
     public function getShow(int $id): ?ShowData
     {
-        $url = $this->baseUri . '/shows/' . "$id";
-        $response = $this->get($url);
+        $response = $this->request($this->baseUri . '/shows/' . "$id", __METHOD__);
 
-
-        if ($response->getStatusCode() === 429) {
-            $this->pauseAndIncrease();
-            return $this->getShow($id);
-        }
-
-        if (!$this->statusOK($response, __METHOD__)) {
-            $this->resetPause();
+        if (!$response) {
             return null;
         }
 
-
         $data = json_decode((string)$response->getBody());
-        $this->resetPause();
+
+        if (!is_object($data) || !isset($data->id, $data->name, $data->status, $data->weight)) {
+            $this->logError(__METHOD__, $response->getStatusCode(), 'Malformed show payload');
+            return null;
+        }
 
         return new ShowData(
             tvMazeId: $data->id,
@@ -112,26 +112,25 @@ class TvMazeService
     /**
      * Get all episodes of a show
      *
-     * @return EpisodeData[]
+     * @return EpisodeData[]|null null when the request failed
      **/
-    public function getEpisodes(int $showId): array
+    public function getEpisodes(int $showId): ?array
     {
-        $url = $this->baseUri . '/shows/' . "$showId" . '/episodes?specials=1';
-        $response = $this->get($url);
+        $response = $this->request(
+            $this->baseUri . '/shows/' . "$showId" . '/episodes?specials=1',
+            __METHOD__
+        );
 
-
-        if ($response->getStatusCode() === 429) {
-            $this->pauseAndIncrease();
-            return $this->getEpisodes($showId);
-        }
-
-        if (!$this->statusOK($response, __METHOD__)) {
-            $this->resetPause();
-            return [];
+        if (!$response) {
+            return null;
         }
 
         $episodes = json_decode((string)$response->getBody());
-        $this->resetPause();
+
+        if (!is_array($episodes)) {
+            $this->logError(__METHOD__, $response->getStatusCode(), 'Malformed episodes payload');
+            return null;
+        }
 
         return array_map(function ($episode) use ($showId) {
             $airstamp = null;
@@ -155,10 +154,43 @@ class TvMazeService
     }
 
 
-
-    private function get(string $url): ResponseInterface
+    /**
+     * Perform a GET request, retrying rate limits and server errors.
+     *
+     * Transport errors are already retried by the Guzzle middleware
+     * (see client.retries), so they are not retried again here.
+     **/
+    private function request(string $url, string $method): ?ResponseInterface
     {
-        return $this->client->get($url, ['http_errors' => false]);
+        for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; $attempt++) {
+            try {
+                $response = $this->client->get($url, ['http_errors' => false]);
+            } catch (GuzzleException $e) {
+                $this->resetPause();
+                error_log("$method transport error: " . $e->getMessage());
+                return null;
+            }
+
+            $status = $response->getStatusCode();
+
+            if ($status === 200) {
+                $this->resetPause();
+                return $response;
+            }
+
+            $retryable = $status === 429 || $status >= 500;
+
+            if ($retryable && $attempt < self::MAX_ATTEMPTS) {
+                $this->pauseAndIncrease();
+                continue;
+            }
+
+            $this->logError($method, $status, $response->getReasonPhrase());
+            $this->resetPause();
+            return null;
+        }
+
+        return null;
     }
 
     private function logError(string $methodName, int $code, string $message): void
@@ -168,7 +200,9 @@ class TvMazeService
 
     private function pauseAndIncrease(): void
     {
-        sleep($this->getPause());
+        if ($this->retryDelaySeconds > 0) {
+            sleep($this->pause * $this->retryDelaySeconds);
+        }
         $this->pause = $this->pause * 2;
     }
 
@@ -180,16 +214,5 @@ class TvMazeService
     private function resetPause(): void
     {
         $this->pause = 1;
-    }
-
-
-    private function statusOK(ResponseInterface $response, string $method): bool
-    {
-        if ($response->getStatusCode() !== 200) {
-            $this->logError($method, $response->getStatusCode(), $response->getReasonPhrase());
-            return false;
-        }
-
-        return true;
     }
 }

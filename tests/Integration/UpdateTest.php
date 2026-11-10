@@ -161,6 +161,168 @@ class UpdateTest extends TestCase
 
 
 
+    public function testEpisodesAreNotRemovedWhenEpisodeFetchFails(): void
+    {
+        [$show1, $show2, $episodes1, $episodes2] = $this->getSimpleShowData();
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShowIDs')->willReturn([1, 2]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes1, $episodes2);
+
+        $this->runUpdate($tvMazeService);
+        $this->assertSame(4, $this->countEpisodes());
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShowIDs')->willReturn([1, 2]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn(null);
+
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $this->runUpdate($tvMazeService);
+
+        $this->assertSame(0, $showInsertCount);
+        $this->assertSame(0, $epInsertCount);
+        $this->assertSame(2, $showUpdatedCount);
+        $this->assertSame(0, $epUpdatedCount);
+        $this->assertSame(0, $epRemovedCount);
+        $this->assertSame(4, $this->countEpisodes());
+    }
+
+    public function testEmptyEpisodeListDoesNotRemoveExistingEpisodes(): void
+    {
+        [$show1, $show2, $episodes1, $episodes2] = $this->getSimpleShowData();
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShowIDs')->willReturn([1, 2]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn($episodes1, $episodes2);
+
+        $this->runUpdate($tvMazeService);
+        $this->assertSame(4, $this->countEpisodes());
+
+        $tvMazeService = $this->createStub(TvMazeService::class);
+        $tvMazeService->method('getUpdatedShowIDs')->willReturn([1, 2]);
+        $tvMazeService->method('getShows')->willReturn([$show1, $show2]);
+        $tvMazeService->method('getEpisodes')->willReturn([]);
+
+        [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ] = $this->runUpdate($tvMazeService);
+
+        $this->assertSame(0, $showInsertCount);
+        $this->assertSame(0, $epInsertCount);
+        $this->assertSame(2, $showUpdatedCount);
+        $this->assertSame(0, $epUpdatedCount);
+        $this->assertSame(0, $epRemovedCount);
+        $this->assertSame(4, $this->countEpisodes());
+    }
+
+    public function testRunHandlesFailedUpdatedShowIDsFetch(): void
+    {
+        $tvMazeService = $this->createMock(TvMazeService::class);
+        $tvMazeService->expects($this->once())->method('getUpdatedShowIDs')->willReturn(null);
+        $tvMazeService->expects($this->never())->method('getShows');
+        $tvMazeService->expects($this->never())->method('getEpisodes');
+
+        $webhookService = $this->createMock(WebhookService::class);
+        $webhookService->expects($this->once())->method('send');
+
+        $counts = $this->runUpdate($tvMazeService, $webhookService);
+
+        $this->assertSame([0, 0, 0, 0, 0], $counts);
+    }
+
+    private function runUpdate(TvMazeService $tvMazeService, ?WebhookService $webhookService = null): array
+    {
+        return (new UpdateService(
+            new ShowService($this->entityManager),
+            new EpisodeService($this->entityManager, $this->config),
+            $tvMazeService,
+            $this->entityManager,
+            $webhookService ?? $this->createStub(WebhookService::class),
+            $this->config
+        ))->run();
+    }
+
+    private function countEpisodes(): int
+    {
+        $this->entityManager->clear();
+
+        return (int) $this->entityManager
+            ->createQuery('SELECT COUNT(e) FROM App\Entity\Episode e')
+            ->getSingleScalarResult();
+    }
+
+    private function getSimpleShowData(): array
+    {
+        $show1 = new ShowData(
+            tvMazeId: 1,
+            status: 'running',
+            weight: 100,
+            name: 'test show 1',
+            summary: 'test 1 summary',
+            genres: ['Comedy', 'Drama'],
+        );
+        $show2 = new ShowData(
+            tvMazeId: 2,
+            status: 'running',
+            weight: 100,
+            name: 'test show 2',
+            summary: 'test 2 summary',
+            genres: ['Comedy', 'Drama'],
+        );
+
+        $episodes1 = [
+            new EpisodeData(
+                tvMazeShowId: 1,
+                tvMazeEpisodeId: 1,
+                episodeName: 'test E1',
+                seasonNumber: 1,
+                episodeNumber: 1,
+                airstamp: new DateTime('now'),
+            ),
+            new EpisodeData(
+                tvMazeShowId: 1,
+                tvMazeEpisodeId: 2,
+                episodeName: 'test E2',
+                seasonNumber: 1,
+                episodeNumber: 2,
+                airstamp: new DateTime('now'),
+            ),
+        ];
+        $episodes2 = [
+            new EpisodeData(
+                tvMazeShowId: 2,
+                tvMazeEpisodeId: 3,
+                episodeName: 'test E3',
+                seasonNumber: 1,
+                episodeNumber: 1,
+                airstamp: new DateTime('now'),
+            ),
+            new EpisodeData(
+                tvMazeShowId: 2,
+                tvMazeEpisodeId: 4,
+                episodeName: 'test E4',
+                seasonNumber: 1,
+                episodeNumber: 2,
+                airstamp: new DateTime('now'),
+            ),
+        ];
+
+        return [$show1, $show2, $episodes1, $episodes2];
+    }
+
+
     public static function dataProvider(): array
     {
 

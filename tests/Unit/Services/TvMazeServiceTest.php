@@ -21,7 +21,7 @@ class TvMazeServiceTest extends TestCase
         $mock = new MockHandler($responses);
         $handlerStack = HandlerStack::create($mock);
         $client = new Client(['handler' => $handlerStack]);
-        return new TvMazeService($client);
+        return new TvMazeService($client, 0);
     }
 
     public function testGetsUpdatedShows(): void
@@ -36,16 +36,39 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
-    public function testUpdatedShowsReturnsEmptyArrOn404and500(): void
+    public function testUpdatedShowsReturnsNullOn404and500(): void
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(404, ['Content-Type' => 'application/json; charset=UTF-8'], ''),
             new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
         ]);
         $updated = $tvMazeService->getUpdatedShowIDs();
-        $this->assertEmpty($updated);
+        $this->assertNull($updated);
         $updated = $tvMazeService->getUpdatedShowIDs();
-        $this->assertEmpty($updated);
+        $this->assertNull($updated);
+    }
+
+    public function testUpdatedShowsRetriesOn500AndSucceeds(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(500, [], ''),
+            new Response(503, [], ''),
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{"1" : 123, "2": 456}'),
+        ]);
+        $updated = $tvMazeService->getUpdatedShowIDs();
+        $this->assertCount(2, $updated);
+        $this->assertSame(1, $tvMazeService->getPause());
+    }
+
+    public function testUpdatedShowsReturnsNullOnMalformedJson(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], 'not json'),
+        ]);
+        $this->assertNull($tvMazeService->getUpdatedShowIDs());
     }
 
     public function testUpdatedShowsRetriesOn429(): void
@@ -66,7 +89,19 @@ class TvMazeServiceTest extends TestCase
             new Response(404, [], ''),
         ]);
         $updated = $tvMazeService->getUpdatedShowIDs();
-        $this->assertEmpty($updated);
+        $this->assertNull($updated);
+        $this->assertSame(1, $tvMazeService->getPause());
+    }
+
+    public function testUpdatedShowsReturnsNullAfter429RetriesExhausted(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(429, [], ''),
+            new Response(429, [], ''),
+            new Response(429, [], ''),
+            new Response(429, [], ''),
+        ]);
+        $this->assertNull($tvMazeService->getUpdatedShowIDs());
         $this->assertSame(1, $tvMazeService->getPause());
     }
 
@@ -118,13 +153,23 @@ class TvMazeServiceTest extends TestCase
     {
         $tvMazeService = $this->getTvMazeService([
             new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
             new Response(404, [], '')
-
         ]);
         $show = $tvMazeService->getShow(1);
         $this->assertNull($show);
         $show = $tvMazeService->getShow(1);
         $this->assertNull($show);
+    }
+
+    public function testGetShowReturnsNullOnMalformedJson(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], 'not json'),
+        ]);
+        $this->assertNull($tvMazeService->getShow(1));
     }
 
 
@@ -208,16 +253,67 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame('The Fire', $episodes[1]->episodeName);
     }
 
-    public function testGetEpisodesReturnsEmptyArrOn500and404(): void
+    public function testGetEpisodesReturnsNullOn500and404(): void
     {
         $tvMazeService = $this->getTvMazeService([
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
             new Response(500, [], ''),
             new Response(404, [], '')
         ]);
         $episodes = $tvMazeService->getEpisodes(1);
-        $this->assertEmpty($episodes);
+        $this->assertNull($episodes);
         $episodes = $tvMazeService->getEpisodes(1);
-        $this->assertEmpty($episodes);
+        $this->assertNull($episodes);
+    }
+
+    public function testGetEpisodesReturnsNullOnMalformedJson(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], 'not json'),
+        ]);
+        $this->assertNull($tvMazeService->getEpisodes(1));
+    }
+
+    public function testGetEpisodesRetriesOn500AndSucceeds(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(500, [], ''),
+            new Response(503, [], ''),
+            new Response(
+                200,
+                ['Content-Type' => 'application/json; charset=UTF-8'],
+                '[
+                {
+                "id": 1,
+                "name": "test episode name",
+                "season": 1,
+                "number": 42,
+                "type": "regular",
+                "airstamp": "2013-07-02T02:00:00+00:00",
+                "summary": "short summary",
+                "runtime": 60,
+                "image": null
+                }
+                ]'
+            )
+        ]);
+        $episodes = $tvMazeService->getEpisodes(1);
+        $this->assertCount(1, $episodes);
+        $this->assertSame(1, $tvMazeService->getPause());
+    }
+
+    public function testGetEpisodesReturnsNullAfter429RetriesExhausted(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(429, [], ''),
+            new Response(429, [], ''),
+            new Response(429, [], ''),
+            new Response(429, [], ''),
+        ]);
+        $this->assertNull($tvMazeService->getEpisodes(1));
+        $this->assertSame(1, $tvMazeService->getPause());
     }
 
     public function testGetEpisodesRetriesOn429(): void

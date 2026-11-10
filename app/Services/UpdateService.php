@@ -30,7 +30,22 @@ class UpdateService
         $errors = 0;
 
         $updatedShowIDs = $this->tvMazeService->getUpdatedShowIDs();
+
+        if ($updatedShowIDs === null) {
+            $errors += 1;
+            error_log('ERROR getUpdatedShowIDs: request failed');
+        }
+
         if (!$updatedShowIDs) {
+            $this->report(
+                $showInsertCount,
+                $epInsertCount,
+                $showUpdatedCount,
+                $epUpdatedCount,
+                $epRemovedCount,
+                $errors
+            );
+
             return [
                 $showInsertCount,
                 $epInsertCount,
@@ -104,9 +119,37 @@ class UpdateService
             error_log('Failed to analyze episodes table: ' . $e->getMessage());
         }
 
+        $this->report(
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount,
+            $errors
+        );
+
+        return [
+            $showInsertCount,
+            $epInsertCount,
+            $showUpdatedCount,
+            $epUpdatedCount,
+            $epRemovedCount
+        ];
+    }
+
+    private function report(
+        int $showInsertCount,
+        int $epInsertCount,
+        int $showUpdatedCount,
+        int $epUpdatedCount,
+        int $epRemovedCount,
+        int $errors
+    ): void {
+        $dateTime = (new DateTime())->format('Y-m-d H:i:s');
+
         echo <<<UPDATE
         --------------------------
-        UPDATING STATS
+        UPDATING STATS $dateTime
         SHOWS INSERTED: $showInsertCount 
         EPISODES INSERTED:  $epInsertCount 
         SHOWS UPDATED: $showUpdatedCount 
@@ -123,15 +166,6 @@ class UpdateService
                     " occurred while updating. Check the logs."
             );
         }
-
-
-        return [
-            $showInsertCount,
-            $epInsertCount,
-            $showUpdatedCount,
-            $epUpdatedCount,
-            $epRemovedCount
-        ];
     }
 
     private function insertShowsAndEpisodes(
@@ -157,6 +191,12 @@ class UpdateService
             } catch (GuzzleException $e) {
                 $errors += 1;
                 error_log('ERROR getEpisodes: ' . $e->getMessage());
+                continue;
+            }
+
+            if ($episodes === null) {
+                $errors += 1;
+                error_log("ERROR getEpisodes for $show->tvMazeId: request failed, skipping episodes");
                 continue;
             }
 
@@ -201,7 +241,22 @@ class UpdateService
                 continue;
             }
 
+            if ($episodes === null) {
+                $errors += 1;
+                error_log("ERROR getEpisodes for $show->tvMazeId: request failed, skipping show");
+                continue;
+            }
+
             $episodesInDb = $this->showService->getById($showId)->getEpisodes();
+
+            if ($episodes === [] && !$episodesInDb->isEmpty()) {
+                $errors += 1;
+                error_log(
+                    "ERROR getEpisodes for $show->tvMazeId: empty list returned while " .
+                        $episodesInDb->count() . " episodes exist in DB, skipping show"
+                );
+                continue;
+            }
 
             $episodesToUpdate = [];
             $episodesInDbTvMazeIds = array_map(fn($e) => $e->getTvMazeEpisodeId(), $episodesInDb->toArray());
