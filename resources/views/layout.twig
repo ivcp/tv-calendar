@@ -62,16 +62,17 @@
       type="font/woff2"
       crossorigin
     />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link
       rel="icon"
-      href="{{ asset('build/images/favicon.ico') }}"
-      type="image/x-icon"
+      href="/favicon-96x96.png"
+      type="image/png"
+      sizes="96x96"
     />
-    <link
-      rel="shortcut icon"
-      href="{{ asset('build/images/favicon.ico') }}"
-      type="image/x-icon"
-    />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#2f7d4f" />
        {% block stylesheets %}
     {{
       encore_entry_link_tags('app')
