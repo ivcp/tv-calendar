@@ -10,20 +10,31 @@ import setNotificationIcon from '../utils/notificationIcons';
 import notificationBtnEventListener from '../utils/notificationBtnEventListener';
 
 document.addEventListener('DOMContentLoaded', () => {
-  const addButtons = document.querySelectorAll('.add-show');
+  const addButtons = document.querySelectorAll<HTMLButtonElement>('.add-show');
 
   const user = document.querySelector('section')?.hasAttribute('user');
   const localShowlist = getLocalShowlist();
 
   addButtons.forEach(btn => {
     const showId = btn.getAttribute('data-show-id');
-    if (showId) {
-      if (!user && localShowlist.includes(showId)) {
-        markAdded(btn);
+    if (!showId) {
+      return;
+    }
+
+    if (!user && localShowlist.includes(showId)) {
+      markAdded(btn);
+    }
+
+    btn.addEventListener('click', async e => {
+      e.preventDefault();
+      if (btn.disabled) {
+        return;
       }
 
-      btn.addEventListener('click', async e => {
-        e.preventDefault();
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+
+      try {
         if (!btn.hasAttribute('added')) {
           if (user) {
             const result = await addShow(showId);
@@ -142,7 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
           if (parent) parent.dataset.tip = 'Add to my shows';
           btn.textContent = 'Add';
         }
-      });
-    }
+      } finally {
+        btn.disabled = false;
+        btn.removeAttribute('aria-busy');
+      }
+    });
   });
 });

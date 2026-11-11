@@ -69,6 +69,24 @@
     @apply cursor-progress;
   }
 
+  /* Keep disabled add/remove buttons clickable so the click can't fall through
+     to the surrounding card link, and show progress while the request runs. */
+  .add-show[disabled],
+  .remove-show[disabled] {
+    @apply pointer-events-auto cursor-progress;
+  }
+
+  /* These icon buttons sit on a poster; skip DaisyUI's grey disabled fill. */
+  .btn-link.add-show[disabled],
+  .btn-link.remove-show[disabled] {
+    @apply bg-transparent;
+  }
+
+  .btn-link.add-show[disabled] svg,
+  .btn-link.remove-show[disabled] svg {
+    @apply pointer-events-none opacity-50;
+  }
+
   /* Shared long-form styling for the legal pages (privacy policy, terms). */
   .legal {
     @apply max-w-3xl text-lg space-y-6;
