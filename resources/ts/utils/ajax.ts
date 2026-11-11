@@ -8,12 +8,23 @@ async function addShow(showId: string): Promise<Result> {
   }
 }
 
-async function get(url: string): Promise<Result> {
+async function get(url: string, signal?: AbortSignal): Promise<Result> {
   try {
-    return await getResult(url, 'GET');
+    return await getResult(url, 'GET', undefined, signal);
   } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
     return { error: true, messages: ['something went wrong'] };
   }
+}
+
+function isAbortError(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    (error as { name?: unknown }).name === 'AbortError'
+  );
 }
 
 async function removeShow(showId: string): Promise<Result> {
@@ -167,9 +178,11 @@ async function getResult(
   url: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   body: object | undefined = undefined,
+  signal?: AbortSignal,
 ): Promise<Result> {
   const response = await fetch(url, {
     method: method !== 'GET' ? 'POST' : method,
+    signal,
     headers: {
       'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest',
@@ -230,6 +243,7 @@ export {
   addShow,
   removeShow,
   get,
+  isAbortError,
   resendEmail,
   deleteProfile,
   setStartOfWeekSunday,

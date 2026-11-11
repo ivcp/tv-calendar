@@ -13,7 +13,8 @@ import { confirmDialog } from '../utils/confirmDialog';
 const activeSortClasses = ['tab-active', 'bg-primary', 'text-primary-content'];
 
 document.addEventListener('DOMContentLoaded', async () => {
-  let removeButtons = document.querySelectorAll('.remove-show');
+  let removeButtons =
+    document.querySelectorAll<HTMLButtonElement>('.remove-show');
   const nextPageBtn = document.getElementById('next-page-btn');
   const showCountElement = document.querySelector('[data-show-count]');
   if (!showCountElement) {
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   );
 
   showGrid.addEventListener('redraw-cards', () => {
-    removeButtons = document.querySelectorAll('.remove-show');
+    removeButtons = document.querySelectorAll<HTMLButtonElement>('.remove-show');
     removeButtons.forEach(btn =>
       btn.addEventListener('click', e => {
         e.preventDefault();
@@ -87,12 +88,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  const deleteShow = async (el: Element) => {
+  const deleteShow = async (el: HTMLButtonElement) => {
     const showId = el.getAttribute('data-show-id');
     const title =
       el.getAttribute('data-show-title')?.trim() ||
       el.parentElement?.parentElement?.querySelector('p')?.textContent?.trim();
-    if (showId) {
+    if (!showId || el.disabled) {
+      return;
+    }
+
+    el.disabled = true;
+    el.setAttribute('aria-busy', 'true');
+
+    try {
       const confirmed = await confirmDialog({
         title: title
           ? `Remove "${title}"?`
@@ -151,6 +159,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           event
         );
       }
+    } finally {
+      el.disabled = false;
+      el.removeAttribute('aria-busy');
     }
   };
 });

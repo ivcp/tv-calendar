@@ -102,10 +102,15 @@
       <div class="flex-none">
         <div
           role="tablist"
+          aria-label="Episode schedule"
           class="tabs tabs-sm border border-base-content/20 rounded-badge py-1.5 px-2"
         >
           <button
             role="tab"
+            aria-controls="calendar"
+            aria-selected="{{ user ? 'true' : 'false' }}"
+            aria-busy="false"
+            aria-disabled="false"
             class="tab text-xs font-bold rounded-full transition-colors duration-200"
             id="user-shows"
             {%
@@ -117,10 +122,19 @@
             endif
             %}
           >
-            My Shows
+            <span data-label>My Shows</span>
+            <span
+              data-spinner
+              class="loading loading-spinner loading-xs absolute inset-0 m-auto size-4"
+              aria-hidden="true"
+            ></span>
           </button>
           <button
             role="tab"
+            aria-controls="calendar"
+            aria-selected="{{ not user ? 'true' : 'false' }}"
+            aria-busy="false"
+            aria-disabled="false"
             class="tab text-xs font-bold rounded-full transition-colors duration-200"
             id="popular-shows"
             {%
@@ -133,19 +147,43 @@
             endif
             %}
           >
-            Popular
+            <span data-label>Popular</span>
+            <span
+              data-spinner
+              class="loading loading-spinner loading-xs absolute inset-0 m-auto size-4"
+              aria-hidden="true"
+            ></span>
           </button>
           <button
             role="tab"
+            aria-controls="calendar"
+            aria-selected="false"
+            aria-busy="false"
+            aria-disabled="false"
             class="tab text-xs font-bold rounded-full transition-colors duration-200"
             id="premieres-shows"
           >
-            Premieres
+            <span data-label>Premieres</span>
+            <span
+              data-spinner
+              class="loading loading-spinner loading-xs absolute inset-0 m-auto size-4"
+              aria-hidden="true"
+            ></span>
           </button>
         </div>
+        <span
+          id="calendar-status"
+          role="status"
+          aria-live="polite"
+          class="sr-only"
+        ></span>
       </div>
     </div>
-    <div id="airing-today-container" class="hidden lg:hidden px-2">
+    <div
+      id="airing-today-container"
+      class="hidden lg:hidden px-2"
+      aria-busy="false"
+    >
       {% include 'calendar/airing-today.twig' %}
     </div>
     <div class="mt-2 bg-base-100 px-2 lg:px-0">
@@ -176,7 +214,8 @@
       </div>
       <div
         id="calendar"
-        class="mt-2 grid grid-cols-1 gap-4 lg:grid-flow-row lg:grid-cols-7 lg:gap-1.5 lg:auto-rows-auto"
+        aria-busy="false"
+        class="mt-2 grid grid-cols-1 gap-4 transition-opacity duration-150 lg:grid-flow-row lg:grid-cols-7 lg:gap-1.5 lg:auto-rows-auto"
       >
         {% if month %} {% set daysInMonth = month|date('t') %} {% for i in
         1..daysInMonth %} {% include 'calendar/date-card.twig' with {'i': i,

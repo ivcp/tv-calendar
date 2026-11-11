@@ -62,16 +62,17 @@
       type="font/woff2"
       crossorigin
     />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link
       rel="icon"
-      href="{{ asset('build/images/favicon.ico') }}"
-      type="image/x-icon"
+      href="/favicon-96x96.png"
+      type="image/png"
+      sizes="96x96"
     />
-    <link
-      rel="shortcut icon"
-      href="{{ asset('build/images/favicon.ico') }}"
-      type="image/x-icon"
-    />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#2f7d4f" />
        {% block stylesheets %}
     {{
       encore_entry_link_tags('app')
@@ -190,10 +191,14 @@
           </ul>
         </details>
 
-        <div class="">
-          <a class="btn btn-ghost no-animation text-xl" href="/">{{
-            app_name
-          }}</a>
+        <div class="min-w-0">
+          <a
+            class="btn btn-ghost no-animation h-auto py-1 min-h-0 gap-0 px-1 lg:ml-1 text-base-content sm:px-2"
+            href="/"
+            aria-label="{{ app_name }}"
+          >
+            {% include 'components/site-logo.twig' %}
+          </a>
         </div>
         <ul
           class="menu flex-row flex-nowrap bg-base-200 rounded-lg w-20 items-center gap-4 hidden lg:flex"

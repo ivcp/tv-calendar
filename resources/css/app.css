@@ -22,6 +22,21 @@
 }
 
 @layer components {
+  /* The header logo re-colours with the active theme: mint badge + slate
+     wordmark in `dim` (matching the source artwork), dark-green badge +
+     dark wordmark in `tvlight`. */
+  .site-logo__mark {
+    fill: oklch(var(--p));
+  }
+
+  .site-logo__mark-type {
+    fill: oklch(var(--pc));
+  }
+
+  .site-logo__wordmark {
+    fill: currentColor;
+  }
+
   html[data-schedule='user'] #user-shows,
   html[data-schedule='popular'] #popular-shows,
   html[data-schedule='premieres'] #premieres-shows {
@@ -39,6 +54,52 @@
       [aria-current='date']
     ) {
     @apply bg-base-300/50 text-base-content/60;
+  }
+
+  /* Dim the outgoing schedule while the next one loads; keeps geometry stable. */
+  #calendar[aria-busy='true'],
+  #airing-today-container[aria-busy='true'] {
+    @apply opacity-60 pointer-events-none cursor-progress;
+  }
+
+  /* The busy tab overlays a centred spinner and fades its label, so the pill
+     keeps its width and the text stays optically centred. */
+  .tab [data-spinner] {
+    visibility: hidden;
+  }
+
+  .tab[aria-busy='true'] [data-spinner] {
+    visibility: visible;
+  }
+
+  .tab [data-label] {
+    @apply transition-opacity duration-150;
+  }
+
+  .tab[aria-busy='true'] [data-label] {
+    @apply opacity-0;
+  }
+
+  .tab[aria-busy='true'] {
+    @apply cursor-progress;
+  }
+
+  /* Keep disabled add/remove buttons clickable so the click can't fall through
+     to the surrounding card link, and show progress while the request runs. */
+  .add-show[disabled],
+  .remove-show[disabled] {
+    @apply pointer-events-auto cursor-progress;
+  }
+
+  /* These icon buttons sit on a poster; skip DaisyUI's grey disabled fill. */
+  .btn-link.add-show[disabled],
+  .btn-link.remove-show[disabled] {
+    @apply bg-transparent;
+  }
+
+  .btn-link.add-show[disabled] svg,
+  .btn-link.remove-show[disabled] svg {
+    @apply pointer-events-none opacity-50;
   }
 
   /* Shared long-form styling for the legal pages (privacy policy, terms). */
