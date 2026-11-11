@@ -22,6 +22,21 @@
 }
 
 @layer components {
+  /* The header logo re-colours with the active theme: mint badge + slate
+     wordmark in `dim` (matching the source artwork), dark-green badge +
+     dark wordmark in `tvlight`. */
+  .site-logo__mark {
+    fill: oklch(var(--p));
+  }
+
+  .site-logo__mark-type {
+    fill: oklch(var(--pc));
+  }
+
+  .site-logo__wordmark {
+    fill: currentColor;
+  }
+
   html[data-schedule='user'] #user-shows,
   html[data-schedule='popular'] #popular-shows,
   html[data-schedule='premieres'] #premieres-shows {

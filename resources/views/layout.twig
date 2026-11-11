@@ -191,10 +191,14 @@
           </ul>
         </details>
 
-        <div class="">
-          <a class="btn btn-ghost no-animation text-xl" href="/">{{
-            app_name
-          }}</a>
+        <div class="min-w-0">
+          <a
+            class="btn btn-ghost no-animation h-auto py-1 min-h-0 gap-0 px-1 lg:ml-1 text-base-content sm:px-2"
+            href="/"
+            aria-label="{{ app_name }}"
+          >
+            {% include 'components/site-logo.twig' %}
+          </a>
         </div>
         <ul
           class="menu flex-row flex-nowrap bg-base-200 rounded-lg w-20 items-center gap-4 hidden lg:flex"
