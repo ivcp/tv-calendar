@@ -27,8 +27,9 @@ async function getShows(
   url: string,
   schedule: Schedule,
   userIsActive?: boolean,
-  localShowlist?: string[]
-): Promise<Episode[]> {
+  localShowlist?: string[],
+  signal?: AbortSignal
+): Promise<Episode[] | null> {
   let fullUrl = `${url}&schedule=${schedule}`;
   if (!userIsActive && schedule === 'user') {
     if (localShowlist && localShowlist.length === 0) return [];
@@ -38,10 +39,10 @@ async function getShows(
     fullUrl += `&${params.toString()}`;
   }
 
-  const response = await get(fullUrl);
+  const response = await get(fullUrl, signal);
   if (response.error) {
     notification(response.messages, 'alert-error');
-    return [];
+    return null;
   }
   const episodes = response.body?.episodes;
   if (!episodes) {

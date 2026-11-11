@@ -41,6 +41,34 @@
     @apply bg-base-300/50 text-base-content/60;
   }
 
+  /* Dim the outgoing schedule while the next one loads; keeps geometry stable. */
+  #calendar[aria-busy='true'],
+  #airing-today-container[aria-busy='true'] {
+    @apply opacity-60 pointer-events-none cursor-progress;
+  }
+
+  /* The busy tab overlays a centred spinner and fades its label, so the pill
+     keeps its width and the text stays optically centred. */
+  .tab [data-spinner] {
+    visibility: hidden;
+  }
+
+  .tab[aria-busy='true'] [data-spinner] {
+    visibility: visible;
+  }
+
+  .tab [data-label] {
+    @apply transition-opacity duration-150;
+  }
+
+  .tab[aria-busy='true'] [data-label] {
+    @apply opacity-0;
+  }
+
+  .tab[aria-busy='true'] {
+    @apply cursor-progress;
+  }
+
   /* Shared long-form styling for the legal pages (privacy policy, terms). */
   .legal {
     @apply max-w-3xl text-lg space-y-6;
