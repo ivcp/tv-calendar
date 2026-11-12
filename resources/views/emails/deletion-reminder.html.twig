@@ -18,9 +18,9 @@
   account hasn't been confirmed yet.
 </p>
 <p style="margin:0 0 16px;">
-  We only keep accounts with a confirmed email, so yours is scheduled for
-  deletion on <strong>{{ expirationDate|date('F j, Y') }}</strong>, about
-  {{ hoursLeft }} hours from now. If you'd like to keep it{% if showsCount %},
+  We only keep accounts with a confirmed email, so yours is
+  <strong>scheduled for deletion on {{ expirationDate|date('F j, Y') }}</strong>,
+  about {{ hoursLeft }} hours from now. If you'd like to keep it{% if showsCount %},
   along with the {{ showsCount }} show{{ showsCount == 1 ? '' : 's' }} on your
   list{% endif %}, confirming takes just a few seconds.
 </p>
