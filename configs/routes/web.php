@@ -47,10 +47,13 @@ return function (App $app) {
         $guest->post('/register', [AuthController::class, 'register']);
     })->add(GuestMiddleware::class);
 
+    // Reachable without a session: verification links are opened from email
+    // clients on devices that may never have logged in.
+    $app->get(VerificationLinkService::ROUTE_PATTERN, [AuthController::class, 'verify'])
+        ->setName('verify')
+        ->add(ValidateSignatureMiddleware::class);
+
     $app->group('', function (RouteCollectorProxy $user) {
-        $user->get(VerificationLinkService::ROUTE_PATTERN, [AuthController::class, 'verify'])
-            ->setName('verify')
-            ->add(ValidateSignatureMiddleware::class);
         $user->post('/verify', [AuthController::class, 'resendEmail']);
 
         $user->post('/logout', [AuthController::class, 'logout']);

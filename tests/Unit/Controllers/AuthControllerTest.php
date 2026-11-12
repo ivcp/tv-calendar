@@ -240,7 +240,122 @@ class AuthControllerTest extends TestCase
         };
     }
 
-    private function makeController(array $guzzleResponses = []): AuthController
+    public function testItVerifiesAUserFromASignedEmailLink(): void
+    {
+        $user = new User();
+        $user->setEmail('viewer@example.com');
+        $user->setVerifiedAt(null);
+
+        $this->userProvider->method('getById')->with(7)->willReturn($user);
+        $this->userProvider->expects($this->once())->method('verifyUser')->with($user);
+
+        $rendered = [];
+        $controller = $this->makeController([], $this->renderingTwig($rendered));
+
+        $response = $controller->verify(
+            $this->request([]),
+            new Response(),
+            ['id' => '7', 'hash' => sha1('viewer@example.com')]
+        );
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertTrue($rendered['verified']);
+        $this->assertSame('verified', $rendered['status']);
+    }
+
+    public function testItRejectsALinkWhoseHashDoesNotMatchTheAccount(): void
+    {
+        $user = new User();
+        $user->setEmail('viewer@example.com');
+        $user->setVerifiedAt(null);
+
+        $this->userProvider->method('getById')->with(7)->willReturn($user);
+        $this->userProvider->expects($this->never())->method('verifyUser');
+
+        $rendered = [];
+        $controller = $this->makeController([], $this->renderingTwig($rendered));
+
+        $controller->verify(
+            $this->request([]),
+            new Response(),
+            ['id' => '7', 'hash' => sha1('someone-else@example.com')]
+        );
+
+        $this->assertFalse($rendered['verified']);
+        $this->assertSame('invalid', $rendered['status']);
+    }
+
+    public function testItHandlesALinkForAnAccountThatNoLongerExists(): void
+    {
+        $this->userProvider->method('getById')->with(7)->willReturn(null);
+        $this->userProvider->expects($this->never())->method('verifyUser');
+
+        $rendered = [];
+        $controller = $this->makeController([], $this->renderingTwig($rendered));
+
+        $controller->verify(
+            $this->request([]),
+            new Response(),
+            ['id' => '7', 'hash' => sha1('viewer@example.com')]
+        );
+
+        $this->assertFalse($rendered['verified']);
+        $this->assertSame('missing', $rendered['status']);
+    }
+
+    public function testItDoesNotVerifyAnAlreadyVerifiedUserAgain(): void
+    {
+        $user = new User();
+        $user->setEmail('viewer@example.com');
+        $user->setVerifiedAt(new DateTime());
+
+        $this->userProvider->method('getById')->willReturn($user);
+        $this->userProvider->expects($this->never())->method('verifyUser');
+
+        $rendered = [];
+        $controller = $this->makeController([], $this->renderingTwig($rendered));
+
+        $controller->verify(
+            $this->request([]),
+            new Response(),
+            ['id' => '7', 'hash' => sha1('viewer@example.com')]
+        );
+
+        $this->assertSame('verified', $rendered['status']);
+    }
+
+    public function testItTreatsANonNumericIdAsAMissingAccount(): void
+    {
+        $this->userProvider->expects($this->once())->method('getById')->with(0)->willReturn(null);
+        $this->userProvider->expects($this->never())->method('verifyUser');
+
+        $rendered = [];
+        $controller = $this->makeController([], $this->renderingTwig($rendered));
+
+        $controller->verify(
+            $this->request([]),
+            new Response(),
+            ['id' => 'abc', 'hash' => sha1('viewer@example.com')]
+        );
+
+        $this->assertSame('missing', $rendered['status']);
+    }
+
+    private function renderingTwig(array &$rendered): Twig
+    {
+        $twig = $this->createMock(Twig::class);
+        $twig->method('render')->willReturnCallback(
+            function (ResponseInterface $response, string $template, array $data = []) use (&$rendered): ResponseInterface {
+                $rendered = $data;
+
+                return $response;
+            }
+        );
+
+        return $twig;
+    }
+
+    private function makeController(array $guzzleResponses = [], ?Twig $twig = null): AuthController
     {
         $this->history = [];
 
@@ -266,7 +381,7 @@ class AuthControllerTest extends TestCase
         $validatorFactory->method('make')->willReturn($validator);
 
         return new AuthController(
-            $this->createMock(Twig::class),
+            $twig ?? $this->createMock(Twig::class),
             $validatorFactory,
             $this->auth,
             $this->userShowsService,
