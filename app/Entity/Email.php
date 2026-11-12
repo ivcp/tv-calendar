@@ -40,6 +40,9 @@ class Email
     #[Column(name: 'reset_link', type: 'text', nullable: true, options: ['default' => null])]
     private ?string $resetLink = null;
 
+    #[Column(name: 'shows_count', type: 'integer', nullable: true, options: ['default' => null])]
+    private ?int $showsCount = null;
+
     /**
      * Get the value of id
      */
@@ -144,6 +147,26 @@ class Email
     public function setExpirationDate(?DateTime $expirationDate): self
     {
         $this->expirationDate = $expirationDate;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of showsCount
+     */
+    public function getShowsCount(): ?int
+    {
+        return $this->showsCount;
+    }
+
+    /**
+     * Set the value of showsCount
+     *
+     * @return  self
+     */
+    public function setShowsCount(?int $showsCount): self
+    {
+        $this->showsCount = $showsCount;
 
         return $this;
     }

@@ -27,11 +27,10 @@ class ForgotPasswordEmail
             $passwordReset->getToken(),
             $passwordReset->getExpiration()
         );
-        $appName = $this->config->get('app_name');
 
         $this->emailSendingService->queue(
             to: $email,
-            subject: "$appName - password reset",
+            subject: 'Reset your password',
             htmlTemplate: 'emails/password-reset.html.twig',
             resetLink: $resetLink
         );

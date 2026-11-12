@@ -11,7 +11,7 @@ use App\Contracts\SessionInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
 use App\Exception\ValidationException;
-use App\Mail\VerificatonEmail;
+use App\Mail\VerificationEmail;
 use App\RequestValidators\LoginUserRequestValidator;
 use App\RequestValidators\OauthRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
@@ -37,7 +37,7 @@ class AuthController
         private readonly UserShowsService $userShowsService,
         private readonly UserProviderServiceInterface $userProviderService,
         private readonly ResponseFormatter $responseFormatter,
-        private readonly VerificatonEmail $verificatonEmail,
+        private readonly VerificationEmail $verificationEmail,
         private readonly Config $config,
         private readonly Client $client,
         private readonly SessionInterface $session
@@ -107,20 +107,30 @@ class AuthController
 
     public function verify(Request $request, Response $response, array $args): Response
     {
-        $user = $request->getAttribute('user');
+        $user = $this->userProviderService->getById((int) ($args['id'] ?? 0));
 
-        if (
-            ! hash_equals((string) $user->getId(), $args['id']) ||
-            ! hash_equals(sha1($user->getEmail()), $args['hash'])
-        ) {
-            return $this->twig->render($response, 'auth/verify.twig', ['verified' => false]);
+        if (! $user) {
+            return $this->twig->render($response, 'auth/verify.twig', [
+                'verified' => false,
+                'status' => 'missing',
+            ]);
+        }
+
+        if (! hash_equals(sha1($user->getEmail()), (string) ($args['hash'] ?? ''))) {
+            return $this->twig->render($response, 'auth/verify.twig', [
+                'verified' => false,
+                'status' => 'invalid',
+            ]);
         }
 
         if (! $user->getVerifiedAt()) {
             $this->userProviderService->verifyUser($user);
         }
 
-        return $this->twig->render($response, 'auth/verify.twig', ['verified' => true]);
+        return $this->twig->render($response, 'auth/verify.twig', [
+            'verified' => true,
+            'status' => 'verified',
+        ]);
     }
 
     public function resendEmail(Request $request, Response $response): Response
@@ -129,7 +139,7 @@ class AuthController
         if (! $user) {
             return $this->responseFormatter->asJSONMessage($response, 403, 'unauthorized');
         }
-        $this->verificatonEmail->send($user);
+        $this->verificationEmail->send($user);
         return $this->responseFormatter->asJSONMessage($response, 200, 'new verification email sent');
     }
 

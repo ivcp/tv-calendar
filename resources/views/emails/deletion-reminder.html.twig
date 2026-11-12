@@ -1,0 +1,33 @@
+{% extends 'emails/layout.html.twig' %}
+{% import 'emails/_button.html.twig' as ui %}
+
+{% set hoursLeft = ((expirationDate|date('U') - "now"|date('U')) / 3600)|round(0, 'ceil') %}
+
+{% block title %}Confirm your email to keep your {{ appName }} account{% endblock %}
+
+{% block preheader %}It only takes a click to keep your account{% if showsCount %} and your shows{% endif %}.{% endblock %}
+
+{% block content %}
+<h1
+  style="margin:0 0 16px;font-size:22px;line-height:1.3;font-weight:700;color:#26303c;"
+>
+  Confirm your email to keep your account
+</h1>
+<p style="margin:0 0 16px;">
+  You signed up for {{ appName }} a few days ago, but the email address on your
+  account hasn't been confirmed yet.
+</p>
+<p style="margin:0 0 16px;">
+  We only keep accounts with a confirmed email, so yours is
+  <strong>scheduled for deletion on {{ expirationDate|date('F j, Y') }}</strong>,
+  about {{ hoursLeft }} hours from now. If you'd like to keep it{% if showsCount %},
+  along with the {{ showsCount }} show{{ showsCount == 1 ? '' : 's' }} on your
+  list{% endif %}, confirming takes just a few seconds.
+</p>
+{{ ui.button(activationLink, 'Confirm my email') }}
+<p style="margin:0;font-size:14px;line-height:1.5;color:#64748b;">
+  If you've changed your mind, there's nothing you need to do, and the account
+  will be removed automatically. If you've already confirmed your email, you're
+  all set and can ignore this message.
+</p>
+{% endblock %}
