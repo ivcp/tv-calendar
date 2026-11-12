@@ -28,7 +28,7 @@ class DeletionReminderEmail
 
         $this->emailSendingService->queue(
             to: $user->getEmail(),
-            subject: "Your $appName account is scheduled for deletion",
+            subject: "Confirm your email to keep your $appName account",
             htmlTemplate: 'emails/deletion-reminder.html.twig',
             activationLink: $this->linkService->forUser($user, $linkExpiration),
             expirationDate: $deletionDate,

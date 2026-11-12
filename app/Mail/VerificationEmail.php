@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Mail;
 
-use App\Config;
 use App\Entity\User;
 use App\Services\EmailSendingService;
 use DateTime;
@@ -12,7 +11,6 @@ use DateTime;
 class VerificationEmail
 {
     public function __construct(
-        private readonly Config $config,
         private readonly VerificationLinkService $linkService,
         private readonly EmailSendingService $emailSendingService
 
@@ -23,11 +21,10 @@ class VerificationEmail
         $expirationDate = new DateTime('+ 48 hours');
         $email = $user->getEmail();
         $activationLink = $this->linkService->forUser($user, $expirationDate);
-        $appName = $this->config->get('app_name');
 
         $this->emailSendingService->queue(
             to: $email,
-            subject: "Welcome to $appName",
+            subject: 'Confirm your email address',
             htmlTemplate: 'emails/register.html.twig',
             activationLink: $activationLink,
             expirationDate: $expirationDate

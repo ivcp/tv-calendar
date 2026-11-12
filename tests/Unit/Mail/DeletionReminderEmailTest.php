@@ -60,7 +60,7 @@ final class DeletionReminderEmailTest extends TestCase
             ->method('queue')
             ->with(
                 'viewer@example.com',
-                'Your TV Calendar account is scheduled for deletion',
+                'Confirm your email to keep your TV Calendar account',
                 'emails/deletion-reminder.html.twig',
                 $this->stringStartsWith($expectedLinkPrefix),
                 $deletionDate,
