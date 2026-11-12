@@ -15,7 +15,7 @@
         <env name="DB_HOST" value="db-test" force="true"/>
         <env name="APP_NAME" value="test"/>      
         <env name="APP_URL" value=""/>      
-        <env name="MAILER_DSN" value=""/>      
+        <env name="MAILER_DSN" value="null://null"/>
         <env name="MAILER_FROM" value=""/>      
         <env name="GOOGLE_CLIENT_ID" value=""/>      
         <env name="GOOGLE_CLIENT_SECRET" value=""/>      

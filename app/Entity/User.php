@@ -37,6 +37,9 @@ class User implements UserInterface
     #[Column(name: 'verified_at', nullable: true)]
     private ?DateTime $verifiedAt;
 
+    #[Column(name: 'deletion_notice_sent_at', nullable: true)]
+    private ?DateTime $deletionNoticeSentAt = null;
+
     #[Column(name: 'start_of_week_sunday', options: ['default' => false])]
     private bool $startOfWeekSunday;
 
@@ -147,6 +150,24 @@ class User implements UserInterface
     public function setVerifiedAt(?DateTime $date): self
     {
         $this->verifiedAt = $date;
+        return $this;
+    }
+
+    /**
+     * Get the value of deletionNoticeSentAt
+     */
+    public function getDeletionNoticeSentAt(): ?DateTime
+    {
+        return $this->deletionNoticeSentAt;
+    }
+
+    /**
+     * Set the value of deletionNoticeSentAt
+     */
+    public function setDeletionNoticeSentAt(?DateTime $date): self
+    {
+        $this->deletionNoticeSentAt = $date;
+
         return $this;
     }
 

@@ -15,9 +15,14 @@
   Thanks for signing up for {{ appName }}. Confirm your email address to
   activate your account and start tracking your shows.
 </p>
+<p style="margin:0 0 16px;">
+  One thing to know: accounts that stay unverified are deleted after 5 days, so
+  confirm whenever you get a chance and your account is yours to keep.
+</p>
 {{ ui.button(activationLink, 'Activate my account') }}
 <p style="margin:0;font-size:14px;line-height:1.5;color:#64748b;">
-  This link expires in 48 hours. If you didn't create an account, you can safely
-  ignore this email.
+  This link is valid for 48 hours. If it expires, you can request a new one from
+  your profile. If you didn't create an account, you can safely ignore this
+  email.
 </p>
 {% endblock %}

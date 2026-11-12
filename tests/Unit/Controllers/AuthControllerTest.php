@@ -12,7 +12,7 @@ use App\Contracts\RequestValidatorInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\Entity\User;
 use App\Exception\ValidationException;
-use App\Mail\VerificatonEmail;
+use App\Mail\VerificationEmail;
 use App\ResponseFormatter;
 use App\Services\UserShowsService;
 use DateTime;
@@ -272,7 +272,7 @@ class AuthControllerTest extends TestCase
             $this->userShowsService,
             $this->userProvider,
             $this->createMock(ResponseFormatter::class),
-            $this->createMock(VerificatonEmail::class),
+            $this->createMock(VerificationEmail::class),
             $config,
             new Client(['handler' => $stack]),
             $this->session

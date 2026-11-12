@@ -9,6 +9,7 @@ use App\Controllers\PasswordResetController;
 use App\Controllers\ProfileController;
 use App\Controllers\ShowController;
 use App\Controllers\SitemapController;
+use App\Mail\VerificationLinkService;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\GuestMiddleware;
 use App\Middleware\ValidateSignatureMiddleware;
@@ -47,7 +48,7 @@ return function (App $app) {
     })->add(GuestMiddleware::class);
 
     $app->group('', function (RouteCollectorProxy $user) {
-        $user->get('/verify/{id}/{hash}', [AuthController::class, 'verify'])
+        $user->get(VerificationLinkService::ROUTE_PATTERN, [AuthController::class, 'verify'])
             ->setName('verify')
             ->add(ValidateSignatureMiddleware::class);
         $user->post('/verify', [AuthController::class, 'resendEmail']);

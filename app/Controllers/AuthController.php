@@ -11,7 +11,7 @@ use App\Contracts\SessionInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\RegisterUserData;
 use App\Exception\ValidationException;
-use App\Mail\VerificatonEmail;
+use App\Mail\VerificationEmail;
 use App\RequestValidators\LoginUserRequestValidator;
 use App\RequestValidators\OauthRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
@@ -37,7 +37,7 @@ class AuthController
         private readonly UserShowsService $userShowsService,
         private readonly UserProviderServiceInterface $userProviderService,
         private readonly ResponseFormatter $responseFormatter,
-        private readonly VerificatonEmail $verificatonEmail,
+        private readonly VerificationEmail $verificationEmail,
         private readonly Config $config,
         private readonly Client $client,
         private readonly SessionInterface $session
@@ -129,7 +129,7 @@ class AuthController
         if (! $user) {
             return $this->responseFormatter->asJSONMessage($response, 403, 'unauthorized');
         }
-        $this->verificatonEmail->send($user);
+        $this->verificationEmail->send($user);
         return $this->responseFormatter->asJSONMessage($response, 200, 'new verification email sent');
     }
 

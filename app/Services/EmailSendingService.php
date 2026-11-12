@@ -35,7 +35,8 @@ class EmailSendingService
                     htmlTemplate: $email->getHtmlTemplate(),
                     activationLink: $email->getActivationLink(),
                     expirationDate: $email->getExpirationDate(),
-                    resetLink: $email->getResetLink()
+                    resetLink: $email->getResetLink(),
+                    showsCount: $email->getShowsCount()
                 );
                 $this->entityManager->remove($email);
                 $this->entityManager->flush();
@@ -67,7 +68,8 @@ class EmailSendingService
         string $htmlTemplate,
         ?string $activationLink = null,
         ?DateTime $expirationDate = null,
-        ?string $resetLink = null
+        ?string $resetLink = null,
+        ?int $showsCount = null
     ): void {
         $email = new Email();
         $email->setEmail($to);
@@ -76,6 +78,7 @@ class EmailSendingService
         $email->setActivationLink($activationLink);
         $email->setExpirationDate($expirationDate);
         $email->setResetLink($resetLink);
+        $email->setShowsCount($showsCount);
 
         $this->entityManager->persist($email);
         $this->entityManager->flush();
@@ -87,7 +90,8 @@ class EmailSendingService
         string $htmlTemplate,
         ?string $activationLink = null,
         ?DateTime $expirationDate = null,
-        ?string $resetLink = null
+        ?string $resetLink = null,
+        ?int $showsCount = null
     ): void {
         $appName = $this->config->get('app_name');
 
@@ -104,6 +108,9 @@ class EmailSendingService
         }
         if ($resetLink) {
             $context['resetLink'] = $resetLink;
+        }
+        if ($showsCount !== null) {
+            $context['showsCount'] = $showsCount;
         }
 
         $message = (new TemplatedEmail())

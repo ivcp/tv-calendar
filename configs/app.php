@@ -52,6 +52,13 @@ return [
     'json_tags' => JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS | JSON_THROW_ON_ERROR,
     'popular_weight' => 99,
     'premieres_weight' => 70,
+    // Unverified accounts are removed by scripts/unverifiedAccountsCleanup.php.
+    // Each account gets one reminder, sent deletion_notice_lead_hours before it
+    // is deleted; it is deleted unverified_ttl_days after registration.
+    'account' => [
+        'unverified_ttl_days'        => 5,
+        'deletion_notice_lead_hours' => 48,
+    ],
     'mailer' => [
         'dsn' => $_ENV['MAILER_DSN'],
         'from' => $_ENV['MAILER_FROM']
