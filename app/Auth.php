@@ -37,6 +37,10 @@ class Auth implements AuthInterface
 
         $user = $this->userProvider->getById($userId);
         if (!$user) {
+            // The account was deleted while the browser still had a session.
+            // Clearing the id lets the browser behave as a guest from now on.
+            $this->session->forget('user');
+
             return null;
         }
 

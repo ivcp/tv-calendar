@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
-use App\Contracts\SessionInterface;
+use App\Contracts\AuthInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -15,13 +15,13 @@ class GuestMiddleware implements MiddlewareInterface
 {
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly SessionInterface $session
+        private readonly AuthInterface $auth
     ) {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($this->session->get('user')) {
+        if ($this->auth->user()) {
             return $this->responseFactory->createResponse(302)->withHeader('Location', '/');
         }
 
