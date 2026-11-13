@@ -28,8 +28,9 @@ class AccountCleanupService
     }
 
     /**
-     * Warns unverified accounts whose deletion is within the configured lead
-     * time, once per account.
+     * Warns unverified accounts that are within the configured lead time of
+     * deletion, once per account. Accounts whose window was missed (e.g. after
+     * a failed cleanup run) are warned late instead of being skipped.
      */
     public function sendDeletionReminders(?DateTime $now = null): int
     {
@@ -37,21 +38,18 @@ class AccountCleanupService
         [$ttlDays, $leadHours] = $this->retentionPolicy();
 
         $reminderCutoff = (clone $now)->modify(sprintf('-%d hours', $ttlDays * 24 - $leadHours));
-        $deletionCutoff = (clone $now)->modify(sprintf('-%d hours', $ttlDays * 24));
 
         $users = $this->entityManager->createQuery(
             'SELECT u FROM App\Entity\User u
              WHERE u.verifiedAt IS NULL
                AND u.deletionNoticeSentAt IS NULL
-               AND u.createdAt <= :reminderCutoff
-               AND u.createdAt >= :deletionCutoff'
+               AND u.createdAt <= :reminderCutoff'
         )
             ->setParameter('reminderCutoff', $reminderCutoff)
-            ->setParameter('deletionCutoff', $deletionCutoff)
             ->getResult();
 
         foreach ($users as $user) {
-            $deletionDate = (clone $user->getCreatedAt())->modify(sprintf('+%d days', $ttlDays));
+            $deletionDate = (clone $now)->modify(sprintf('+%d hours', $leadHours));
 
             // Marked before queueing: EmailSendingService flushes on this same
             // EntityManager, so the notice and the queued email are written by
@@ -67,13 +65,21 @@ class AccountCleanupService
         return count($users);
     }
 
+    /**
+     * Deletes unverified accounts that were reminded at least the lead time
+     * ago. Accounts that were never warned are kept, so nothing is deleted
+     * without a warning first.
+     */
     private function deleteUnverifiedAccounts(DateTime $now): int
     {
-        [$ttlDays] = $this->retentionPolicy();
+        [, $leadHours] = $this->retentionPolicy();
 
         $query = $this->entityManager->createQuery(
-            'delete from App\Entity\User u where u.createdAt < :cutoff and u.verifiedAt is NULL'
-        )->setParameter('cutoff', (clone $now)->modify(sprintf('-%d days', $ttlDays)));
+            'delete from App\Entity\User u
+             where u.verifiedAt is NULL
+               and u.deletionNoticeSentAt is not NULL
+               and u.deletionNoticeSentAt <= :remindedBefore'
+        )->setParameter('remindedBefore', (clone $now)->modify(sprintf('-%d hours', $leadHours)));
 
         return (int) $query->execute();
     }

@@ -28,22 +28,28 @@ final class AccountCleanupTest extends TestCase
         $this->container = require CONFIG_PATH . '/container/container.php';
         $this->entityManager = $this->container->get(EntityManager::class);
 
-        // Too old for a reminder, deleted by this run.
-        $this->createUser('delete-6d@example.com', '-6 days');
-        // Too old for a reminder, deleted by this run.
-        $this->createUser('delete-5d1h@example.com', '-5 days -1 hour');
         // Reminder-eligible via the main window.
         $this->createUser('remind-4d@example.com', '-4 days');
         // Reminder-eligible, just inside the upper cutoff.
         $this->createUser('remind-3d1h@example.com', '-3 days -1 hour');
-        // Reminder-eligible after a missed run, deleted only on the next run.
+        // Reminder-eligible near the end of the window, deleted after the lead time.
         $this->createUser('remind-4d22h@example.com', '-4 days -22 hours');
+        // Overdue and never warned: gets a catch-up reminder instead of being skipped.
+        $this->createUser('overdue-6d@example.com', '-6 days');
+        $this->createUser('overdue-5d1h@example.com', '-5 days -1 hour');
         // Too young for a reminder.
         $this->createUser('young-2d@example.com', '-2 days');
         // Just registered.
         $this->createUser('young-now@example.com');
         // Verified long ago, never touched.
         $this->createUser('verified-6d@example.com', '-6 days', true);
+        // Warned at least the lead time ago, deleted by this run.
+        $this->createUser('delete-warned-49h@example.com', '-6 days', false, '-49 hours');
+        $this->createUser('delete-warned-48h@example.com', '-6 days', false, '-48 hours');
+        // Warned less than the lead time ago, kept until the lead time has passed.
+        $this->createUser('keep-warned-47h@example.com', '-6 days', false, '-47 hours');
+        // Warned, but verified afterwards: deletion must not touch it.
+        $this->createUser('keep-warned-verified@example.com', '-6 days', true, '-49 hours');
 
         $this->entityManager->flush();
     }
@@ -56,6 +62,8 @@ final class AccountCleanupTest extends TestCase
         $this->entityManager->clear();
 
         $remindedEmails = [
+            'overdue-5d1h@example.com',
+            'overdue-6d@example.com',
             'remind-3d1h@example.com',
             'remind-4d@example.com',
             'remind-4d22h@example.com',
@@ -76,8 +84,9 @@ final class AccountCleanupTest extends TestCase
             $this->assertNotNull($user);
             $this->assertNotNull($user->getDeletionNoticeSentAt());
 
+            // The reminder promises deletion one lead time after it was sent.
             $email = $this->entityManager->getRepository(Email::class)->findOneBy(['email' => $address]);
-            $expectedDeletionDate = (clone $user->getCreatedAt())->modify('+5 days');
+            $expectedDeletionDate = (clone $user->getDeletionNoticeSentAt())->modify('+48 hours');
             $this->assertSame(
                 $expectedDeletionDate->getTimestamp(),
                 $email->getExpirationDate()->getTimestamp()
@@ -91,21 +100,52 @@ final class AccountCleanupTest extends TestCase
         }
 
         $this->assertNull(
-            $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'delete-6d@example.com'])
+            $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => 'delete-warned-49h@example.com',
+            ])
         );
         $this->assertNull(
             $this->entityManager->getRepository(User::class)->findOneBy([
-                'email' => 'delete-5d1h@example.com',
+                'email' => 'delete-warned-48h@example.com',
             ])
         );
 
-        // Running the reminder step again must not queue duplicates.
+        // Unwarned accounts are never deleted, however old they are.
+        $this->assertNotNull(
+            $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => 'overdue-6d@example.com',
+            ])
+        );
+        // Warned too recently, or verified after the warning: kept.
+        $this->assertNotNull(
+            $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => 'keep-warned-47h@example.com',
+            ])
+        );
+        $this->assertNotNull(
+            $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => 'keep-warned-verified@example.com',
+            ])
+        );
+
+        // Running again right away must not delete the accounts just warned,
+        // and must not queue duplicate reminders.
+        $this->assertSame(0, $service->run());
         $this->assertSame(0, $service->sendDeletionReminders());
-        $this->assertCount(3, $this->entityManager->getRepository(Email::class)->findAll());
+        $this->assertCount(5, $this->entityManager->getRepository(Email::class)->findAll());
+        $this->assertNotNull(
+            $this->entityManager->getRepository(User::class)->findOneBy([
+                'email' => 'overdue-6d@example.com',
+            ])
+        );
     }
 
-    private function createUser(string $email, ?string $createdAt = null, bool $verified = false): void
-    {
+    private function createUser(
+        string $email,
+        ?string $createdAt = null,
+        bool $verified = false,
+        ?string $noticeSentAt = null
+    ): void {
         $user = new User();
         $user->setEmail($email);
         $user->setPassword('12345678');
@@ -115,6 +155,9 @@ final class AccountCleanupTest extends TestCase
         $user->setUpdatedAt(new DateTime());
         if ($verified) {
             $user->setVerifiedAt(new DateTime('2 days ago'));
+        }
+        if ($noticeSentAt !== null) {
+            $user->setDeletionNoticeSentAt(new DateTime($noticeSentAt));
         }
 
         $this->entityManager->persist($user);
