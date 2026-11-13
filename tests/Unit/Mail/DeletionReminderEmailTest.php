@@ -5,28 +5,24 @@ declare(strict_types=1);
 namespace Tests\Unit\Mail;
 
 use App\Config;
-use App\Entity\Show;
 use App\Entity\User;
 use App\Mail\DeletionReminderEmail;
 use App\Mail\VerificationLinkService;
 use App\Services\EmailSendingService;
+use App\Services\UserShowsService;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 
 final class DeletionReminderEmailTest extends TestCase
 {
-    private function makeUser(int $shows = 0): User
+    private function makeUser(): User
     {
         $user = new User();
         $user->setEmail('viewer@example.com');
 
         $reflection = new ReflectionProperty(User::class, 'id');
         $reflection->setValue($user, 42);
-
-        for ($i = 0; $i < $shows; $i++) {
-            $user->addShow(new Show());
-        }
 
         return $user;
     }
@@ -39,12 +35,15 @@ final class DeletionReminderEmailTest extends TestCase
         ]));
     }
 
-    private function makeMail(EmailSendingService $emailSendingService): DeletionReminderEmail
-    {
+    private function makeMail(
+        EmailSendingService $emailSendingService,
+        UserShowsService $userShowsService
+    ): DeletionReminderEmail {
         return new DeletionReminderEmail(
             new Config(['app_name' => 'TV Calendar']),
             $this->makeLinkService(),
-            $emailSendingService
+            $emailSendingService,
+            $userShowsService
         );
     }
 
@@ -68,7 +67,16 @@ final class DeletionReminderEmailTest extends TestCase
                 2
             );
 
-        $this->makeMail($emailSendingService)->send($this->makeUser(2), $deletionDate);
+        $userShowsService = $this->createMock(UserShowsService::class);
+
+        $user = $this->makeUser();
+
+        $userShowsService->expects($this->once())
+            ->method('countShows')
+            ->with($user)
+            ->willReturn(2);
+
+        $this->makeMail($emailSendingService, $userShowsService)->send($user, $deletionDate);
     }
 
     public function testItReportsZeroShowsForAnEmptyList(): void
@@ -88,6 +96,9 @@ final class DeletionReminderEmailTest extends TestCase
                 0
             );
 
-        $this->makeMail($emailSendingService)->send($this->makeUser(), $deletionDate);
+        $userShowsService = $this->createMock(UserShowsService::class);
+        $userShowsService->method('countShows')->willReturn(0);
+
+        $this->makeMail($emailSendingService, $userShowsService)->send($this->makeUser(), $deletionDate);
     }
 }

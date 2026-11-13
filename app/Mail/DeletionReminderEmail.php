@@ -7,6 +7,7 @@ namespace App\Mail;
 use App\Config;
 use App\Entity\User;
 use App\Services\EmailSendingService;
+use App\Services\UserShowsService;
 use DateTime;
 
 class DeletionReminderEmail
@@ -14,7 +15,8 @@ class DeletionReminderEmail
     public function __construct(
         private readonly Config $config,
         private readonly VerificationLinkService $linkService,
-        private readonly EmailSendingService $emailSendingService
+        private readonly EmailSendingService $emailSendingService,
+        private readonly UserShowsService $userShowsService
     ) {}
 
     public function send(User $user, DateTime $deletionDate): void
@@ -32,7 +34,7 @@ class DeletionReminderEmail
             htmlTemplate: 'emails/deletion-reminder.html.twig',
             activationLink: $this->linkService->forUser($user, $linkExpiration),
             expirationDate: $deletionDate,
-            showsCount: $user->getShows()->count()
+            showsCount: $this->userShowsService->countShows($user)
         );
     }
 }

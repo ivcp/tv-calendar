@@ -87,6 +87,11 @@ class UserShowsService
         return  $this->entityManager->getRepository(UserShows::class)->findBy(['user' => $user]);
     }
 
+    public function countShows(User $user): int
+    {
+        return $this->entityManager->getRepository(UserShows::class)->count(['user' => $user]);
+    }
+
     public function getShowCount(User $user, BackedEnum $genre): int
     {
         $repository = $this->entityManager->getRepository(UserShows::class);
