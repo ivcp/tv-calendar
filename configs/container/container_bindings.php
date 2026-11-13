@@ -23,6 +23,7 @@ use App\TwigDefaultSort;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Proxy\ProxyFactory;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Handler\CurlHandler;
@@ -79,8 +80,17 @@ return [
     EntityManager::class          => function (Config $config) {
         $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
             $config->get('doctrine.entity_dir'),
-            $config->get('doctrine.dev_mode')
+            $config->get('doctrine.dev_mode'),
+            $config->get('doctrine.proxy_dir')
         );
+
+        if (! $config->get('doctrine.dev_mode')) {
+            // The web and cron containers have separate filesystems, so a
+            // proxy generated during the app deploy is not visible to the
+            // cron jobs. Generate the missing ones on first use instead; the
+            // file is written to a temporary name and renamed into place.
+            $ormConfig->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_FILE_NOT_EXISTS_OR_CHANGED);
+        }
 
         return new EntityManager(
             DriverManager::getConnection($config->get('doctrine.connection'), $ormConfig),
