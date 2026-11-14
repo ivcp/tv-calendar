@@ -9,6 +9,8 @@ interface SessionInterface
     public function start(): void;
     public function save(): void;
     public function isActive(): bool;
+    public function wasStarted(): bool;
+    public function hasSessionCookie(): bool;
     public function forget(string $key): void;
     public function regenerate(): bool;
     public function put(string $key, mixed $value): void;

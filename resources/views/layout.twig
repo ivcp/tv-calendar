@@ -25,12 +25,14 @@
   </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% if csrf.value %}
     <meta id="csrfName" name="{{ csrf.keys.name }}" content="{{ csrf.name }}" />
     <meta
       id="csrfValue"
       name="{{ csrf.keys.value }}"
       content="{{ csrf.value }}"
     />
+    {% endif %}
     {% if page_meta_desc is defined %}
     <meta
       name="description"

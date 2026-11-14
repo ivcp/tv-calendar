@@ -18,16 +18,26 @@ class RequestService
         $referer = $request->getHeader('referer')[0] ?? '';
 
         if (! $referer) {
-            return $this->session->get('previousUrl');
+            return $this->previousUrl();
         }
 
         $refererHost = parse_url($referer, PHP_URL_HOST);
 
         if ($refererHost !== $request->getUri()->getHost()) {
-            $referer =  $this->session->get('previousUrl');
+            return $this->previousUrl();
         }
 
         return $referer;
+    }
+
+    /**
+     * Cookie-less visitors never record a previous URL: starting a session just
+     * to remember it would make their responses uncacheable. Fall back to the
+     * homepage instead of returning null.
+     */
+    private function previousUrl(): string
+    {
+        return $this->session->get('previousUrl') ?? '/';
     }
 
     public function isXhr(ServerRequestInterface $request): bool

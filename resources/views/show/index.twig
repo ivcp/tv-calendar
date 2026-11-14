@@ -52,7 +52,7 @@
         {{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
       </h1>
       <div class="mt-2 lg:mt-0 flex items-center gap-3">
-        {% if user and show.id in userShows and ntfyTopic %}
+        {% if user and show.id in userShows and notificationsAvailable %}
         <button
           id="notification-enable-btn"
           class="flex items-center btn lg:btn-ghost h-10 min-h-10"
@@ -122,7 +122,7 @@
             %}
             {%
             if
-            ntfyTopic
+            notificationsAvailable
             %}
             notifications-enabled
             {%

@@ -164,7 +164,8 @@ class ShowController
                 'show' =>   $show,
                 'userShows' => $userShows,
                 'episodes' => $episodes->toArray(),
-                'ntfyTopic' => $user ? $user->getNtfyTopic() : null,
+                'notificationsAvailable' => $user !== null
+                    && ($user->getNtfyTopic() !== null || $user->getDiscordWebhookUrl() !== null),
                 'notificationsEnabled' => $notificationsEnabled
             ]
         );
