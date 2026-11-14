@@ -23,6 +23,16 @@ class InMemorySession implements SessionInterface
         return true;
     }
 
+    public function wasStarted(): bool
+    {
+        return true;
+    }
+
+    public function hasSessionCookie(): bool
+    {
+        return false;
+    }
+
     public function forget(string $key): void
     {
         unset($this->data[$key]);

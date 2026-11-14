@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 use App\Config;
 use App\Middleware\BadRequestExceptionMiddleware;
+use App\Middleware\CacheHeadersMiddleware;
 use App\Middleware\CsrfFieldsMiddleware;
+use App\Middleware\CsrfMiddleware;
 use App\Middleware\NotFoundExceptionMiddleware;
 use App\Middleware\OldFormDataMiddleware;
 use App\Middleware\RateLimitMiddleware;
@@ -32,7 +34,7 @@ return function (App $app) {
     $app->add(MethodOverrideMiddleware::class);
     $app->add(TwigGlobalsMiddleware::class);
     $app->add(CsrfFieldsMiddleware::class);
-    $app->add('csrf');
+    $app->add(CsrfMiddleware::class);
     $app->add(TwigMiddleware::create($app, $twig));
     $app->add(NotFoundExceptionMiddleware::class);
     $app->add(BadRequestExceptionMiddleware::class);
@@ -40,6 +42,7 @@ return function (App $app) {
     $app->add(ValidationErrorsMiddleware::class);
     $app->add(OldFormDataMiddleware::class);
     $app->add(StartSessionsMiddleware::class);
+    $app->add(CacheHeadersMiddleware::class);
     $app->addBodyParsingMiddleware();
 
     $app->addErrorMiddleware(

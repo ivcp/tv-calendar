@@ -19,6 +19,7 @@ interface UserInterface
     public function getStartOfWeekSunday(): bool;
     public function getNtfyTopic(): ?string;
     public function setNtfyTopic(?string $ntfyTopic): self;
+    public function getDiscordWebhookUrl(): ?string;
     public function getNotificationTime(): NotificationTime;
     public function setNotificationTime(NotificationTime $notificationTime): self;
 }
