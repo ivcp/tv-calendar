@@ -10,20 +10,16 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-/**
- * Marks anonymous HTML as shareable and anything session-bound as private.
- *
- * The session is already closed when this runs, so "was a session started" and
- * "did the request carry a session cookie" are the signals, not isActive().
- */
+
 class CacheHeadersMiddleware implements MiddlewareInterface
 {
-    private const PUBLIC_CACHE_CONTROL = 'public, s-maxage=3600, stale-while-revalidate=86400';
+    // max-age=0 makes browsers revalidate before reusing the page: without it
+    // (and with stale-while-revalidate) Firefox paints the guest copy
+    // after login. The edge TTL still comes from s-maxage.
+    private const PUBLIC_CACHE_CONTROL = 'public, max-age=0, s-maxage=3600';
     private const PRIVATE_CACHE_CONTROL = 'private, no-store';
 
-    public function __construct(private readonly SessionInterface $session)
-    {
-    }
+    public function __construct(private readonly SessionInterface $session) {}
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

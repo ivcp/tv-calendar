@@ -19,8 +19,23 @@ class CacheHeadersMiddlewareTest extends TestCase
     {
         $response = $this->handle('GET', '/', $this->session(false, false), 'text/html; charset=UTF-8');
 
-        $this->assertStringContainsString('public', $response->getHeaderLine('Cache-Control'));
-        $this->assertStringContainsString('s-maxage=3600', $response->getHeaderLine('Cache-Control'));
+        $cacheControl = $response->getHeaderLine('Cache-Control');
+
+        $this->assertStringContainsString('public', $cacheControl);
+        $this->assertStringContainsString('s-maxage=3600', $cacheControl);
+    }
+
+    public function testItMakesBrowsersRevalidateBeforeReusingAnonymousHtml(): void
+    {
+        $cacheControl = $this->handle('GET', '/', $this->session(false, false), 'text/html; charset=UTF-8')
+            ->getHeaderLine('Cache-Control');
+
+        $this->assertStringContainsString('max-age=0', $cacheControl);
+
+        // stale-while-revalidate lets browsers paint a stale (guest) page while
+        // revalidating in the background, which is what leaked the old header
+        // menu after logging in.
+        $this->assertStringNotContainsString('stale-while-revalidate', $cacheControl);
     }
 
     public function testItMarksAResponseFromAStartedSessionAsPrivate(): void
