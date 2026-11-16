@@ -173,7 +173,8 @@ class ShowController
                 'episodes' => $episodes->toArray(),
                 'notificationsAvailable' => $user !== null
                     && ($user->getNtfyTopic() !== null || $user->getDiscordWebhookUrl() !== null),
-                'notificationsEnabled' => $notificationsEnabled
+                'notificationsEnabled' => $notificationsEnabled,
+                'page_robots' => $this->showService->isThinShow($show) ? 'noindex, follow' : null,
             ]
         );
     }
@@ -201,13 +202,16 @@ class ShowController
             slug: $this->showService->slugify($show->getName())
         ), $discover->getShows());
 
+        $pagination = $discover->getPagination();
+
         return $this->twig->render(
             $response,
             'discover/index.twig',
             [
                 'shows' =>   $shows,
-                'pagination' => $discover->getPagination(),
+                'pagination' => $pagination,
                 'userShows' => $userShows,
+                'page_robots' => $pagination['page'] >= 2 ? 'noindex, follow' : null,
             ]
         );
     }

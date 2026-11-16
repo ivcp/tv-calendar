@@ -10,6 +10,7 @@ use App\RequestValidators\ScheduleRequestValidator;
 use App\ResponseFormatter;
 use App\Services\CalendarService;
 use App\Services\RequestService;
+use DateTimeImmutable;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
@@ -56,8 +57,22 @@ class CalendarController
             $response,
             'calendar/index.twig',
             [
-                'month' => $month
+                'month' => $month,
+                'page_robots' => $this->isIndexableMonth($month) ? null : 'noindex, follow',
             ]
         );
+    }
+
+    /**
+     * Index the current month and its two neighbours only.
+     */
+    private function isIndexableMonth(string $month): bool
+    {
+        // The route regex guarantees "YYYY-MM".
+        $target = new DateTimeImmutable($month . '-01');
+        $current = (new DateTimeImmutable('first day of this month'))->setTime(0, 0);
+
+        return $target >= $current->modify('-2 months')
+            && $target <= $current->modify('+2 months');
     }
 }
