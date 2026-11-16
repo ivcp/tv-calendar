@@ -53,6 +53,53 @@ final class UserProviderServiceTest extends TestCase
         $this->assertTrue($this->userProviderService->emailExists('newuser@example.com'));
     }
 
+    public function testGeneratesARememberKeyOnlyOnce(): void
+    {
+        $user = $this->userProviderService->createUser(
+            new RegisterUserData(email: 'remember@example.com', password: 'password123')
+        );
+
+        $this->assertNull($user->getRememberKey());
+
+        $key = $this->userProviderService->ensureRememberKey($user);
+
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $key);
+        $this->assertSame($key, $this->userProviderService->ensureRememberKey($user));
+    }
+
+    public function testRotatesAndPersistsTheRememberKey(): void
+    {
+        $user = $this->userProviderService->createUser(
+            new RegisterUserData(email: 'rotate@example.com', password: 'password123')
+        );
+        $key = $this->userProviderService->ensureRememberKey($user);
+
+        $rotated = $this->userProviderService->rotateRememberKey($user);
+
+        $this->assertNotSame($key, $rotated);
+        $this->entityManager->clear();
+
+        $reloaded = $this->userProviderService->getById($user->getId());
+        $this->assertSame($rotated, $reloaded->getRememberKey());
+    }
+
+    public function testChangingThePasswordRotatesTheRememberKey(): void
+    {
+        $user = $this->userProviderService->createUser(
+            new RegisterUserData(email: 'password@example.com', password: 'password123')
+        );
+        $key = $this->userProviderService->ensureRememberKey($user);
+
+        $this->userProviderService->updatePassword($user, 'new-password123');
+
+        $this->assertNotSame($key, $user->getRememberKey());
+        $this->entityManager->clear();
+
+        $reloaded = $this->userProviderService->getById($user->getId());
+        $this->assertSame($user->getRememberKey(), $reloaded->getRememberKey());
+        $this->assertTrue(password_verify('new-password123', $reloaded->getPassword()));
+    }
+
     public function tearDown(): void
     {
         exec('./bin/doctrine orm:schema-tool:drop --full-database --force', $_, $result);

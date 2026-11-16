@@ -95,9 +95,43 @@ class UserProviderService implements UserProviderServiceInterface
     public function updatePassword(UserInterface $user, string $password): void
     {
         $user->setPassword($this->hashPassword($password));
+        // Rotating the key invalidates every remember-me cookie for this user.
+        $user->setRememberKey($this->generateRememberKey());
         $user->setUpdatedAt(new DateTime());
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+    }
+
+    /**
+     * Returns the user's remember-me signing key, generating it on first use.
+     */
+    public function ensureRememberKey(UserInterface $user): string
+    {
+        $key = $user->getRememberKey();
+
+        if ($key !== null && $key !== '') {
+            return $key;
+        }
+
+        $key = $this->generateRememberKey();
+        $user->setRememberKey($key);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $key;
+    }
+
+    /**
+     * Replaces the signing key, revoking every remembered browser.
+     */
+    public function rotateRememberKey(UserInterface $user): string
+    {
+        $key = $this->generateRememberKey();
+        $user->setRememberKey($key);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $key;
     }
 
     public function deleteUser(UserInterface $user): void
@@ -115,6 +149,11 @@ class UserProviderService implements UserProviderServiceInterface
     private function hashPassword($password)
     {
         return password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
+    }
+
+    private function generateRememberKey(): string
+    {
+        return bin2hex(random_bytes(32));
     }
 
     private function normalizeEmail(mixed $email): string

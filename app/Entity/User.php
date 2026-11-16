@@ -34,6 +34,9 @@ class User implements UserInterface
     #[Column(type: 'string', nullable: true)]
     private ?string $password;
 
+    #[Column(name: 'remember_key', type: Types::STRING, length: 64, nullable: true)]
+    private ?string $rememberKey = null;
+
     #[Column(name: 'verified_at', nullable: true)]
     private ?DateTime $verifiedAt;
 
@@ -127,6 +130,24 @@ class User implements UserInterface
     public function setPassword(?string $password): User
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of rememberKey
+     */
+    public function getRememberKey(): ?string
+    {
+        return $this->rememberKey;
+    }
+
+    /**
+     * Set the value of rememberKey
+     */
+    public function setRememberKey(?string $rememberKey): User
+    {
+        $this->rememberKey = $rememberKey;
 
         return $this;
     }
