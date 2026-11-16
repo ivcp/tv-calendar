@@ -160,6 +160,14 @@ async function sendTestDiscord(): Promise<Result> {
   }
 }
 
+async function logoutEverywhere(): Promise<Result> {
+  try {
+    return await getResult(`/logout-everywhere`, 'POST', {});
+  } catch (error) {
+    return { error: true, messages: ['something went wrong'] };
+  }
+}
+
 async function getStarring(url: string): Promise<Result> {
   try {
     const response = await fetch(url);
@@ -255,5 +263,6 @@ export {
   setNotificationEnabled,
   sendTestNtfy,
   sendTestDiscord,
+  logoutEverywhere,
   getStarring,
 };

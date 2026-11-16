@@ -9,6 +9,14 @@
     Log in to your account
   </h1>
 
+  {% if notice %}
+  <p
+    class="text-center text-sm text-warning bg-warning/10 rounded-lg px-4 py-2"
+  >
+    {{ notice }}
+  </p>
+  {% endif %}
+
   <form class="form-control lg:w-96 gap-3" method="post" action="/login">
     {{ csrf.fields | raw }}
     <label
@@ -72,6 +80,18 @@
         >Forgot password?</a
       >
     </div>
+
+    <input type="hidden" name="remember" value="0" />
+    <label class="label cursor-pointer justify-start gap-3 -mt-2">
+      <input
+        type="checkbox"
+        name="remember"
+        value="1"
+        class="checkbox checkbox-sm"
+        {% if old is not defined or old.remember != '0' %}checked{% endif %}
+      />
+      <span class="label-text">Remember me on this device</span>
+    </label>
 
     <button
       type="submit"

@@ -312,6 +312,21 @@
   </section>
 
   <section class="card surface bg-base-200 p-6 space-y-3">
+    <h2 class="text-lg font-bold">Signed-in devices</h2>
+    <p class="text-sm text-base-content/70">
+      When you tick "Remember me" at login, this browser stays signed in for up
+      to {{ remember_days }} days. Other devices you logged into with "Remember
+      me" stay signed in too. Logging out only signs out the browser you are
+      using.
+    </p>
+    <div class="flex">
+      <button id="sign-out-everywhere" class="btn btn-outline btn-sm">
+        Log out of all other devices
+      </button>
+    </div>
+  </section>
+
+  <section class="card surface bg-base-200 p-6 space-y-3">
     <h2 class="text-lg font-bold text-error">Danger zone</h2>
     <p class="text-sm text-base-content/70">
       Deleting your account permanently removes your profile, your shows and

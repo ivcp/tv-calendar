@@ -40,6 +40,12 @@ class TwigGlobalsMiddleware implements MiddlewareInterface
             $this->config->get('turnstile.site_key')
         );
 
+        // Shown in the profile copy; keep the wording in days.
+        $this->twig->getEnvironment()->addGlobal(
+            'remember_days',
+            intdiv((int) $this->config->get('remember.lifetime', 0), 86400)
+        );
+
         return $handler->handle($request);
     }
 }

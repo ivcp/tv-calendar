@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
+use App\Contracts\RememberMeInterface;
 use App\Contracts\SessionInterface;
 use App\Middleware\CacheHeadersMiddleware;
 use PHPUnit\Framework\TestCase;
@@ -52,6 +53,23 @@ class CacheHeadersMiddlewareTest extends TestCase
         $this->assertSame('private, no-store', $response->getHeaderLine('Cache-Control'));
     }
 
+    public function testItMarksAResponseForARequestWithARememberCookieAsPrivate(): void
+    {
+        $rememberMe = $this->createMock(RememberMeInterface::class);
+        $rememberMe->method('hasCookie')->willReturn(true);
+
+        $response = $this->handle(
+            'GET',
+            '/',
+            $this->session(false, false),
+            'text/html; charset=UTF-8',
+            null,
+            $rememberMe
+        );
+
+        $this->assertSame('private, no-store', $response->getHeaderLine('Cache-Control'));
+    }
+
     public function testItLeavesNonHtmlResponsesAlone(): void
     {
         $response = $this->handle('GET', '/2026-11', $this->session(false, false), 'application/json');
@@ -87,7 +105,8 @@ class CacheHeadersMiddlewareTest extends TestCase
         string $path,
         SessionInterface $session,
         ?string $contentType,
-        ?ResponseInterface $response = null
+        ?ResponseInterface $response = null,
+        ?RememberMeInterface $rememberMe = null
     ): ResponseInterface {
         $response ??= new Response();
 
@@ -95,7 +114,10 @@ class CacheHeadersMiddlewareTest extends TestCase
             $response = $response->withHeader('Content-Type', $contentType);
         }
 
-        $middleware = new CacheHeadersMiddleware($session);
+        $middleware = new CacheHeadersMiddleware(
+            $session,
+            $rememberMe ?? $this->createMock(RememberMeInterface::class)
+        );
 
         return $middleware->process($this->request($method, $path), $this->handler($response));
     }

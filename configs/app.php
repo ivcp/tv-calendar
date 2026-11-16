@@ -48,7 +48,21 @@ return [
         'secure' => AppEnvironment::isDevelopment($appEnv) ? false : true,
         'httponly' => true,
         'samesite' => 'lax',
-        'lifetime' =>  60 * 60 * 24 * 30
+        // Session only; "remember me" is a separate, longer-lived signed cookie.
+        'lifetime' => 60 * 60 * 4
+    ],
+    'remember' => [
+        'cookie_name' => $appName . '_remember',
+        // Fixed lifetime: a successful auto-login never extends it.
+        'lifetime' => 60 * 60 * 24 * 180,
+        // The browser keeps the (already invalid) cookie for this much longer,
+        // so a lapsed user can be sent to the login page instead of silently
+        // becoming a guest. Purely a UX hint: the signed expiry above decides
+        // whether the cookie still authenticates anyone.
+        'expiry_grace' => 60 * 60 * 24 * 30,
+        'secure' => AppEnvironment::isDevelopment($appEnv) ? false : true,
+        'httponly' => true,
+        'samesite' => 'lax'
     ],
     'json_tags' => JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS | JSON_THROW_ON_ERROR,
     'popular_weight' => 99,

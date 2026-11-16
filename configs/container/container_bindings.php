@@ -5,12 +5,14 @@ declare(strict_types=1);
 use App\Auth;
 use App\Config;
 use App\Contracts\AuthInterface;
+use App\Contracts\RememberMeInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\SessionInterface;
 use App\Contracts\UserProviderServiceInterface;
 use App\DataObjects\SessionConfig;
 use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
+use App\RememberMe;
 use App\RequestValidators\RequestValidatorFactory;
 use App\Services\EpisodeService;
 use App\Services\ShowService;
@@ -169,6 +171,7 @@ return [
     AuthInterface::class => fn(ContainerInterface $container) => $container->get(Auth::class),
     UserProviderServiceInterface::class =>
     fn(ContainerInterface $container) => $container->get(UserProviderService::class),
+    RememberMeInterface::class => fn(ContainerInterface $container) => $container->get(RememberMe::class),
     SessionInterface::class => fn(Config $config) => new Session(
         new SessionConfig(
             $config->get('session.name', ''),

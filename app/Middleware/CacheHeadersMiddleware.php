@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Middleware;
 
+use App\Contracts\RememberMeInterface;
 use App\Contracts\SessionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,7 +20,11 @@ class CacheHeadersMiddleware implements MiddlewareInterface
     private const PUBLIC_CACHE_CONTROL = 'public, max-age=0, s-maxage=3600';
     private const PRIVATE_CACHE_CONTROL = 'private, no-store';
 
-    public function __construct(private readonly SessionInterface $session) {}
+    public function __construct(
+        private readonly SessionInterface $session,
+        private readonly RememberMeInterface $rememberMe
+    ) {
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -31,7 +36,14 @@ class CacheHeadersMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        if ($this->session->wasStarted() || $this->session->hasSessionCookie()) {
+        // A remember-me cookie alone means the response can become personalised
+        // (the next middleware turns it into a session), so it must not be
+        // cached for other visitors.
+        if (
+            $this->session->wasStarted()
+            || $this->session->hasSessionCookie()
+            || $this->rememberMe->hasCookie()
+        ) {
             return $response->withHeader('Cache-Control', self::PRIVATE_CACHE_CONTROL);
         }
 

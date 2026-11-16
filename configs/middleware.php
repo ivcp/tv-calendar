@@ -10,6 +10,7 @@ use App\Middleware\CsrfMiddleware;
 use App\Middleware\NotFoundExceptionMiddleware;
 use App\Middleware\OldFormDataMiddleware;
 use App\Middleware\RateLimitMiddleware;
+use App\Middleware\RememberMeMiddleware;
 use App\Middleware\StartSessionsMiddleware;
 use App\Middleware\TwigGlobalsMiddleware;
 use App\Middleware\UserMiddleware;
@@ -41,6 +42,7 @@ return function (App $app) {
     $app->add(ValidationExceptionMiddleware::class);
     $app->add(ValidationErrorsMiddleware::class);
     $app->add(OldFormDataMiddleware::class);
+    $app->add(RememberMeMiddleware::class);
     $app->add(StartSessionsMiddleware::class);
     $app->add(CacheHeadersMiddleware::class);
     $app->addBodyParsingMiddleware();
