@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+Disallow: /profile
+Disallow: /showlist
+Disallow: /logout
+Disallow: /search
+
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password/
+Disallow: /update-password
+Disallow: /verify/
+Disallow: /google-oauth
+
+
+Disallow: /ntfy-test
+Disallow: /discord-test
+
+Sitemap: https://www.tvshowcalendar.com/sitemap.xml
