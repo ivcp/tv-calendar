@@ -24,6 +24,10 @@ class ShowService
 {
     use ParamsTypesCases;
 
+
+    public const MIN_INDEXABLE_EPISODES = 3;
+    public const SITEMAP_MIN_WEIGHT = 80;
+
     public function __construct(private readonly EntityManager $entityManager) {}
 
     public function getById(int $id): ?Show
@@ -451,12 +455,11 @@ class ShowService
     {
         $correctedSlug = mb_strtolower($name, 'UTF-8');
 
-        if (class_exists('Transliterator')) {
+        $transliterator = self::transliterator();
+
+        if ($transliterator !== null) {
             // Any-Latin converts Cyrillic to Latin; Latin-ASCII strips accents (e.g., č -> c)
-            $transliterator = \Transliterator::create('Any-Latin; Latin-ASCII');
-            if ($transliterator) {
-                $correctedSlug = $transliterator->transliterate($correctedSlug);
-            }
+            $correctedSlug = $transliterator->transliterate($correctedSlug);
         } else if (extension_loaded('iconv')) {
             $correctedSlug = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $correctedSlug);
         }
@@ -467,17 +470,59 @@ class ShowService
         return preg_replace('/-+/', '-', $correctedSlug);
     }
 
+    private static function transliterator(): ?\Transliterator
+    {
+        static $transliterator = null;
+        static $resolved = false;
+
+        if (! $resolved) {
+            $resolved = true;
+            $transliterator = class_exists('Transliterator')
+                ? (\Transliterator::create('Any-Latin; Latin-ASCII') ?: null)
+                : null;
+        }
+
+        return $transliterator;
+    }
+
 
     public function getSitemapShows(): array
     {
+        $qb = $this->entityManager->getRepository(Show::class)
+            ->createQueryBuilder('c');
 
-        return $this->entityManager->getRepository(Show::class)
-            ->createQueryBuilder('c')
+        return $qb
             ->select('c.id', 'c.name', 'c.updatedAt')
-            ->addOrderBy('c.weight', 'DESC')
+            ->where('c.weight >= :minWeight')
+            ->andWhere('c.summary IS NOT NULL')
+            ->andWhere("c.summary <> ''")
+            ->andWhere($qb->expr()->orX(
+                'c.imageMedium IS NOT NULL',
+                'c.imageOriginal IS NOT NULL'
+            ))
+            ->andWhere('SIZE(c.episodes) >= :minEpisodes')
+            ->setParameter('minWeight', self::SITEMAP_MIN_WEIGHT)
+            ->setParameter('minEpisodes', self::MIN_INDEXABLE_EPISODES)
+            ->orderBy('c.weight', 'DESC')
             ->addOrderBy('c.updatedAt', 'DESC')
-            ->setMaxResults(500)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Mirrors getSitemapShows() without the popularity bar, using the episode
+     * collection the show page already loads. Keep both predicates in sync.
+     */
+    public function isThinShow(Show $show): bool
+    {
+        if (trim((string) $show->getSummary()) === '') {
+            return true;
+        }
+
+        if ($show->getImageMedium() === null && $show->getImageOriginal() === null) {
+            return true;
+        }
+
+        return $show->getEpisodes()->count() < self::MIN_INDEXABLE_EPISODES;
     }
 }
