@@ -14,6 +14,7 @@ use App\Entity\User;
 use App\Exception\ValidationException;
 use App\Mail\VerificationEmail;
 use App\ResponseFormatter;
+use App\Services\RequestService;
 use App\Services\UserShowsService;
 use DateTime;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
@@ -30,6 +31,7 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
 use Slim\Views\Twig;
 use Tests\Unit\Support\InMemorySession;
+use Tests\Unit\Support\RecordingSession;
 
 class AuthControllerTest extends TestCase
 {
@@ -131,7 +133,7 @@ class AuthControllerTest extends TestCase
         $this->auth
             ->expects($this->once())
             ->method('login')
-            ->with($user);
+            ->with($user, true);
 
         $this->userShowsService
             ->expects($this->once())
@@ -231,6 +233,72 @@ class AuthControllerTest extends TestCase
         $this->assertSame('/login', $callbackResponse->getHeaderLine('Location'));
     }
 
+    public function testItPassesTheRememberChoiceToTheAuthService(): void
+    {
+        $controller = $this->makeController();
+
+        $this->auth
+            ->expects($this->once())
+            ->method('attemptLogin')
+            ->with($this->isType('array'), true)
+            ->willReturn(new User());
+
+        $response = $controller->login($this->loginRequest(true), new Response());
+
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('/', $response->getHeaderLine('Location'));
+    }
+
+    public function testItDoesNotRememberTheBrowserWhenTheBoxIsUnchecked(): void
+    {
+        $controller = $this->makeController();
+
+        $this->auth
+            ->expects($this->once())
+            ->method('attemptLogin')
+            ->with($this->isType('array'), false)
+            ->willReturn(new User());
+
+        $controller->login($this->loginRequest(false), new Response());
+    }
+
+    public function testItSignsOutOtherDevicesOverXhr(): void
+    {
+        $this->auth->expects($this->once())->method('logoutEverywhere');
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('POST', 'https://tv-calendar.test/logout-everywhere')
+            ->withHeader('X-Requested-With', 'XMLHttpRequest');
+
+        $response = $this->makeController()->logoutEverywhere($request, new Response());
+
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    public function testItRedirectsToTheProfileAfterSigningOutOtherDevices(): void
+    {
+        $this->auth->expects($this->once())->method('logoutEverywhere');
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('POST', 'https://tv-calendar.test/logout-everywhere');
+
+        $response = $this->makeController()->logoutEverywhere($request, new Response());
+
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('/profile', $response->getHeaderLine('Location'));
+    }
+
+    private function loginRequest(bool $remember): ServerRequestInterface
+    {
+        return (new ServerRequestFactory())
+            ->createServerRequest('POST', 'https://tv-calendar.test/login')
+            ->withParsedBody([
+                'email'    => 'user@example.com',
+                'password' => 'password123',
+                'remember' => $remember,
+            ]);
+    }
+
     private function uniqueConstraintViolation(): UniqueConstraintViolationException
     {
         return new class extends UniqueConstraintViolationException {
@@ -238,6 +306,22 @@ class AuthControllerTest extends TestCase
             {
             }
         };
+    }
+
+    public function testTheLoginViewShowsAnExpiredLoginNotice(): void
+    {
+        $this->session = new RecordingSession();
+        $this->session->flash('notice', ['Your login has expired. Please log in again.']);
+
+        $rendered = [];
+        $controller = $this->makeController([], $this->renderingTwig($rendered));
+
+        $controller->loginView($this->request([]), new Response());
+
+        $this->assertSame(
+            'Your login has expired. Please log in again.',
+            $rendered['notice']
+        );
     }
 
     public function testItVerifiesAUserFromASignedEmailLink(): void
@@ -380,17 +464,26 @@ class AuthControllerTest extends TestCase
         $validatorFactory = $this->createMock(RequestValidatorFactoryInterface::class);
         $validatorFactory->method('make')->willReturn($validator);
 
+        $responseFormatter = $this->createMock(ResponseFormatter::class);
+        $responseFormatter->method('asJSONMessage')->willReturnCallback(
+            fn (ResponseInterface $response): ResponseInterface => $response->withHeader(
+                'Content-Type',
+                'application/json'
+            )
+        );
+
         return new AuthController(
             $twig ?? $this->createMock(Twig::class),
             $validatorFactory,
             $this->auth,
             $this->userShowsService,
             $this->userProvider,
-            $this->createMock(ResponseFormatter::class),
+            $responseFormatter,
             $this->createMock(VerificationEmail::class),
             $config,
             new Client(['handler' => $stack]),
-            $this->session
+            $this->session,
+            new RequestService($this->session)
         );
     }
 

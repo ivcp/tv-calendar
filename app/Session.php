@@ -50,11 +50,17 @@ class Session implements SessionInterface
             session_name($this->sessionConfig->name);
         }
 
+        // Captured before the session starts rewriting cookies below: it marks
+        // sessions created before the remember-me cutover.
+        $hadSessionCookie = isset($_COOKIE[session_name()]);
+
         if (! session_start()) {
             throw new SessionException('Unable to start session.');
         }
 
         $this->started = true;
+
+        $this->enforceLifetime($hadSessionCookie);
     }
 
     public function save(): void
@@ -142,5 +148,39 @@ class Session implements SessionInterface
         if (! $this->isActive()) {
             $this->start();
         }
+    }
+
+    /**
+     * Enforces an absolute session lifetime and replaces pre-remember-me
+     * sessions (which used a much longer cookie) with current ones.
+     */
+    private function enforceLifetime(bool $hadSessionCookie): void
+    {
+        $startedAt = $_SESSION['_started_at'] ?? null;
+
+        if (! is_int($startedAt)) {
+            $_SESSION['_started_at'] = time();
+
+            // The browser still sends a session cookie that predates the
+            // current cookie parameters; regenerating makes it store the
+            // shorter-lived one.
+            if ($hadSessionCookie) {
+                session_regenerate_id();
+            }
+
+            return;
+        }
+
+        $lifetime = $this->sessionConfig->lifetime;
+
+        if ($lifetime <= 0 || time() - $startedAt < $lifetime) {
+            return;
+        }
+
+        // Absolute cap: every response refreshes the session cookie, so without
+        // this an open browser would stay signed in indefinitely.
+        unset($_SESSION['user'], $_SESSION['_remember']);
+        $_SESSION['_started_at'] = time();
+        session_regenerate_id();
     }
 }

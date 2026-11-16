@@ -9,6 +9,7 @@ import {
   enableDiscordNotifications,
   disableDiscordNotifications,
   sendTestDiscord,
+  logoutEverywhere,
 } from '../utils/ajax';
 import {
   assertHtmlElement,
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const discordSubmitBtn = document.getElementById('discord-submit-btn');
   const testNtfyBtn = document.getElementById('test-ntfy');
   const testDiscordBtn = document.getElementById('test-discord-webhook');
+  const signOutEverywhereBtn = document.getElementById('sign-out-everywhere');
 
   const ntfyNotificationsSettingsContent = document.getElementById(
     'ntfy-notifications-settings-content',
@@ -313,6 +315,28 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
     t.disabled = false;
+    notification(response.messages, 'alert-success');
+  });
+
+  signOutEverywhereBtn?.addEventListener('click', async function ({ target }) {
+    const t = target as HTMLButtonElement;
+    const confirmed = await confirmDialog({
+      title: 'Log out of all other devices?',
+      message:
+        'Every other browser will have to log in again. This device stays signed in.',
+      confirmLabel: 'Log out other devices',
+      danger: true,
+    });
+    if (!confirmed) {
+      return;
+    }
+    t.disabled = true;
+    const response = await logoutEverywhere();
+    t.disabled = false;
+    if (response.error) {
+      notification(response.messages, 'alert-error');
+      return;
+    }
     notification(response.messages, 'alert-success');
   });
 });

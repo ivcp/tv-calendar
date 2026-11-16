@@ -57,6 +57,7 @@ return function (App $app) {
         $user->post('/verify', [AuthController::class, 'resendEmail']);
 
         $user->post('/logout', [AuthController::class, 'logout']);
+        $user->post('/logout-everywhere', [AuthController::class, 'logoutEverywhere']);
         $user->get('/update-password', [PasswordResetController::class, 'updatePasswordView']);
         $user->post('/update-password', [PasswordResetController::class, 'updatePassword']);
         $user->get('/profile', [ProfileController::class, 'index']);

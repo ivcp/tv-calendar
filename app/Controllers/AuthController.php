@@ -16,6 +16,7 @@ use App\RequestValidators\LoginUserRequestValidator;
 use App\RequestValidators\OauthRequestValidator;
 use App\RequestValidators\RegisterUserRequestValidator;
 use App\ResponseFormatter;
+use App\Services\RequestService;
 use App\Services\UserShowsService;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use GuzzleHttp\Client;
@@ -40,13 +41,17 @@ class AuthController
         private readonly VerificationEmail $verificationEmail,
         private readonly Config $config,
         private readonly Client $client,
-        private readonly SessionInterface $session
+        private readonly SessionInterface $session,
+        private readonly RequestService $requestService
     ) {
     }
 
     public function loginView(Request $request, Response $response): Response
     {
-        return $this->twig->render($response, 'auth/login.twig');
+        return $this->twig->render($response, 'auth/login.twig', [
+            // Set by RememberMeMiddleware when a remembered login lapsed.
+            'notice' => $this->session->getFlashed('notice')[0] ?? null,
+        ]);
     }
 
     public function registerView(Request $request, Response $response): Response
@@ -87,7 +92,7 @@ class AuthController
             ->validate($request->getParsedBody());
 
 
-        $user = $this->auth->attemptLogin($data);
+        $user = $this->auth->attemptLogin($data, $data['remember']);
         if (! $user) {
             throw new ValidationException(['password' => ['Invalid email or password']]);
         }
@@ -103,6 +108,20 @@ class AuthController
     {
         $this->auth->logout();
         return $response->withHeader('Location', '/')->withStatus(302);
+    }
+
+    /**
+     * Revokes remembered browsers everywhere except this one.
+     */
+    public function logoutEverywhere(Request $request, Response $response): Response
+    {
+        $this->auth->logoutEverywhere();
+
+        if (! $this->requestService->isXhr($request)) {
+            return $response->withHeader('Location', '/profile')->withStatus(302);
+        }
+
+        return $this->responseFormatter->asJSONMessage($response, 200, 'signed out of other devices');
     }
 
     public function verify(Request $request, Response $response, array $args): Response
@@ -229,7 +248,8 @@ class AuthController
         $user = $this->userProviderService->getByCredentials(['email' => $profile['email']]);
 
         if ($user) {
-            $this->auth->login($user);
+            // Signing in with Google always remembers the browser.
+            $this->auth->login($user, true);
         } else {
             // `register()` also logs the newly created user in.
             try {
