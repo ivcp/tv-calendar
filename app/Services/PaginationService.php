@@ -89,7 +89,7 @@ class PaginationService
         $this->setSort(ShowListSort::class, $params);
         $this->setGenre($params);
 
-        $localList = $user ? [] : array_filter($params['shows'], "is_numeric");
+        $localList = $user ? [] : array_filter($params['shows'] ?? [], "is_numeric");
         if (count($localList) > 10) {
             $localList = array_slice($localList, 0, 10);
         }

@@ -48,15 +48,22 @@ class ShowController
 
         $user = $request->getAttribute('user');
 
-        if (!$user && !$this->requestService->isXhr($request)) {
-            return $this->twig->render(
-                $response,
-                'showlist/index.twig',
-                [
+        if (!$user) {
+            $params['shows'] = array_values(array_filter(
+                is_array($params['shows'] ?? null) ? $params['shows'] : [],
+                'is_numeric'
+            ));
+
+            if ($params['shows'] === []) {
+                $payload = [
                     'shows' => [],
                     'pagination' => ['page' => 1, 'totalPages' => 1, 'showCount' => 0],
-                ]
-            );
+                ];
+
+                return $this->requestService->isXhr($request)
+                    ? $this->responseFormatter->asJSON($response, 200, $payload)
+                    : $this->twig->render($response, 'showlist/index.twig', $payload);
+            }
         }
 
         $showList = $this->paginationService->showlist($params, $user);
