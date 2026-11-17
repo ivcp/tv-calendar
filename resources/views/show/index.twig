@@ -6,19 +6,15 @@
 {% set page_canonical = app_url ~ current_url() %}
 
 {% block head_hints %}
-    {% if show.imageOriginal or show.imageMedium %}
-    {% set headerImage = show.imageOriginal | default(show.imageMedium) %}
-    <link 
-      rel="preconnect" 
-      media="(min-width:1025px)" 
-      href="{{ headerImage }}"
-    >
-    <link rel="preload" 
-          as="image" 
-          href="{{ headerImage }}"
-          media="(min-width:1025px)" 
-          fetchpriority="high"
-          >
+    {% if show.imageMedium or show.imageOriginal %}
+    <link rel="preconnect" href="https://static.tvmaze.com" crossorigin />
+    <link
+      rel="preload"
+      as="image"
+      href="{{ show.imageOriginal | default(show.imageMedium) }}"
+      media="(min-width:1025px)"
+      fetchpriority="high"
+    />
     {% endif %}
 {% endblock %}
 {% block content %} {% block javascripts %}
@@ -149,15 +145,11 @@
           media="(max-width:1024px)"
           srcset="{{ show.imageMedium | default(show.imageOriginal) }}"
         />
-        <source
-          media="(min-width:1025px)"
-          srcset="{{ show.imageOriginal | default(show.imageMedium) }}"
-        />
         <img
-          src="{{ show.imageMedium | default(show.imageOriginal) }}"
+          src="{{ show.imageOriginal | default(show.imageMedium) }}"
           alt="{{ show.name }}"
           onload="this.classList.add('bg-base-200')"
-          class="block w-max object-cover mx-auto rounded-lg"
+          class="block w-full h-full object-cover mx-auto rounded-lg"
           decoding="async"
           fetchpriority="high"
         />
