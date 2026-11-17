@@ -49,6 +49,30 @@
     {% if page_robots is defined and page_robots %}
     <meta name="robots" content="{{ page_robots }}" />
     {% endif %}
+    {% set og_title = page_title is defined ? page_title|replace({'|': ''})|trim : 'TV Show Calendar' %}
+    {% set og_description = page_meta_desc is defined ? page_meta_desc : 'Track every episode of every show you follow.' %}
+    {% set og_url = page_canonical is defined ? page_canonical : app_url ~ current_url() %}
+    {% set og_custom_image = og_image is defined and og_image %}
+    <meta property="og:site_name" content="TV Show Calendar" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ og_title }}" />
+    <meta property="og:description" content="{{ og_description }}" />
+    <meta property="og:url" content="{{ og_url }}" />
+    <meta
+      property="og:image"
+      content="{{ og_custom_image ? og_image : app_url ~ '/og-share.png' }}"
+    />
+    {% if not og_custom_image %}
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    {% endif %}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ og_title }}" />
+    <meta name="twitter:description" content="{{ og_description }}" />
+    <meta
+      name="twitter:image"
+      content="{{ og_custom_image ? og_image : app_url ~ '/og-share.png' }}"
+    />
     <link
       rel="preload"
       href="{{ asset('build/fonts/rubik-v28-latin-regular.woff2') }}"

@@ -4,6 +4,7 @@
 
 {% set page_meta_desc = show.name ~ ' episode guide: seasons, air dates and the network it airs on. Add it to your list and get notified when a new episode airs.' %}
 {% set page_canonical = app_url ~ current_url() %}
+{% set og_image = show.imageOriginal | default(show.imageMedium) %}
 
 {% block head_hints %}
     {% if show.imageMedium or show.imageOriginal %}
