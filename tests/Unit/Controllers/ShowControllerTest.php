@@ -67,6 +67,20 @@ class ShowControllerTest extends TestCase
         $this->assertFalse($notSaved['notificationsEnabled']);
     }
 
+    public function testItNoindexesThinShowPages(): void
+    {
+        $payload = $this->renderShowPage(null, saved: false, thin: true);
+
+        $this->assertSame('noindex, follow', $payload['page_robots']);
+    }
+
+    public function testItDoesNotNoindexIndexableShowPages(): void
+    {
+        $payload = $this->renderShowPage(null, saved: false);
+
+        $this->assertNull($payload['page_robots']);
+    }
+
     public function testAGuestXhrWithoutShowsGetsAnEmptyList(): void
     {
         $payload = $this->renderGuestList([], xhr: true);
@@ -94,6 +108,20 @@ class ShowControllerTest extends TestCase
             ['page' => 1, 'totalPages' => 1, 'showCount' => 0],
             $payload['pagination']
         );
+    }
+
+    public function testItDoesNotNoindexTheFirstDiscoverPage(): void
+    {
+        $payload = $this->renderDiscover(1);
+
+        $this->assertNull($payload['page_robots']);
+    }
+
+    public function testItNoindexesDeeperDiscoverPages(): void
+    {
+        $payload = $this->renderDiscover(2);
+
+        $this->assertSame('noindex, follow', $payload['page_robots']);
     }
 
     /**
@@ -165,7 +193,62 @@ class ShowControllerTest extends TestCase
     /**
      * @return array<string, mixed> The data the controller hands to Twig.
      */
-    private function renderShowPage(?User $user, bool $saved): array
+    private function renderDiscover(int $page): array
+    {
+        $payload = [];
+
+        $twig = $this->createMock(Twig::class);
+        $twig->expects($this->once())
+            ->method('render')
+            ->willReturnCallback(
+                function ($response, string $template, array $data) use (&$payload) {
+                    $this->assertSame('discover/index.twig', $template);
+                    $payload = $data;
+
+                    return $response;
+                }
+            );
+
+        $validator = $this->createMock(RequestValidatorInterface::class);
+        $validator->method('validate')->willReturn(['page' => (string) $page]);
+
+        $validatorFactory = $this->createMock(RequestValidatorFactoryInterface::class);
+        $validatorFactory->method('make')->willReturn($validator);
+
+        $paginationService = $this->createMock(PaginationService::class);
+        $paginationService->method('discover')->willReturnSelf();
+        $paginationService->method('getShows')->willReturn([]);
+        $paginationService->method('getPagination')->willReturn([
+            'page' => $page,
+            'totalPages' => 10,
+            'showCount' => 200,
+        ]);
+
+        $userShowsService = $this->createMock(UserShowsService::class);
+        $userShowsService->expects($this->never())->method('get');
+
+        $controller = new ShowController(
+            $twig,
+            $this->createMock(ShowService::class),
+            $paginationService,
+            $validatorFactory,
+            $this->createMock(ResponseFormatter::class),
+            $userShowsService,
+            new RequestService($this->createMock(SessionInterface::class)),
+        );
+
+        $request = (new ServerRequestFactory())
+            ->createServerRequest('GET', 'https://example.test/discover?page=' . $page);
+
+        $controller->discover($request, new Response());
+
+        return $payload;
+    }
+
+    /**
+     * @return array<string, mixed> The data the controller hands to Twig.
+     */
+    private function renderShowPage(?User $user, bool $saved, bool $thin = false): array
     {
         $payload = [];
 
@@ -186,6 +269,7 @@ class ShowControllerTest extends TestCase
         $showService = $this->createMock(ShowService::class);
         $showService->method('getById')->with(self::SHOW_ID)->willReturn($show);
         $showService->method('slugify')->with('Test Show')->willReturn(self::SLUG);
+        $showService->method('isThinShow')->with($show)->willReturn($thin);
 
         $validator = $this->createMock(RequestValidatorInterface::class);
         $validator->method('validate')->willReturn(['showId' => self::SHOW_ID, 'slug' => self::SLUG]);
