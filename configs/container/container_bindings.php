@@ -165,7 +165,9 @@ return [
     '_default' => fn() => new EntrypointLookup(BUILD_PATH . '/entrypoints.json'),
     'webpack_encore.tag_renderer' => fn(ContainerInterface $container) => new TagRenderer(
         new EntrypointLookupCollection($container),
-        $container->get('webpack_encore.packages')
+        $container->get('webpack_encore.packages'),
+        [],
+        ['defer' => true]
     ),
     ResponseFactoryInterface::class => fn(App $app) => $app->getResponseFactory(),
     AuthInterface::class => fn(ContainerInterface $container) => $container->get(Auth::class),

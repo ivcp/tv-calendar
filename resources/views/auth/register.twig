@@ -1,4 +1,15 @@
-{% extends 'layout.twig' %} {% block content %} {% block javascripts %}
+{% extends 'layout.twig' %} 
+
+{% block head_hints %}
+<link rel="preconnect" href="https://challenges.cloudflare.com" />
+<script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+  async
+  defer
+></script>
+{% endblock %}
+
+{% block content %} {% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags('importLocalShows') }}
 {% endblock %}
