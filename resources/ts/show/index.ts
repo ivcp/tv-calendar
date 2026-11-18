@@ -26,6 +26,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  for (const el of document.querySelectorAll<HTMLElement>('[data-airtime]')) {
+    const airstamp = el.getAttribute('datetime');
+    if (!airstamp) {
+      continue;
+    }
+    el.textContent = new Date(airstamp).toLocaleString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    });
+  }
+
+  const countdownEl = document.getElementById('next-episode-countdown');
+  const countdownAirstamp = countdownEl?.dataset.airstamp;
+  if (countdownEl && countdownAirstamp) {
+    const remaining = new Date(countdownAirstamp).getTime() - Date.now();
+    if (remaining > 0) {
+      countdownEl.textContent = relativeLabel(remaining);
+    }
+  }
+
   episodeBtns.forEach(btn =>
     btn.addEventListener('click', function () {
       const epInfo = btn.getAttribute('data-episode-info');
@@ -47,6 +70,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     `https://api.tvmaze.com/shows/${tvMazeId}/cast`,
   );
   if (!starring.error) {
+    starringSpan.removeAttribute('aria-busy');
     starringSpan.classList.remove('skeleton');
     const actors = starring.messages;
     if (actors.length > 0) {
@@ -60,3 +84,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     starringSpan.remove();
   }
 });
+
+function relativeLabel(remaining: number): string {
+  const minutes = Math.max(1, Math.round(remaining / 60_000));
+
+  if (minutes < 60) {
+    return `in ${minutes} minute${minutes === 1 ? '' : 's'}`;
+  }
+
+  const hours = Math.round(remaining / 3_600_000);
+
+  if (hours < 24) {
+    return `in ${hours} hour${hours === 1 ? '' : 's'}`;
+  }
+
+  const days = Math.round(remaining / 86_400_000);
+
+  return `in ${days} day${days === 1 ? '' : 's'}`;
+}

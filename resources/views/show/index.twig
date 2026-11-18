@@ -5,6 +5,7 @@
 {% set page_meta_desc = show.name ~ ' episode guide: seasons, air dates and the network it airs on. Add it to your list and get notified when a new episode airs.' %}
 {% set page_canonical = app_url ~ current_url() %}
 {% set og_image = show.imageOriginal | default(show.imageMedium) %}
+{% set og_image_portrait = true %}
 
 {% block head_hints %}
     {% if show.imageMedium or show.imageOriginal %}
@@ -37,7 +38,7 @@
       >
         {{ show.name }} {{ years }}
       </h1>
-      <div class="mt-2 lg:mt-0 flex items-center gap-3">
+      <div class="mt-2 lg:mt-0 flex items-center gap-3" data-show-actions>
         {% if user and show.id in userShows and notificationsAvailable %}
         <button
           id="notification-enable-btn"
@@ -137,7 +138,7 @@
         />
         <img
           src="{{ show.imageOriginal | default(show.imageMedium) }}"
-          alt="{{ show.name }}"
+          alt="Poster for {{ show.name }}"
           onload="this.classList.add('bg-base-200')"
           class="block w-full h-full object-cover mx-auto rounded-lg"
           decoding="async"
@@ -348,7 +349,7 @@
             </div>
           </div>
         </div>
-        <p id="starring" class="text-sm skeleton h-8 w-full opacity-80" data-tv-maze-id="{{show.tvMazeId }}"></p>
+        <p id="starring" class="text-sm skeleton h-8 w-full opacity-80" data-tv-maze-id="{{show.tvMazeId }}" aria-busy="true"></p>
         <p class="text-lg">{{ showSummary }}</p>
         <div class="flex flex-wrap gap-x-4 gap-y-2 justify-center lg:justify-start text-sm">
           {% if show.imdbId %}
@@ -381,6 +382,57 @@
         </div>
       </div>
     </article>
+
+    {% if nextEpisode or show.status is not same as('Ended') %}
+    <div class="w-[95%] lg:w-1/2 mx-auto">
+      <div
+        class="surface bg-base-200 rounded-lg px-4 py-4 lg:px-6 flex flex-col gap-2"
+      >
+        {% if nextEpisode %}
+        <div
+          class="flex items-center justify-between gap-4 text-xs uppercase tracking-wide text-base-content/60"
+        >
+          <span>Next episode</span>
+          <span
+            id="next-episode-countdown"
+            data-airstamp="{{ nextEpisode.airstamp }}"
+            class="normal-case tracking-normal"
+          ></span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <button
+            data-episode-info="{{ nextEpisode | json_encode }}"
+            aria-haspopup="dialog"
+            class="text-left text-lg font-bold hover:text-primary transition-colors pointer"
+          >
+            {%- if nextEpisode.seasonNumber is same as(0) -%}
+            Special{% if nextEpisode.episodeNumber is not same as(null) %} {{ nextEpisode.episodeNumber }}{% endif %} — {{ nextEpisode.episodeName }}
+            {%- else -%}
+            S{{ '%02d' | format(nextEpisode.seasonNumber) }}{% if nextEpisode.episodeNumber is not same as(null) %}E{{ '%02d' | format(nextEpisode.episodeNumber) }}{% endif %} — {{ nextEpisode.episodeName }}
+            {%- endif -%}
+          </button>
+          <div
+            class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/70"
+          >
+            {% if nextEpisode.networkName or nextEpisode.webChannelName %}
+            <span>{{ nextEpisode.networkName ?? nextEpisode.webChannelName }}</span>
+            <span aria-hidden="true">·</span>
+            {% endif %}
+            <time data-airtime datetime="{{ nextEpisode.airstamp }}"
+              >{{ nextEpisode.airstamp | date('M j, Y') }}</time
+            >
+          </div>
+        </div>
+        {% else %}
+        <div class="text-xs uppercase tracking-wide text-base-content/60">
+          Next episode
+        </div>
+        <p class="text-lg font-bold">No upcoming episodes announced</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
     <div class="w-full mx-auto flex flex-col gap-4">
       {% set regularSeasons = seasons | filter(s => not s.is_specials) %}
       {% set regularEpisodeCount = regularSeasons | reduce((sum, s) => sum + s.episodes, 0) %}
@@ -425,8 +477,15 @@
             type="checkbox"
             {{ season.number is same as(currentSeason) ? 'checked' }}
           />
+          {% set seasonMeta %}
+            {%- if season.is_specials %}{{ season.episodes + season.specials }} episodes{% else %}{{ season.episodes }} {{ season.episodes is same as(1) ? 'episode' : 'episodes' }}{% if season.specials > 0 %} · {{ season.specials }} {{ season.specials is same as(1) ? 'special' : 'specials' }}{% endif %}{% endif %}
+            {%- if season.from %} · {{ season.from | date('Y') }}{% if season.to and season.to | date('Y') != season.from | date('Y') %}–{{ season.to | date('Y') }}{% endif %}{% endif -%}
+          {% endset %}
           <div class="collapse-title text-xl font-medium">
-            {{ season.label }} · {{ season.episodes + season.specials }} episodes{% if season.from %} · {{ season.from | date('Y') }}{% if season.to and season.to | date('Y') != season.from | date('Y') %}–{{ season.to | date('Y') }}{% endif %}{% endif %}
+            {{ season.label }}
+            <span class="text-base font-normal text-base-content/60"
+              >· {{ seasonMeta }}</span
+            >
           </div>
           <div class="collapse-content">
             <div class="overflow-x-auto">
@@ -451,6 +510,7 @@
                     <td>
                       <button
                         data-episode-info="{{ ep | json_encode }}"
+                        aria-haspopup="dialog"
                         class="hover:text-primary text-left transition-colors pointer"
                       >
                         {{ ep.episodeName }}
@@ -468,6 +528,7 @@
                     <td>
                       <button
                         data-episode-info="{{ ep | json_encode }}"
+                        aria-haspopup="dialog"
                         class="hover:text-primary text-left transition-colors pointer"
                       >
                         {{ ep.episodeName }}
