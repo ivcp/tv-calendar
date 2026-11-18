@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const premieresShowsBtn = document.getElementById('premieres-shows');
   assertHtmlElement(premieresShowsBtn);
 
-  const user = document.querySelector('section')?.hasAttribute('user');
+  const user = document.body.dataset.authenticated === 'true';
   const localShowlist = getLocalShowlist();
   if (user && localShowlist.length > 0) {
     setLocalShowList([]);

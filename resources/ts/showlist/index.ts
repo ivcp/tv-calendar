@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const event = new Event('redraw-cards');
   const sortBtns = document.querySelectorAll('#sort a');
 
-  const user = document.querySelector('section')?.hasAttribute('user');
+  const user = document.body.dataset.authenticated === 'true';
   const localShowlist = getLocalShowlist();
 
   removeButtons.forEach(btn =>

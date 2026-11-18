@@ -12,7 +12,7 @@ import notificationBtnEventListener from '../utils/notificationBtnEventListener'
 document.addEventListener('DOMContentLoaded', () => {
   const addButtons = document.querySelectorAll<HTMLButtonElement>('.add-show');
 
-  const user = document.querySelector('section')?.hasAttribute('user');
+  const user = document.body.dataset.authenticated === 'true';
   const localShowlist = getLocalShowlist();
 
   addButtons.forEach(btn => {
