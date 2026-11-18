@@ -347,13 +347,4 @@ class ShowController
             ]
         );
     }
-
-    public function premieringThisWeek(Request $request, Response $response): Response
-    {
-
-        return $this->twig->render(
-            $response,
-            'premiering/index.twig'
-        );
-    }
 }

@@ -30,9 +30,6 @@ return function (App $app) {
     $app->get('/search', [ShowController::class, 'search']);
     $app->get('/sitemap.xml', [SitemapController::class, 'generate']);
 
-    // $app->get('/tv-shows-premiering-this-week', [ShowController::class, 'premieringThisWeek']);
-
-
     $app->get('/showlist', [ShowController::class, 'index']);
     $app->group('/showlist', function (RouteCollectorProxy $showlist) {
         $showlist->post('', [ShowController::class, 'store']);
