@@ -18,8 +18,10 @@ use App\RequestValidators\UpdateShowRequestValidator;
 use App\ResponseFormatter;
 use App\Services\PaginationService;
 use App\Services\RequestService;
+use App\Services\ShowPageService;
 use App\Services\ShowService;
 use App\Services\UserShowsService;
+use DateTimeImmutable;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -36,6 +38,7 @@ class ShowController
         private readonly ResponseFormatter $responseFormatter,
         private readonly UserShowsService $userShowsService,
         private readonly RequestService $requestService,
+        private readonly ShowPageService $showPageService,
     ) {}
 
     public function index(Request $request, Response $response): Response
@@ -160,9 +163,10 @@ class ShowController
             image: $episode->getImageMedium(),
             networkName: $show->getNetworkName(),
             webChannelName: $show->getWebChannelName()
-        ));
+        ))->toArray();
 
-
+        $nextAndLast = $this->showPageService->nextAndLast($episodes, new DateTimeImmutable());
+        $seasons = $this->showPageService->seasons($episodes);
 
         return $this->twig->render(
             $response,
@@ -170,7 +174,17 @@ class ShowController
             [
                 'show' =>   $show,
                 'userShows' => $userShows,
-                'episodes' => $episodes->toArray(),
+                'episodes' => $episodes,
+                'showSummary' => $this->showPageService->plainText($show->getSummary()),
+                'years' => $this->showPageService->years($show),
+                'seasons' => $seasons,
+                'currentSeason' => $this->showPageService->currentSeason(
+                    $seasons,
+                    $nextAndLast['next'],
+                    $nextAndLast['last']
+                ),
+                'nextEpisode' => $nextAndLast['next'],
+                'lastEpisode' => $nextAndLast['last'],
                 'notificationsAvailable' => $user !== null
                     && ($user->getNtfyTopic() !== null || $user->getDiscordWebhookUrl() !== null),
                 'notificationsEnabled' => $notificationsEnabled,

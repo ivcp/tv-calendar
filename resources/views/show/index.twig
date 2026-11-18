@@ -43,10 +43,7 @@
       <h1
         class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
       >
-        {{ show.name }}
-        {{ show.premiered ? '(' ~ show.premiered | date('Y')}}
-        &#8203;
-        {{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
+        {{ show.name }} {{ years }}
       </h1>
       <div class="mt-2 lg:mt-0 flex items-center gap-3">
         {% if user and show.id in userShows and notificationsAvailable %}
@@ -181,8 +178,17 @@
         class="flex flex-col w-[95%] lg:px-0 items-center lg:items-start gap-4 lg:w-96"
       >
         <div>
+          {% set linkableGenres = enum('App\\Enum\\Genres').cases | map(c => c.value) %}
           {% for genre in show.genres %}
+          {% if genre in linkableGenres %}
+          <a
+            href="/discover?genre={{ genre | url_encode }}"
+            class="badge badge-neutral h-6 px-4 hover:badge-primary transition-colors"
+            >{{ genre }}</a
+          >
+          {% else %}
           <div class="badge badge-neutral h-6 px-4">{{ genre }}</div>
+          {% endif %}
           {% endfor %}
         </div>
 
@@ -298,14 +304,18 @@
           <div class="stat min-w-28 max-w-32 overflow-x-hidden w-max gap-2">
             <div class="stat-title text-center">On</div>
             <div class="place-self-center h-10 flex items-center">
-              <a href="{{ show.officialSite ?? '#' }}" target="_blank">
+              {% if show.officialSite %}
+              <a
+                href="{{ show.officialSite }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <div class="tooltip" data-tip="Visit website">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
-                    stroke-width="2"
                     stroke="currentColor"
                     class="size-6 hover:stroke-primary transition-colors"
                   >
@@ -318,18 +328,71 @@
                 </div>
                 <span class="sr-only">visit website</span>
               </a>
+              {% else %}
+              <div class="tooltip" data-tip="No official website">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-6 text-base-content/40"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125Z"
+                  />
+                </svg>
+              </div>
+              {% endif %}
             </div>
             <div class="stat-desc tracking-tight text-center">
               {{ show.networkName ?? show.webChannelName ?? '-' }}
+              {% if show.networkCountry %}
+              <span class="block text-xs opacity-70">{{ show.networkCountry }}</span>
+              {% endif %}
             </div>
           </div>
         </div>
         <p id="starring" class="text-sm skeleton h-8 w-full opacity-80" data-tv-maze-id="{{show.tvMazeId }}"></p>
-        <p class="text-lg">{{ show.summary | striptags }}</p>
+        <p class="text-lg">{{ showSummary }}</p>
+        <div class="flex flex-wrap gap-x-4 gap-y-2 justify-center lg:justify-start text-sm">
+          {% if show.imdbId %}
+          <a
+            href="https://www.imdb.com/title/{{ show.imdbId }}/"
+            class="link link-hover"
+            target="_blank"
+            rel="noopener noreferrer"
+            >IMDb</a
+          >
+          {% endif %}
+          {% if show.tvMazeId %}
+          <a
+            href="https://www.tvmaze.com/shows/{{ show.tvMazeId }}"
+            class="link link-hover"
+            target="_blank"
+            rel="noopener noreferrer"
+            >TVMaze</a
+          >
+          {% endif %}
+          {% if show.officialSite %}
+          <a
+            href="{{ show.officialSite }}"
+            class="link link-hover"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Official site</a
+          >
+          {% endif %}
+        </div>
       </div>
     </article>
     <div class="w-full mx-auto flex flex-col gap-4">
-      {% set seasons = episodes | map(e => e.seasonNumber) %}
+      {% set regularSeasons = seasons | filter(s => not s.is_specials) %}
+      {% set regularEpisodeCount = regularSeasons | reduce((sum, s) => sum + s.episodes, 0) %}
+      {% set specialCount = seasons | reduce((sum, s) => sum + s.specials, 0) %}
 
       <div
         class="navbar gap-4 flex-col lg:flex-row lg:justify-around lg:py-4 lg:px-20 lg:h-20 lg:rounded-lg"
@@ -338,29 +401,40 @@
           <div class="stat py-0">
             <div class="stat-title">Seasons</div>
             <div class="stat-value place-self-center">
-              {{ episodes ? max(seasons) : '-' }}
+              {{ regularSeasons | length }}
             </div>
           </div>
           <div class="stat py-0">
             <div class="stat-title">Episodes</div>
             <div class="stat-value place-self-center">
-              {{ episodes ? episodes | length : '-' }}
+              {{ regularEpisodeCount }}
             </div>
           </div>
+          {% if specialCount > 0 %}
+          <div class="stat py-0">
+            <div class="stat-title">Specials</div>
+            <div class="stat-value place-self-center">
+              {{ specialCount }}
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
       <div class="w-[95%] flex flex-col gap-2 lg:w-1/2 mx-auto mb-8">
-        {% if episodes %} {% for season in min(seasons)..max(seasons) %}
+        {% if seasons %} {% for season in seasons %}
         <div
-          class="collapse collapse-arrow rounded-lg bg-base-300 {{ season is same as(0) ? 'order-last' }}"
+          class="collapse collapse-arrow rounded-lg bg-base-300 {{ season.is_specials ? 'order-last' }}"
         >
-          <label class="sr-only" for="season-check{{ season }}"
-            >season {{ season }}</label
+          <label class="sr-only" for="season-check{{ season.number }}"
+            >season {{ season.number }}</label
           >
-          <input id="season-check{{ season }}" type="checkbox" />
+          <input
+            id="season-check{{ season.number }}"
+            type="checkbox"
+            {{ season.number is same as(currentSeason) ? 'checked' }}
+          />
           <div class="collapse-title text-xl font-medium">
-            {% if season > 0 %} Season {{ season }}
-            {% else %} Other {% endif %}
+            {{ season.label }} · {{ season.episodes + season.specials }} episodes{% if season.from %} · {{ season.from | date('Y') }}{% if season.to and season.to | date('Y') != season.from | date('Y') %}–{{ season.to | date('Y') }}{% endif %}{% endif %}
           </div>
           <div class="collapse-content">
             <div class="overflow-x-auto">
@@ -374,7 +448,7 @@
                 </thead>
                 <tbody>
                   {% set allEps = episodes | filter(e=> e.seasonNumber is same
-                  as(season)) | sort((a, b) => a.episodeNumber <=>
+                  as(season.number)) | sort((a, b) => a.episodeNumber <=>
                   b.episodeNumber) %} {% set regularEps = allEps | filter(e=>
                   e.type is same as('regular')) %} {% set specials = allEps |
                   filter(e=> e.type is not same as('regular')) %} {% for ep in
