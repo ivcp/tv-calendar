@@ -36,7 +36,7 @@ class EpisodeService
         $conn = $this->entityManager->getConnection();
 
         $sql = 'SELECT e.id, s.name as "showName", e.name as "episodeName",
-                e.season, e.number, e.summary, e.type, e.airstamp,
+                e.season, e.number, e.summary, e.type, e.airstamp, e.runtime,
                 e.image_medium as image, s.id as "showId", s.network_name as "networkName", 
                 s.web_channel_name as "webChannelName"
                 FROM episodes e

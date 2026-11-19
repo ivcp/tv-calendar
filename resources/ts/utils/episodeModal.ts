@@ -19,6 +19,7 @@ export function openEpisodeModal(episode: Episode) {
   );
   const seasonElement = modalElement.querySelector('#episode-modal-season');
   const episodeElement = modalElement.querySelector('#episode-modal-number');
+  const runtimeElement = modalElement.querySelector('#episode-modal-runtime');
   const networkElement = modalElement.querySelector('#episode-modal-network');
   const webChannelElement = modalElement.querySelector(
     '#episode-modal-web-channel',
@@ -34,6 +35,7 @@ export function openEpisodeModal(episode: Episode) {
     !placeholderElement ||
     !seasonElement ||
     !episodeElement ||
+    !runtimeElement ||
     !networkElement ||
     !webChannelElement ||
     !vpnElement
@@ -48,6 +50,8 @@ export function openEpisodeModal(episode: Episode) {
   seasonElement.textContent = '-';
   episodeElement.classList.add('stat-value');
   episodeElement.textContent = '-';
+  runtimeElement.textContent = '';
+  runtimeElement.classList.add('hidden');
   networkElement.textContent = '';
   webChannelElement.textContent = '';
   imgElement.removeAttribute('src');
@@ -79,9 +83,8 @@ export function openEpisodeModal(episode: Episode) {
     );
     showTitleElement.removeAttribute('data-current');
   }
-  const summary = episode.episodeSummary ? strip(episode.episodeSummary) : '';
-  if (summary) {
-    summaryElement.textContent = summary;
+  if (episode.episodeSummary) {
+    summaryElement.textContent = episode.episodeSummary;
     summaryElement.classList.remove('hidden');
   }
   vpnElement.setAttribute('href', '/watch-while-traveling?from=ep-modal');
@@ -99,6 +102,10 @@ export function openEpisodeModal(episode: Episode) {
   }
   if (episode.episodeNumber) {
     episodeElement.textContent = episode.episodeNumber.toString();
+  }
+  if (episode.runtime) {
+    runtimeElement.textContent = `Runtime: ${episode.runtime} min`;
+    runtimeElement.classList.remove('hidden');
   }
   if (episode.type.includes('special')) {
     episodeElement.classList.remove('stat-value');
@@ -121,9 +128,4 @@ export function openEpisodeModal(episode: Episode) {
   }
 
   modalElement.showModal();
-}
-
-function strip(body: string) {
-  let doc = new DOMParser().parseFromString(body, 'text/html');
-  return doc.body.textContent || '';
 }

@@ -1,10 +1,8 @@
 {% extends 'layout.twig' %}
 
-{% set page_title = show.name ~ ' |' %} 
-
-{% set page_meta_desc = show.name ~ ' episode guide: seasons, air dates and the network it airs on. Add it to your list and get notified when a new episode airs.' %}
 {% set page_canonical = app_url ~ current_url() %}
 {% set og_image = show.imageOriginal | default(show.imageMedium) %}
+{% set og_image_portrait = true %}
 
 {% block head_hints %}
     {% if show.imageMedium or show.imageOriginal %}
@@ -18,6 +16,9 @@
     />
     {% endif %}
 {% endblock %}
+{% block head_structured_data %}
+    <script type="application/ld+json">{{ jsonLd | raw }}</script>
+{% endblock %}
 {% block content %} {% block javascripts %}
 {{ parent() }}
 {{ encore_entry_script_tags('addRemoveShow') }}
@@ -25,14 +26,6 @@
 {% endblock %}
 <section
   class="mt-4 lg:mt-2 mb-4 mx-2 lg:mx-0 flex flex-col gap-2 lg:flex-row lg:items-start"
-  {%
-  if
-  user
-  %}
-  user
-  {%
-  endif
-  %}
 >
   {% include 'components/episode-modal.twig' %}
 
@@ -43,12 +36,9 @@
       <h1
         class="block text-xl font-bold uppercase lg:max-w-[80ch] lg:overflow-hidden lg:text-ellipsis lg:whitespace-nowrap"
       >
-        {{ show.name }}
-        {{ show.premiered ? '(' ~ show.premiered | date('Y')}}
-        &#8203;
-        {{ show.ended ? ' - ' ~ show.ended | date('Y') ~')' : show.premiered ? ')' }}
+        {{ show.name }} {{ years }}
       </h1>
-      <div class="mt-2 lg:mt-0 flex items-center gap-3">
+      <div class="mt-2 lg:mt-0 flex items-center gap-3" data-show-actions>
         {% if user and show.id in userShows and notificationsAvailable %}
         <button
           id="notification-enable-btn"
@@ -148,7 +138,7 @@
         />
         <img
           src="{{ show.imageOriginal | default(show.imageMedium) }}"
-          alt="{{ show.name }}"
+          alt="Poster for {{ show.name }}"
           onload="this.classList.add('bg-base-200')"
           class="block w-full h-full object-cover mx-auto rounded-lg"
           decoding="async"
@@ -181,8 +171,17 @@
         class="flex flex-col w-[95%] lg:px-0 items-center lg:items-start gap-4 lg:w-96"
       >
         <div>
+          {% set linkableGenres = enum('App\\Enum\\Genres').cases | map(c => c.value) %}
           {% for genre in show.genres %}
+          {% if genre in linkableGenres %}
+          <a
+            href="/discover?genre={{ genre | url_encode }}"
+            class="badge badge-neutral h-6 px-4 hover:badge-primary transition-colors"
+            >{{ genre }}</a
+          >
+          {% else %}
           <div class="badge badge-neutral h-6 px-4">{{ genre }}</div>
+          {% endif %}
           {% endfor %}
         </div>
 
@@ -298,14 +297,18 @@
           <div class="stat min-w-28 max-w-32 overflow-x-hidden w-max gap-2">
             <div class="stat-title text-center">On</div>
             <div class="place-self-center h-10 flex items-center">
-              <a href="{{ show.officialSite ?? '#' }}" target="_blank">
+              {% if show.officialSite %}
+              <a
+                href="{{ show.officialSite }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <div class="tooltip" data-tip="Visit website">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
-                    stroke-width="2"
                     stroke="currentColor"
                     class="size-6 hover:stroke-primary transition-colors"
                   >
@@ -318,18 +321,149 @@
                 </div>
                 <span class="sr-only">visit website</span>
               </a>
+              {% else %}
+              <div class="tooltip" data-tip="No official website">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-6 text-base-content/40"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125Z"
+                  />
+                </svg>
+              </div>
+              {% endif %}
             </div>
             <div class="stat-desc tracking-tight text-center">
               {{ show.networkName ?? show.webChannelName ?? '-' }}
+              {% if show.networkCountry %}
+              <span class="block text-xs opacity-70">{{ show.networkCountry }}</span>
+              {% endif %}
             </div>
           </div>
         </div>
-        <p id="starring" class="text-sm skeleton h-8 w-full opacity-80" data-tv-maze-id="{{show.tvMazeId }}"></p>
-        <p class="text-lg">{{ show.summary | striptags }}</p>
+        <p id="starring" class="text-sm skeleton h-8 w-full opacity-80" data-tv-maze-id="{{show.tvMazeId }}" aria-busy="true"></p>
+        <p class="text-lg">{{ showSummary }}</p>
+        {% if show.imdbId or show.tvMazeId %}
+        <div class="flex flex-wrap gap-2 justify-center lg:justify-start">
+          {% if show.imdbId %}
+          <a
+            href="https://www.imdb.com/title/{{ show.imdbId }}/"
+            class="badge badge-neutral h-6 gap-1.5 px-3 hover:badge-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            IMDb
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-3"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+            <span class="sr-only">(opens in a new tab)</span>
+          </a>
+          {% endif %}
+          {% if show.tvMazeId %}
+          <a
+            href="https://www.tvmaze.com/shows/{{ show.tvMazeId }}"
+            class="badge badge-neutral h-6 gap-1.5 px-3 hover:badge-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            TVMaze
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-3"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+            <span class="sr-only">(opens in a new tab)</span>
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
       </div>
     </article>
+
+    {% if nextEpisode or show.status is not same as('Ended') %}
+    <div class="w-[95%] lg:w-1/2 mx-auto">
+      <div
+        class="surface bg-base-200 rounded-lg px-4 py-4 lg:px-6 flex flex-col gap-2"
+      >
+        {% if nextEpisode %}
+        <div
+          class="flex items-center justify-between gap-4 text-xs uppercase tracking-wide text-base-content/60"
+        >
+          <span>Next episode</span>
+          <span
+            id="next-episode-countdown"
+            data-airstamp="{{ nextEpisode.airstamp }}"
+            class="normal-case tracking-normal"
+          ></span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <button
+            data-episode-info="{{ nextEpisode | json_encode }}"
+            aria-haspopup="dialog"
+            class="text-left text-lg font-bold hover:text-primary transition-colors pointer"
+          >
+            {%- if nextEpisode.seasonNumber is same as(0) -%}
+            Special{% if nextEpisode.episodeNumber is not same as(null) %} {{ nextEpisode.episodeNumber }}{% endif %} — {{ nextEpisode.episodeName }}
+            {%- else -%}
+            S{{ '%02d' | format(nextEpisode.seasonNumber) }}{% if nextEpisode.episodeNumber is not same as(null) %}E{{ '%02d' | format(nextEpisode.episodeNumber) }}{% endif %} — {{ nextEpisode.episodeName }}
+            {%- endif -%}
+          </button>
+          <div
+            class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/70"
+          >
+            {% if nextEpisode.networkName or nextEpisode.webChannelName %}
+            <span>{{ nextEpisode.networkName ?? nextEpisode.webChannelName }}</span>
+            <span aria-hidden="true">·</span>
+            {% endif %}
+            <time data-airtime datetime="{{ nextEpisode.airstamp }}"
+              >{{ nextEpisode.airstamp | date('M j, Y') }}</time
+            >
+          </div>
+        </div>
+        {% else %}
+        <div class="text-xs uppercase tracking-wide text-base-content/60">
+          Next episode
+        </div>
+        <p class="text-lg font-bold">No upcoming episodes announced</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
     <div class="w-full mx-auto flex flex-col gap-4">
-      {% set seasons = episodes | map(e => e.seasonNumber) %}
+      {% set regularSeasons = seasons | filter(s => not s.is_specials) %}
+      {% set regularEpisodeCount = regularSeasons | reduce((sum, s) => sum + s.episodes, 0) %}
+      {% set specialCount = seasons | reduce((sum, s) => sum + s.specials, 0) %}
 
       <div
         class="navbar gap-4 flex-col lg:flex-row lg:justify-around lg:py-4 lg:px-20 lg:h-20 lg:rounded-lg"
@@ -338,29 +472,47 @@
           <div class="stat py-0">
             <div class="stat-title">Seasons</div>
             <div class="stat-value place-self-center">
-              {{ episodes ? max(seasons) : '-' }}
+              {{ regularSeasons | length }}
             </div>
           </div>
           <div class="stat py-0">
             <div class="stat-title">Episodes</div>
             <div class="stat-value place-self-center">
-              {{ episodes ? episodes | length : '-' }}
+              {{ regularEpisodeCount }}
             </div>
           </div>
+          {% if specialCount > 0 %}
+          <div class="stat py-0">
+            <div class="stat-title">Specials</div>
+            <div class="stat-value place-self-center">
+              {{ specialCount }}
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
       <div class="w-[95%] flex flex-col gap-2 lg:w-1/2 mx-auto mb-8">
-        {% if episodes %} {% for season in min(seasons)..max(seasons) %}
+        {% if seasons %} {% for season in seasons %}
         <div
-          class="collapse collapse-arrow rounded-lg bg-base-300 {{ season is same as(0) ? 'order-last' }}"
+          class="collapse collapse-arrow rounded-lg bg-base-300 {{ season.is_specials ? 'order-last' }}"
         >
-          <label class="sr-only" for="season-check{{ season }}"
-            >season {{ season }}</label
+          <label class="sr-only" for="season-check{{ season.number }}"
+            >season {{ season.number }}</label
           >
-          <input id="season-check{{ season }}" type="checkbox" />
+          <input
+            id="season-check{{ season.number }}"
+            type="checkbox"
+            {{ season.number is same as(currentSeason) ? 'checked' }}
+          />
+          {% set seasonMeta %}
+            {%- if season.is_specials %}{{ season.episodes + season.specials }} episodes{% else %}{{ season.episodes }} {{ season.episodes is same as(1) ? 'episode' : 'episodes' }}{% if season.specials > 0 %} · {{ season.specials }} {{ season.specials is same as(1) ? 'special' : 'specials' }}{% endif %}{% endif %}
+            {%- if season.from %} · {{ season.from | date('Y') }}{% if season.to and season.to | date('Y') != season.from | date('Y') %}–{{ season.to | date('Y') }}{% endif %}{% endif -%}
+          {% endset %}
           <div class="collapse-title text-xl font-medium">
-            {% if season > 0 %} Season {{ season }}
-            {% else %} Other {% endif %}
+            {{ season.label }}
+            <span class="text-base font-normal text-base-content/60"
+              >· {{ seasonMeta }}</span
+            >
           </div>
           <div class="collapse-content">
             <div class="overflow-x-auto">
@@ -374,7 +526,7 @@
                 </thead>
                 <tbody>
                   {% set allEps = episodes | filter(e=> e.seasonNumber is same
-                  as(season)) | sort((a, b) => a.episodeNumber <=>
+                  as(season.number)) | sort((a, b) => a.episodeNumber <=>
                   b.episodeNumber) %} {% set regularEps = allEps | filter(e=>
                   e.type is same as('regular')) %} {% set specials = allEps |
                   filter(e=> e.type is not same as('regular')) %} {% for ep in
@@ -385,6 +537,7 @@
                     <td>
                       <button
                         data-episode-info="{{ ep | json_encode }}"
+                        aria-haspopup="dialog"
                         class="hover:text-primary text-left transition-colors pointer"
                       >
                         {{ ep.episodeName }}
@@ -402,6 +555,7 @@
                     <td>
                       <button
                         data-episode-info="{{ ep | json_encode }}"
+                        aria-haspopup="dialog"
                         class="hover:text-primary text-left transition-colors pointer"
                       >
                         {{ ep.episodeName }}

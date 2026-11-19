@@ -20,6 +20,7 @@ class EpisodeInfoData
         public readonly ?string $image,
         public readonly ?string $networkName,
         public readonly ?string $webChannelName,
+        public readonly ?int $runtime = null,
     ) {
     }
 }

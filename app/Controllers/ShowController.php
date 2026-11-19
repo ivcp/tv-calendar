@@ -18,8 +18,10 @@ use App\RequestValidators\UpdateShowRequestValidator;
 use App\ResponseFormatter;
 use App\Services\PaginationService;
 use App\Services\RequestService;
+use App\Services\ShowPageService;
 use App\Services\ShowService;
 use App\Services\UserShowsService;
+use DateTimeImmutable;
 use Doctrine\DBAL\Exception\DriverException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -36,6 +38,7 @@ class ShowController
         private readonly ResponseFormatter $responseFormatter,
         private readonly UserShowsService $userShowsService,
         private readonly RequestService $requestService,
+        private readonly ShowPageService $showPageService,
     ) {}
 
     public function index(Request $request, Response $response): Response
@@ -154,15 +157,36 @@ class ShowController
             episodeName: $episode->getName(),
             seasonNumber: $episode->getSeason(),
             episodeNumber: $episode->getNumber(),
-            episodeSummary: $episode->getSummary(),
+            episodeSummary: $this->showPageService->plainText($episode->getSummary()),
             type: $episode->getType(),
             airstamp: $episode->getAirstamp()?->format(DATE_ATOM),
             image: $episode->getImageMedium(),
             networkName: $show->getNetworkName(),
-            webChannelName: $show->getWebChannelName()
+            webChannelName: $show->getWebChannelName(),
+            runtime: $episode->getRuntime()
+        ))->toArray();
+
+        $summary = $this->showPageService->plainText($show->getSummary());
+        $nextAndLast = $this->showPageService->nextAndLast($episodes, new DateTimeImmutable());
+        $seasons = $this->showPageService->seasons($episodes);
+
+        $episodeCount = count(array_filter(
+            $episodes,
+            fn(EpisodeInfoData $episode): bool => $episode->type === 'regular'
         ));
-
-
+        $seo = $this->showPageService->seo(
+            $show,
+            $summary,
+            $episodes,
+            $seasons
+        );
+        $jsonLd = $this->showPageService->jsonLd(
+            $show,
+            $correctedSlug,
+            $summary,
+            $seasons,
+            $episodeCount
+        );
 
         return $this->twig->render(
             $response,
@@ -170,7 +194,21 @@ class ShowController
             [
                 'show' =>   $show,
                 'userShows' => $userShows,
-                'episodes' => $episodes->toArray(),
+                'episodes' => $episodes,
+                'showSummary' => $summary,
+                'years' => $this->showPageService->years($show),
+                'seasons' => $seasons,
+                'currentSeason' => $this->showPageService->currentSeason(
+                    $seasons,
+                    $nextAndLast['next'],
+                    $nextAndLast['last']
+                ),
+                'nextEpisode' => $nextAndLast['next'],
+                'lastEpisode' => $nextAndLast['last'],
+                'seo' => $seo,
+                'jsonLd' => $jsonLd,
+                'page_title' => $seo['title'],
+                'page_meta_desc' => $seo['description'],
                 'notificationsAvailable' => $user !== null
                     && ($user->getNtfyTopic() !== null || $user->getDiscordWebhookUrl() !== null),
                 'notificationsEnabled' => $notificationsEnabled,
@@ -331,15 +369,6 @@ class ShowController
                 'result' => $result->getShows(),
                 'pagination' => $result->getPagination()
             ]
-        );
-    }
-
-    public function premieringThisWeek(Request $request, Response $response): Response
-    {
-
-        return $this->twig->render(
-            $response,
-            'premiering/index.twig'
         );
     }
 }

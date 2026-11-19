@@ -12,7 +12,7 @@ import notificationBtnEventListener from '../utils/notificationBtnEventListener'
 document.addEventListener('DOMContentLoaded', () => {
   const addButtons = document.querySelectorAll<HTMLButtonElement>('.add-show');
 
-  const user = document.querySelector('section')?.hasAttribute('user');
+  const user = document.body.dataset.authenticated === 'true';
   const localShowlist = getLocalShowlist();
 
   addButtons.forEach(btn => {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.hasAttribute('notifications-enabled') &&
             window.location.pathname.includes('/shows')
           ) {
-            const wrapper = btn.parentElement?.parentElement;
+            const wrapper = btn.closest<HTMLElement>('[data-show-actions]');
             const notificationBtn = document.createElement('button');
             notificationBtn.setAttribute('id', 'notification-enable-btn');
             notificationBtn.classList.add(

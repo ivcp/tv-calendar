@@ -74,7 +74,8 @@ final class EpisodeServiceTest extends TestCase
             1,
             1,
             'Summary 1',
-            'img.medium.1'
+            'img.medium.1',
+            runtime: 42
         );
         $this->episodes['popular-in-end'] = $this->createEpisode(
             $this->popularShow,
@@ -400,6 +401,7 @@ final class EpisodeServiceTest extends TestCase
                 'summary',
                 'type',
                 'airstamp',
+                'runtime',
                 'image',
                 'showId',
                 'networkName',
@@ -416,6 +418,7 @@ final class EpisodeServiceTest extends TestCase
         $this->assertSame(1, $episode['number']);
         $this->assertSame('Summary 1', $episode['summary']);
         $this->assertSame('regular', $episode['type']);
+        $this->assertSame(42, $episode['runtime']);
         $this->assertSame('img.medium.1', $episode['image']);
         $this->assertSame('HBO', $episode['networkName']);
         $this->assertSame('Max', $episode['webChannelName']);
@@ -453,7 +456,8 @@ final class EpisodeServiceTest extends TestCase
         int $season,
         int $number,
         ?string $summary = null,
-        ?string $imageMedium = null
+        ?string $imageMedium = null,
+        ?int $runtime = null
     ): Episode {
         $episode = new Episode();
         $episode->setTvMazeEpisodeId($tvMazeEpisodeId);
@@ -465,6 +469,7 @@ final class EpisodeServiceTest extends TestCase
         $episode->setSummary($summary);
         $episode->setType('regular');
         $episode->setImageMedium($imageMedium);
+        $episode->setRuntime($runtime);
         $episode->setShow($show);
 
         $this->em->persist($episode);

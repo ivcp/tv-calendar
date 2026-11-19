@@ -4,18 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Controllers;
 
+use App\Config;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\RequestValidatorInterface;
 use App\Contracts\SessionInterface;
 use App\Controllers\ShowController;
+use App\Entity\Episode;
 use App\Entity\Show;
 use App\Entity\User;
 use App\Entity\UserShows;
 use App\ResponseFormatter;
 use App\Services\PaginationService;
 use App\Services\RequestService;
+use App\Services\ShowPageService;
 use App\Services\ShowService;
 use App\Services\UserShowsService;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Slim\Psr7\Factory\ServerRequestFactory;
@@ -79,6 +83,39 @@ class ShowControllerTest extends TestCase
         $payload = $this->renderShowPage(null, saved: false);
 
         $this->assertNull($payload['page_robots']);
+    }
+
+    public function testItBuildsTheShowPageSummaryAndSeasonData(): void
+    {
+        $payload = $this->renderShowPage(null, saved: false);
+
+        $this->assertSame('Test & show', $payload['showSummary']);
+        $this->assertSame('(2019)', $payload['years']);
+        $this->assertSame([2, 1], array_column($payload['seasons'], 'number'));
+        $this->assertSame(2, $payload['currentSeason']);
+        $this->assertSame('Future Episode', $payload['nextEpisode']->episodeName);
+        $this->assertSame('Past Episode', $payload['lastEpisode']->episodeName);
+    }
+
+    public function testItBuildsTheSeoMetadataAndStructuredData(): void
+    {
+        $payload = $this->renderShowPage(null, saved: false);
+
+        $this->assertSame('Test Show (2019) Episode Guide |', $payload['seo']['title']);
+        $this->assertSame($payload['seo']['title'], $payload['page_title']);
+        $this->assertSame($payload['seo']['description'], $payload['page_meta_desc']);
+        $this->assertStringStartsWith(
+            'Test Show (2019) episode guide: 2 seasons, 2 episodes on HBO.',
+            $payload['seo']['description']
+        );
+
+        $jsonLd = json_decode($payload['jsonLd'], true, 512, JSON_THROW_ON_ERROR);
+
+        $this->assertSame('TVSeries', $jsonLd['@type']);
+        $this->assertSame(
+            'https://example.test/shows/42-test-show',
+            $jsonLd['url']
+        );
     }
 
     public function testAGuestXhrWithoutShowsGetsAnEmptyList(): void
@@ -177,6 +214,7 @@ class ShowControllerTest extends TestCase
             $responseFormatter,
             $this->createMock(UserShowsService::class),
             new RequestService($this->createMock(SessionInterface::class)),
+            $this->showPageService(),
         );
 
         $request = (new ServerRequestFactory())->createServerRequest('GET', 'https://example.test/showlist');
@@ -235,6 +273,7 @@ class ShowControllerTest extends TestCase
             $this->createMock(ResponseFormatter::class),
             $userShowsService,
             new RequestService($this->createMock(SessionInterface::class)),
+            $this->showPageService(),
         );
 
         $request = (new ServerRequestFactory())
@@ -294,6 +333,7 @@ class ShowControllerTest extends TestCase
             $this->createMock(ResponseFormatter::class),
             $userShowsService,
             $this->createMock(RequestService::class),
+            $this->showPageService(),
         );
 
         $request = (new ServerRequestFactory())
@@ -312,10 +352,56 @@ class ShowControllerTest extends TestCase
     {
         $show = new Show();
         $show->setName('Test Show');
+        $show->setSummary('<p>Test &amp; show</p>');
+        $show->setPremiered('2019-09-01');
+        $show->setNetworkName('HBO');
+        $show->setTvMazeId(1001);
+        $show->setImdbId('tt1234567');
+        $show->setGenres(['Drama']);
+        $show->setImageMedium('https://static.tvmaze.com/medium.jpg');
+        $show->setOfficialSite('https://example.com/test-show');
 
         (new ReflectionProperty(Show::class, 'id'))->setValue($show, self::SHOW_ID);
+        (new ReflectionProperty(Show::class, 'ended'))->setValue($show, null);
+        (new ReflectionProperty(Show::class, 'webChannelName'))->setValue($show, null);
+        (new ReflectionProperty(Show::class, 'imageOriginal'))->setValue($show, null);
+
+        $this->episode($show, 1, 'Past Episode', 1, 1, '-10 days');
+        $this->episode($show, 2, 'Future Episode', 2, 1, '+10 days');
 
         return $show;
+    }
+
+    private function episode(
+        Show $show,
+        int $id,
+        string $name,
+        int $season,
+        int $number,
+        string $airstamp
+    ): Episode {
+        $episode = new Episode();
+        (new ReflectionProperty(Episode::class, 'id'))->setValue($episode, $id);
+
+        $episode->setTvMazeEpisodeId($id);
+        $episode->setName($name);
+        $episode->setSummary('<p>Episode summary</p>');
+        $episode->setSeason($season);
+        $episode->setNumber($number);
+        $episode->setAirstamp(new DateTime($airstamp));
+        $episode->setType('regular');
+        $episode->setImageMedium('https://static.tvmaze.com/medium.jpg');
+        $episode->setShow($show);
+
+        return $episode;
+    }
+
+    private function showPageService(): ShowPageService
+    {
+        return new ShowPageService(new Config([
+            'app_url' => 'https://example.test',
+            'app_name' => 'TV Show Calendar',
+        ]));
     }
 
     private function user(?string $ntfyTopic = null, ?string $discordWebhookUrl = null): User
