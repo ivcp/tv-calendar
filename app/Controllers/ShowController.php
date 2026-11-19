@@ -165,8 +165,27 @@ class ShowController
             webChannelName: $show->getWebChannelName()
         ))->toArray();
 
+        $summary = $this->showPageService->plainText($show->getSummary());
         $nextAndLast = $this->showPageService->nextAndLast($episodes, new DateTimeImmutable());
         $seasons = $this->showPageService->seasons($episodes);
+
+        $episodeCount = count(array_filter(
+            $episodes,
+            fn(EpisodeInfoData $episode): bool => $episode->type === 'regular'
+        ));
+        $seo = $this->showPageService->seo(
+            $show,
+            $summary,
+            $episodes,
+            $seasons
+        );
+        $jsonLd = $this->showPageService->jsonLd(
+            $show,
+            $correctedSlug,
+            $summary,
+            $seasons,
+            $episodeCount
+        );
 
         return $this->twig->render(
             $response,
@@ -175,7 +194,7 @@ class ShowController
                 'show' =>   $show,
                 'userShows' => $userShows,
                 'episodes' => $episodes,
-                'showSummary' => $this->showPageService->plainText($show->getSummary()),
+                'showSummary' => $summary,
                 'years' => $this->showPageService->years($show),
                 'seasons' => $seasons,
                 'currentSeason' => $this->showPageService->currentSeason(
@@ -185,6 +204,10 @@ class ShowController
                 ),
                 'nextEpisode' => $nextAndLast['next'],
                 'lastEpisode' => $nextAndLast['last'],
+                'seo' => $seo,
+                'jsonLd' => $jsonLd,
+                'page_title' => $seo['title'],
+                'page_meta_desc' => $seo['description'],
                 'notificationsAvailable' => $user !== null
                     && ($user->getNtfyTopic() !== null || $user->getDiscordWebhookUrl() !== null),
                 'notificationsEnabled' => $notificationsEnabled,

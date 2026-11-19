@@ -110,8 +110,9 @@
       encore_entry_script_tags('app')
     }}
     {% endblock %}
-    <title>{% if page_title is defined %} {{ page_title }} {% endif %} TV Show Calendar</title>
+    <title>{% if page_title is defined %}{{ page_title|trim }} {% endif %}{{ app_name }}</title>
     {% block head_hints %}{% endblock %}
+    {% block head_structured_data %}{% endblock %}
   </head>
   <body
     class="max-w-[100rem] mx-auto relative min-h-full flex flex-col lg:overflow-y-scroll"

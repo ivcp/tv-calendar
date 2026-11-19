@@ -1,8 +1,5 @@
 {% extends 'layout.twig' %}
 
-{% set page_title = show.name ~ ' |' %} 
-
-{% set page_meta_desc = show.name ~ ' episode guide: seasons, air dates and the network it airs on. Add it to your list and get notified when a new episode airs.' %}
 {% set page_canonical = app_url ~ current_url() %}
 {% set og_image = show.imageOriginal | default(show.imageMedium) %}
 {% set og_image_portrait = true %}
@@ -18,6 +15,9 @@
       fetchpriority="high"
     />
     {% endif %}
+{% endblock %}
+{% block head_structured_data %}
+    <script type="application/ld+json">{{ jsonLd | raw }}</script>
 {% endblock %}
 {% block content %} {% block javascripts %}
 {{ parent() }}
