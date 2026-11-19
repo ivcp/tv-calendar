@@ -26,7 +26,10 @@ class ShowPageService
             return '';
         }
 
-        $text = html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        // Replace tags with a space: stripping them directly glues adjacent
+        // blocks together ("</p><p>" would turn "one.</p><p>Two" into "one.Two").
+        $separated = preg_replace('/<[^>]*>/', ' ', $html) ?? $html;
+        $text = html_entity_decode($separated, ENT_QUOTES | ENT_HTML5, 'UTF-8');
         $collapsed = preg_replace('/\s+/u', ' ', $text);
 
         return trim($collapsed ?? $text);
