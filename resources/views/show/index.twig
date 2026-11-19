@@ -351,35 +351,62 @@
         </div>
         <p id="starring" class="text-sm skeleton h-8 w-full opacity-80" data-tv-maze-id="{{show.tvMazeId }}" aria-busy="true"></p>
         <p class="text-lg">{{ showSummary }}</p>
-        <div class="flex flex-wrap gap-x-4 gap-y-2 justify-center lg:justify-start text-sm">
+        {% if show.imdbId or show.tvMazeId %}
+        <div class="flex flex-wrap gap-2 justify-center lg:justify-start">
           {% if show.imdbId %}
           <a
             href="https://www.imdb.com/title/{{ show.imdbId }}/"
-            class="link link-hover"
+            class="badge badge-neutral h-6 gap-1.5 px-3 hover:badge-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             target="_blank"
             rel="noopener noreferrer"
-            >IMDb</a
           >
+            IMDb
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-3"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+            <span class="sr-only">(opens in a new tab)</span>
+          </a>
           {% endif %}
           {% if show.tvMazeId %}
           <a
             href="https://www.tvmaze.com/shows/{{ show.tvMazeId }}"
-            class="link link-hover"
+            class="badge badge-neutral h-6 gap-1.5 px-3 hover:badge-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             target="_blank"
             rel="noopener noreferrer"
-            >TVMaze</a
           >
-          {% endif %}
-          {% if show.officialSite %}
-          <a
-            href="{{ show.officialSite }}"
-            class="link link-hover"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Official site</a
-          >
+            TVMaze
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+              stroke="currentColor"
+              class="size-3"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+              />
+            </svg>
+            <span class="sr-only">(opens in a new tab)</span>
+          </a>
           {% endif %}
         </div>
+        {% endif %}
       </div>
     </article>
 
