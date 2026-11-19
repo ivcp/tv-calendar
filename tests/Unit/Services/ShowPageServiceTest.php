@@ -26,6 +26,19 @@ class ShowPageServiceTest extends TestCase
         $this->assertSame('A B', $this->service()->plainText('A <em>B</em>'));
     }
 
+    public function testItKeepsWordsSeparatedWhenBlockTagsAreAdjacent(): void
+    {
+        $this->assertSame(
+            'First paragraph. Second paragraph.',
+            $this->service()->plainText('<p>First paragraph.</p><p>Second paragraph.</p>')
+        );
+    }
+
+    public function testItKeepsWordsSeparatedAroundLineBreaks(): void
+    {
+        $this->assertSame('A B', $this->service()->plainText('A<br>B'));
+    }
+
     public function testItCollapsesWhitespace(): void
     {
         $this->assertSame('A B', $this->service()->plainText("  A\n\t B  "));
