@@ -30,6 +30,7 @@ export interface Episode {
   image: string;
   networkName: string;
   webChannelName: string;
+  runtime: number | null;
 }
 export interface Pagination {
   page: number;

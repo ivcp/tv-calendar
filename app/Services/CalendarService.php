@@ -14,6 +14,7 @@ class CalendarService
     public function __construct(
         private readonly EpisodeService $episodeService,
         private readonly ShowService $showService,
+        private readonly ShowPageService $showPageService,
     ) {
     }
 
@@ -53,12 +54,13 @@ class CalendarService
                 episodeName: $episode['episodeName'],
                 seasonNumber: $episode['season'],
                 episodeNumber: $episode['number'],
-                episodeSummary: $episode['summary'],
+                episodeSummary: $this->showPageService->plainText($episode['summary']),
                 type: $episode['type'],
                 airstamp: $episode['airstamp'],
                 image: $episode['image'],
                 networkName: $episode['networkName'],
-                webChannelName:$episode['webChannelName']
+                webChannelName:$episode['webChannelName'],
+                runtime: $episode['runtime'] !== null ? (int) $episode['runtime'] : null
             );
         }, $episodes);
     }

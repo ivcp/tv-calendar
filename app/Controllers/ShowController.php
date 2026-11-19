@@ -157,12 +157,13 @@ class ShowController
             episodeName: $episode->getName(),
             seasonNumber: $episode->getSeason(),
             episodeNumber: $episode->getNumber(),
-            episodeSummary: $episode->getSummary(),
+            episodeSummary: $this->showPageService->plainText($episode->getSummary()),
             type: $episode->getType(),
             airstamp: $episode->getAirstamp()?->format(DATE_ATOM),
             image: $episode->getImageMedium(),
             networkName: $show->getNetworkName(),
-            webChannelName: $show->getWebChannelName()
+            webChannelName: $show->getWebChannelName(),
+            runtime: $episode->getRuntime()
         ))->toArray();
 
         $summary = $this->showPageService->plainText($show->getSummary());

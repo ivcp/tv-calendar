@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping\Column;
 trait HasRuntime
 {
     #[Column(type: 'smallint', options: ['unsigned' => true], nullable: true)]
-    private ?int $runtime;
+    private ?int $runtime = null;
 
     /**
      * Get the value of runtime
