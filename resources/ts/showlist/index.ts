@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const sortBtns = document.querySelectorAll('#sort a');
 
   const user = document.body.dataset.authenticated === 'true';
-  const localShowlist = getLocalShowlist();
+  let localShowlist = getLocalShowlist();
 
   removeButtons.forEach(btn =>
     btn.addEventListener('click', e => {
@@ -58,6 +58,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     const body = result.body;
     if (body) {
+      // Guests send all their IDs in one unfiltered request, and the list is
+      // capped at 10 while the page size is 20, so a single page contains
+      // every surviving show. Any local ID missing from it was deleted
+      // upstream and can be dropped from localStorage.
+      const canReconcile =
+        body.pagination.totalPages === 1 &&
+        (!body.pagination.genre || body.pagination.genre === 'All');
+
+      if (canReconcile) {
+        const existingShowIds = new Set(
+          body.shows.map(show => String(show.id))
+        );
+        const reconciledShowlist = localShowlist.filter(id =>
+          existingShowIds.has(id)
+        );
+
+        if (reconciledShowlist.length !== localShowlist.length) {
+          setLocalShowList(reconciledShowlist);
+          localShowlist = reconciledShowlist;
+        }
+
+        // Keep the rendered count in sync even if a show disappeared between
+        // the server's count query and its shows query.
+        body.pagination.showCount = localShowlist.length;
+      }
+
       body.shows = [...body.shows].sort(
         (a, b) =>
           localShowlist.indexOf(a.id.toString()) -
