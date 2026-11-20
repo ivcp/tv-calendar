@@ -51,6 +51,111 @@ class ShowService
         return $this->entityManager->getRepository(Show::class)->findBy(['tvMazeId' => $ids]);
     }
 
+    /**
+     * Map TVMaze IDs to local show IDs for the cleanup job.
+     *
+     * Streamed row by row to keep memory flat with the full shows table.
+     *
+     * @return array<int, int> tvMazeId => local show id
+     **/
+    public function getTvMazeIdMap(): array
+    {
+        $result = $this->entityManager->getConnection()
+            ->executeQuery('SELECT tv_maze_id, id FROM shows');
+
+        $map = [];
+        while (($row = $result->fetchAssociative()) !== false) {
+            $map[(int) $row['tv_maze_id']] = (int) $row['id'];
+        }
+
+        return $map;
+    }
+
+    /**
+     * Episode and subscription counts for the shows about to be cleaned up.
+     *
+     * @param int[] $showIds
+     * @return array<int, array{id: int|string, tv_maze_id: int|string, name: string, episodes: int|string, subscribers: int|string}>
+     **/
+    public function getShowCleanupDetails(array $showIds): array
+    {
+        $showIds = array_values($showIds);
+
+        if (!$showIds) {
+            return [];
+        }
+
+        $conn = $this->entityManager->getConnection();
+        $rows = [];
+
+        foreach (array_chunk($showIds, 1000) as $chunk) {
+            $rows = array_merge($rows, $conn->executeQuery(
+                'SELECT s.id,
+                        s.tv_maze_id,
+                        s.name,
+                        (SELECT count(*) FROM episodes e WHERE e.show_id = s.id) AS episodes,
+                        (SELECT count(*) FROM users_shows us WHERE us.show_id = s.id) AS subscribers
+                 FROM shows s
+                 WHERE s.id IN (?)',
+                [$chunk],
+                [ArrayParameterType::INTEGER]
+            )->fetchAllAssociative());
+        }
+
+        return $rows;
+    }
+
+    /**
+     * Delete shows together with their episodes and subscriptions.
+     *
+     * Episodes are removed explicitly because episodes.show_id does not
+     * cascade. users_shows.show_id does cascade, but it is deleted explicitly
+     * too so the operation does not depend on the foreign key definition.
+     *
+     * @param int[] $showIds
+     * @return int number of shows deleted
+     **/
+    public function deleteShows(array $showIds): int
+    {
+        $showIds = array_values(array_unique($showIds));
+
+        if (!$showIds) {
+            return 0;
+        }
+
+        $conn = $this->entityManager->getConnection();
+        $deleted = 0;
+
+        foreach (array_chunk($showIds, 200) as $chunk) {
+            $conn->beginTransaction();
+
+            try {
+                $conn->executeStatement(
+                    'DELETE FROM users_shows WHERE show_id IN (?)',
+                    [$chunk],
+                    [ArrayParameterType::INTEGER]
+                );
+                $conn->executeStatement(
+                    'DELETE FROM episodes WHERE show_id IN (?)',
+                    [$chunk],
+                    [ArrayParameterType::INTEGER]
+                );
+                $deleted += (int) $conn->executeStatement(
+                    'DELETE FROM shows WHERE id IN (?)',
+                    [$chunk],
+                    [ArrayParameterType::INTEGER]
+                );
+
+                $conn->commit();
+            } catch (\Throwable $e) {
+                $conn->rollBack();
+                throw $e;
+            }
+        }
+
+        return $deleted;
+    }
+
     public function getShowCount(BackedEnum $genre = Genres::Default, ?string $query = null): int
     {
         $repository = $this->entityManager->getRepository(Show::class);

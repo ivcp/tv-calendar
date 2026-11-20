@@ -462,4 +462,79 @@ class TvMazeServiceTest extends TestCase
         $this->assertSame('test name 2', $shows[1]->name);
         $this->assertSame(100, $shows[0]->weight);
     }
+
+    public function testGetLiveShowIdsUsesTheUnfilteredUpdatesEndpoint(): void
+    {
+        $mock = new MockHandler([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], '{"1": 123, "2": 456}')
+        ]);
+        $history = [];
+        $handlerStack = HandlerStack::create($mock);
+        $handlerStack->push(Middleware::history($history));
+        $client = new Client(['handler' => $handlerStack]);
+
+        $ids = (new TvMazeService($client, 0))->getLiveShowIds();
+
+        $this->assertSame([1, 2], $ids);
+        $this->assertStringEndsWith('/updates/shows', (string) $history[0]['request']->getUri());
+        $this->assertStringNotContainsString('since=', (string) $history[0]['request']->getUri());
+    }
+
+    public function testGetLiveShowIdsReturnsNullOnMalformedJson(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(200, ['Content-Type' => 'application/json; charset=UTF-8'], 'not json'),
+        ]);
+
+        $this->assertNull($tvMazeService->getLiveShowIds());
+    }
+
+    public function testGetLiveShowIdsReturnsNullAfterRetriesExhausted(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+        ]);
+
+        $this->assertNull($tvMazeService->getLiveShowIds());
+    }
+
+    public function testIsShowGoneReturnsTrueOn404(): void
+    {
+        $tvMazeService = $this->getTvMazeService([new Response(404, [], '')]);
+
+        $this->assertTrue($tvMazeService->isShowGone(123));
+    }
+
+    public function testIsShowGoneReturnsFalseOn200(): void
+    {
+        $tvMazeService = $this->getTvMazeService([new Response(200, [], '')]);
+
+        $this->assertFalse($tvMazeService->isShowGone(123));
+    }
+
+    public function testIsShowGoneReturnsNullWhenTheAnswerIsInconclusive(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(429, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+            new Response(500, [], ''),
+        ]);
+
+        $this->assertNull($tvMazeService->isShowGone(123));
+    }
+
+    public function testIsShowGoneRetriesOn429AndSucceeds(): void
+    {
+        $tvMazeService = $this->getTvMazeService([
+            new Response(429, [], ''),
+            new Response(404, [], ''),
+        ]);
+
+        $this->assertTrue($tvMazeService->isShowGone(123));
+        $this->assertSame(1, $tvMazeService->getPause());
+    }
 }

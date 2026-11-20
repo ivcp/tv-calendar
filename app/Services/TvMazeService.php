@@ -64,6 +64,60 @@ class TvMazeService
 
 
     /**
+     * Get the IDs of every show currently in TVMaze's database.
+     *
+     * The unfiltered updates endpoint returns the complete show list in a
+     * single request. Shows that have been deleted upstream disappear from
+     * it, which makes it suitable for detecting stale local rows.
+     *
+     * @return int[]|null null when the request failed
+     **/
+    public function getLiveShowIds(): ?array
+    {
+        $response = $this->request($this->baseUri . '/updates/shows', __METHOD__);
+
+        if (!$response) {
+            return null;
+        }
+
+        $data = json_decode((string)$response->getBody(), true);
+
+        if (!is_array($data)) {
+            $this->logError(__METHOD__, $response->getStatusCode(), 'Malformed updates payload');
+            return null;
+        }
+
+        $ids = [];
+        foreach ($data as $id => $updated) {
+            if (is_int($updated)) {
+                $ids[] = (int) $id;
+            }
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Whether TVMaze reports the show as deleted (HTTP 404).
+     *
+     * @return bool|null null when the answer is inconclusive (transport error, 429, 5xx)
+     **/
+    public function isShowGone(int $tvMazeId): ?bool
+    {
+        $response = $this->request(
+            $this->baseUri . '/shows/' . $tvMazeId,
+            __METHOD__,
+            allowNotFound: true
+        );
+
+        if (!$response) {
+            return null;
+        }
+
+        return $response->getStatusCode() === 404;
+    }
+
+    /**
      * Get shows for provided IDs
      *
      * @return ShowData[]
@@ -175,7 +229,7 @@ class TvMazeService
      * Transport errors are already retried by the Guzzle middleware
      * (see client.retries), so they are not retried again here.
      **/
-    private function request(string $url, string $method): ?ResponseInterface
+    private function request(string $url, string $method, bool $allowNotFound = false): ?ResponseInterface
     {
         for ($attempt = 1; $attempt <= self::MAX_ATTEMPTS; $attempt++) {
             try {
@@ -193,6 +247,12 @@ class TvMazeService
             $status = $response->getStatusCode();
 
             if ($status === 200) {
+                $this->resetPause();
+                return $response;
+            }
+
+            // 404 is a meaningful answer for existence checks, not an error.
+            if ($status === 404 && $allowNotFound) {
                 $this->resetPause();
                 return $response;
             }
