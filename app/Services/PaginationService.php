@@ -94,7 +94,9 @@ class PaginationService
             $localList = array_slice($localList, 0, 10);
         }
 
-        $count = $user ? $this->userShowsService->getShowCount($user, $this->genre) : count($localList);
+        $count = $user
+            ? $this->userShowsService->getShowCount($user, $this->genre)
+            : $this->showService->getShowCountByIds($localList, $this->genre);
         if ($count) {
             $this->totalPages = (int) ceil($count / $this->length);
             $this->showCount = $count;

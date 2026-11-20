@@ -183,6 +183,35 @@ class ShowService
         return $qb->getQuery()->getSingleScalarResult();
     }
 
+    /**
+     * Count existing shows among the given local show IDs, optionally limited
+     * to one genre. Used for guest showlists, where the browser only knows the
+     * IDs and some of them may have been deleted upstream.
+     *
+     * @param int[] $ids
+     **/
+    public function getShowCountByIds(array $ids, BackedEnum $genre = Genres::Default): int
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+
+        if (!$ids) {
+            return 0;
+        }
+
+        $qb = $this->entityManager->getRepository(Show::class)
+            ->createQueryBuilder('c')
+            ->select('count(c.id)')
+            ->where('c.id IN (:ids)')
+            ->setParameter('ids', $ids, ArrayParameterType::INTEGER);
+
+        if ($genre !== Genres::Default) {
+            $qb->andWhere('c.genres LIKE :genre')
+                ->setParameter('genre', '%' . $genre->value . '%');
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
 
     /**
      * Get shows, paginated
