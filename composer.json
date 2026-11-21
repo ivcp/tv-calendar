@@ -2,7 +2,7 @@
   "name": "ivp/www",
   "type": "project",
   "description": "tv calendar app",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "autoload": {
     "psr-4": {
       "App\\": "app/"

@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use App\Contracts\RememberMeInterface;
 use App\Contracts\SessionInterface;
 use App\Middleware\CacheHeadersMiddleware;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -23,7 +24,30 @@ class CacheHeadersMiddlewareTest extends TestCase
         $cacheControl = $response->getHeaderLine('Cache-Control');
 
         $this->assertStringContainsString('public', $cacheControl);
-        $this->assertStringContainsString('s-maxage=3600', $cacheControl);
+        $this->assertStringContainsString('s-maxage=86400', $cacheControl);
+    }
+
+    #[DataProvider('edgeTtlProvider')]
+    public function testItUsesTheExpectedEdgeTtl(string $path, int $ttl): void
+    {
+        $cacheControl = $this->handle('GET', $path, $this->session(false, false), 'text/html; charset=UTF-8')
+            ->getHeaderLine('Cache-Control');
+
+        $this->assertStringContainsString('s-maxage=' . $ttl, $cacheControl);
+    }
+
+    public static function edgeTtlProvider(): array
+    {
+        return [
+            'home' => ['/', 86400],
+            'discover' => ['/discover', 86400],
+            'discover paginated' => ['/discover?page=2&genre=Drama', 86400],
+            'show with slug' => ['/shows/123-some-show', 86400],
+            'show without slug' => ['/shows/123', 86400],
+            'about' => ['/about', 604800],
+            'default' => ['/showlist', 3600],
+            'not a show route' => ['/shows/not-a-number', 3600],
+        ];
     }
 
     public function testItMakesBrowsersRevalidateBeforeReusingAnonymousHtml(): void

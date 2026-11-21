@@ -1,0 +1,26 @@
+tv-calendar
+Copyright (C) 2025 Ivan Perovic
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+Corresponding Source is available at https://github.com/ivcp/tv-calendar
+
+---
+
+LICENSE HISTORY
+
+Releases published before 21 November 2026 (up to and including commit
+d670b16) were made available under the MIT License. Those grants are
+irrevocable for the copies obtained under them and are not affected by this
+notice; the GNU Affero General Public License applies to subsequent versions.

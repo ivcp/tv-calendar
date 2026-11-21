@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Auth;
 use App\Config;
 use App\Contracts\AuthInterface;
+use App\Contracts\CachePurgeInterface;
 use App\Contracts\RememberMeInterface;
 use App\Contracts\RequestValidatorFactoryInterface;
 use App\Contracts\SessionInterface;
@@ -14,6 +15,7 @@ use App\Enum\AppEnvironment;
 use App\Enum\SameSite;
 use App\RememberMe;
 use App\RequestValidators\RequestValidatorFactory;
+use App\Services\CloudflareCacheService;
 use App\Services\EpisodeService;
 use App\Services\ShowService;
 use App\Services\TvMazeService;
@@ -171,6 +173,7 @@ return [
     ),
     ResponseFactoryInterface::class => fn(App $app) => $app->getResponseFactory(),
     AuthInterface::class => fn(ContainerInterface $container) => $container->get(Auth::class),
+    CachePurgeInterface::class => fn(ContainerInterface $container) => $container->get(CloudflareCacheService::class),
     UserProviderServiceInterface::class =>
     fn(ContainerInterface $container) => $container->get(UserProviderService::class),
     RememberMeInterface::class => fn(ContainerInterface $container) => $container->get(RememberMe::class),

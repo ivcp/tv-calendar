@@ -16,6 +16,7 @@ Run PHP tooling inside the `app` container. The host PHP (8.5) differs from the 
 - Doctrine / migrations: `docker exec tv-calendar-app ./bin/doctrine <command>`. After changing entity mappings run `migrations:diff` and commit the generated file in `migrations/`.
 - Frontend: `docker compose run --rm node npm run dev` (or `npm run build`). `public/build` is gitignored and required — Twig's Encore tags fail to render without it.
 - Dev services: app `:8000`, Adminer `:8001`, Mailhog `:8025` (`localhost:1025` SMTP).
+- Cache purge: `docker exec tv-calendar-app php scripts/purgeCache.php update|deploy` (requires `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_API_TOKEN`, and optionally `CLOUDFLARE_HOSTS`).
 
 ## Wiring
 
@@ -26,6 +27,7 @@ Run PHP tooling inside the `app` container. The host PHP (8.5) differs from the 
 - XHR is detected only via `X-Requested-With: XMLHttpRequest` and switches controllers between JSON and Twig responses. The TS layer (`resources/ts/utils/ajax.ts`) sends PATCH/DELETE as POST with `_METHOD` and injects CSRF fields from the `#csrfName` / `#csrfValue` meta tags.
 - Domain: `UpdateService` pulls changed shows/episodes from TVMaze; `Show` 1—N `Episode`; subscriptions use the `UserShows` join entity (carries `notifications_enabled`). Guests keep show IDs in localStorage and send them as the `shows` query param to the calendar endpoint.
 - Notifications: ntfy messages are scheduled through ntfy's HTTP API (`NtfyService` with an admin token); Discord messages are queued in the `notifications` table and delivered by the cron sender. Emails are queued in `emails` and sent by `scripts/sendEmails.php`.
+- Cache invalidation: `CachePurgeService` decides what to purge after a TVMaze sync (home, discover, show pages, sitemap) and after a deploy (all cached content for the configured hosts); purge failures are sent to `webhook_url`. `CloudflareCacheService` implements `CachePurgeInterface`; swap the container binding to change providers. `scripts/update.php` calls it in a `finally`, and `prod.build.sh` runs `scripts/purgeCache.php deploy`.
 - Tests: `tests/Unit` mocks Guzzle with no DB (TvMaze/notification scheduling). `tests/Integration` needs real Postgres/ntfy and uses JSON fixtures in `tests/Integration/`; `phpunit.xml` force-overrides DB/ntfy env for the test containers.
 
 ## Gotchas

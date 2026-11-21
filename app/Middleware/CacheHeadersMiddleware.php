@@ -17,7 +17,13 @@ class CacheHeadersMiddleware implements MiddlewareInterface
     // max-age=0 makes browsers revalidate before reusing the page: without it
     // (and with stale-while-revalidate) Firefox paints the guest copy
     // after login. The edge TTL still comes from s-maxage.
-    private const PUBLIC_CACHE_CONTROL = 'public, max-age=0, s-maxage=3600';
+    private const DEFAULT_EDGE_TTL = 3600;
+    private const SHOW_EDGE_TTL = 86400;
+    private const EDGE_TTL_BY_PATH = [
+        '/' => 86400,
+        '/about' => 604800,
+        '/discover' => 86400,
+    ];
     private const PRIVATE_CACHE_CONTROL = 'private, no-store';
 
     public function __construct(
@@ -51,7 +57,25 @@ class CacheHeadersMiddleware implements MiddlewareInterface
             return $response;
         }
 
-        return $response->withHeader('Cache-Control', self::PUBLIC_CACHE_CONTROL);
+        return $response->withHeader(
+            'Cache-Control',
+            sprintf('public, max-age=0, s-maxage=%d', $this->edgeTtl($request))
+        );
+    }
+
+    private function edgeTtl(ServerRequestInterface $request): int
+    {
+        $path = $request->getUri()->getPath();
+
+        if (isset(self::EDGE_TTL_BY_PATH[$path])) {
+            return self::EDGE_TTL_BY_PATH[$path];
+        }
+
+        if (preg_match('#^/shows/\d+(?:-|$)#', $path) === 1) {
+            return self::SHOW_EDGE_TTL;
+        }
+
+        return self::DEFAULT_EDGE_TTL;
     }
 
     private function isCacheable(ServerRequestInterface $request, ResponseInterface $response): bool
