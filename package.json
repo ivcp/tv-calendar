@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ivp",
-  "license": "ISC",
+  "license": "AGPL-3.0-or-later",
   "description": "",
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",
