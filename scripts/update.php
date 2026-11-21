@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\CachePurgeService;
 use App\Services\UpdateService;
 use Dotenv\Dotenv;
 
@@ -13,5 +14,11 @@ $dotenv->safeLoad();
 
 $container = require CONFIG_PATH . '/container/container.php';
 
+$updateService = $container->get(UpdateService::class);
+$cachePurgeService = $container->get(CachePurgeService::class);
 
-$container->get(UpdateService::class)->run();
+try {
+    $updateService->run();
+} finally {
+    $cachePurgeService->afterUpdate();
+}

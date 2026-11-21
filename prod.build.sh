@@ -34,6 +34,10 @@ msg "Clearing template cache"
 docker exec tv-calendar-cron sh -c 'rm -rf /var/www/storage/cache/templates/*'
 docker exec tv-calendar-app sh -c 'rm -rf storage/cache/templates/*'
 
+msg "Purging cache"
+
+docker exec tv-calendar-app php scripts/purgeCache.php deploy
+
 msg "Removing stale images"
 
 docker image prune -f

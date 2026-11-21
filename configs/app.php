@@ -7,6 +7,20 @@ use App\Enum\AppEnvironment;
 $appEnv = $_ENV['APP_ENV'] ?? AppEnvironment::Production->value;
 $appName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME']));
 
+$appHost = parse_url((string) ($_ENV['APP_URL'] ?? ''), PHP_URL_HOST);
+$cloudflareHosts = array_values(array_filter(array_map(
+    'trim',
+    explode(',', (string) ($_ENV['CLOUDFLARE_HOSTS'] ?? ''))
+)));
+
+if ($cloudflareHosts === [] && is_string($appHost) && $appHost !== '') {
+    $cloudflareHosts = [
+        $appHost,
+        str_starts_with($appHost, 'www.') ? substr($appHost, 4) : 'www.' . $appHost,
+    ];
+    $cloudflareHosts = array_values(array_unique($cloudflareHosts));
+}
+
 return [
     'app_name'              => $_ENV['APP_NAME'],
     'app_url'              => $_ENV['APP_URL'],
@@ -90,6 +104,11 @@ return [
     'turnstile' => [
         'site_key' => $_ENV['TURNSTILE_SITE_KEY'] ?? '',
         'secret_key' => $_ENV['TURNSTILE_SECRET_KEY'] ?? '',
+    ],
+    'cloudflare' => [
+        'zone_id' => $_ENV['CLOUDFLARE_ZONE_ID'] ?? '',
+        'api_token' => $_ENV['CLOUDFLARE_API_TOKEN'] ?? '',
+        'hosts' => $cloudflareHosts,
     ],
     'ntfy' => [
         'base_url' => $_ENV['NTFY_BASE_URL'],
