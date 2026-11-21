@@ -77,7 +77,7 @@ services:
     command: ['postgres', '-c', 'log_statement=all']
 
   adminer:
-    image: adminer
+    image: adminer:6.3.0
     ports:
       - 8001:8080
 

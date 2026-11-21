@@ -82,7 +82,7 @@ services:
           memory: 256M
 
   tv_adminer:
-    image: adminer
+    image: adminer:6.3.0
     networks:
       - tv-internal-network
     restart: always
