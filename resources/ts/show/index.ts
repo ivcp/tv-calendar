@@ -31,7 +31,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!airstamp) {
       continue;
     }
-    el.textContent = new Date(airstamp).toLocaleString('en-US', {
+    const date = new Date(airstamp);
+    if (el.hasAttribute('data-airtime-date-only')) {
+      el.textContent = date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      });
+      continue;
+    }
+    el.textContent = date.toLocaleString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
