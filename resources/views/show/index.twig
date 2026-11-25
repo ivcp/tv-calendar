@@ -416,6 +416,7 @@
         class="surface bg-base-200 rounded-lg px-4 py-4 lg:px-6 flex flex-col gap-2"
       >
         {% if nextEpisode %}
+        {% set streamingOnly = show.networkName is empty and show.webChannelName is not empty %}
         <div
           class="flex items-center justify-between gap-4 text-xs uppercase tracking-wide text-base-content/60"
         >
@@ -445,8 +446,10 @@
             <span>{{ nextEpisode.networkName ?? nextEpisode.webChannelName }}</span>
             <span aria-hidden="true">·</span>
             {% endif %}
-            <time data-airtime datetime="{{ nextEpisode.airstamp }}"
-              >{{ nextEpisode.airstamp | date('M j, Y') }}</time
+            <time
+              data-airtime{{ streamingOnly ? ' data-airtime-date-only' : '' }}
+              datetime="{{ nextEpisode.airstamp }}"
+              >{{ nextEpisode.airstamp | date(streamingOnly ? 'F j, Y' : 'M j, Y') }}</time
             >
           </div>
         </div>
